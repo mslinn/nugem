@@ -2,9 +2,7 @@ require 'thor'
 require 'yaml'
 
 module Nugem
-  class Cli < Thor
-    include Thor::Actions
-
+  class Cli
     no_tasks do # rubocop:disable Metrics/BlockLength
       def create_local_git_repository
         puts set_color('Creating the local git repository', :green)

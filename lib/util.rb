@@ -12,6 +12,17 @@ module Nugem
     end
   end
 
+  def self.validate_gem_name(gem_name)
+    require 'rubygems'
+    spec = Gem::Specification.new { |s| s.name = gem_name }
+    policy = Gem::SpecificationPolicy.new spec
+    policy.send :validate_name
+    true
+  rescue Gem::InvalidSpecificationException => e
+    puts "Invalid gem name '#{gem_name}': #{e.message}"
+    false
+  end
+
   # The following methods are not required at present ... but they might be needed one day, so not deleting yet
 
   # @param file must be a fully qualified file name

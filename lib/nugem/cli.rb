@@ -64,7 +64,6 @@ module Nugem
     end
 
     require_relative 'cli/cli_jekyll'
-    require_relative 'cli/cli_rails'
 
     no_tasks do # rubocop:disable Metrics/BlockLength
       def count_todos(filename)
