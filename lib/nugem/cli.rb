@@ -7,9 +7,7 @@ require_relative 'cli/cli_gem'
 # This file defines the common aspects of the Thor class.
 # The cli/ directory contains class extensions specific to each Thor subcommand.
 module Nugem
-  class Cli < Thor
-    include Thor::Actions
-
+  class Cli
     # These declarations make the class instance variable values available as an accessor,
     # which is necessary to name template files that are named '%variable_name%.extension'.
     # See https://www.rubydoc.info/gems/thor/Thor/Actions#directory-instance_method
