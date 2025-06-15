@@ -1,6 +1,5 @@
-require:
+plugins:
   - rubocop-md
-  - rubocop-minitest
   - rubocop-performance
   - rubocop-rake
   - rubocop-rspec

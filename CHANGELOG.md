@@ -8,7 +8,8 @@
 * Jekyll gems are now
   [structured for better testability](https://mslinn.com/jekyll/10700-designing-for-testability.html).
 * Added `spec.platform` to `templates/common/gem_scaffold/%gem_name%.gemspec.tt`
-  because `RubyGems.org` now requires it
+  because `RubyGems.org` now requires .
+* Very little of the original code from `creategem` remains.
 
 
 ## 0.9.0

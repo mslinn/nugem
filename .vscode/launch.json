@@ -7,7 +7,7 @@
     {
       "env": {},
       "name": "Debug nugem jekyll jekyll_collection_index",
-      "program": "ruby ${workspaceFolder}/exe/nugem jekyll jekyll_collection_index --tag=ensure_last_modified_set --private --out_dir=/tmp/nugem",
+      "program": "ruby ${workspaceFolder}/exe/nugem jekyll --tag=ensure_last_modified_set --private --out_dir=/tmp/nugem jekyll_collection_index",
       "request": "launch",
       "type": "ruby_lsp",
     },
@@ -16,7 +16,7 @@
         "VO_DEBUGGING": "true"
       },
       "name": "Run exe/nugem help",
-      "program": "${workspaceFolder}/exe/nugem help",
+      "program": "${workspaceFolder}/exe/nugem -h",
       "request": "launch",
       "type": "ruby_lsp"
     },
@@ -25,7 +25,7 @@
         "VO_DEBUGGING": "true"
       },
       "name": "Run exe/nugem help gem",
-      "program": "${workspaceFolder}/exe/nugem help gem",
+      "program": "${workspaceFolder}/exe/nugem -h gem",
       "request": "launch",
       "type": "ruby_lsp"
     },
@@ -34,14 +34,14 @@
         "VO_DEBUGGING": "true"
       },
       "name": "Run exe/nugem help jekyll",
-      "program": "${workspaceFolder}/exe/nugem help jekyll",
+      "program": "${workspaceFolder}/exe/nugem -h jekyll",
       "request": "launch",
       "type": "ruby_lsp"
     },
     {
       "env": {"VO_DEBUGGING": "true"},
       "name": "Run exe/nugem gem test",
-      "program": "${workspaceFolder}/exe/nugem gem -o /tmp test --yes",
+      "program": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
       "request": "launch",
       "type": "ruby_lsp"
     },
