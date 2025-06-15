@@ -1,9 +1,14 @@
 # Change Log
 
-## 0.9.1 (in progress)
+## 1.0.0 / 2025-06-14
 
-* Jekyll gems are now [structured for better testability](https://mslinn.com/jekyll/10700-designing-for-testability.html).
-* Added `spec.platform` to `templates/common/gem_scaffold/%gem_name%.gemspec.tt` because `RubyGems.org` now requires it
+* Rails support has been removed.
+* Geminabox support has been removed.
+* `OptionParser` is now used instead of `Thor` for command line options.
+* Jekyll gems are now
+  [structured for better testability](https://mslinn.com/jekyll/10700-designing-for-testability.html).
+* Added `spec.platform` to `templates/common/gem_scaffold/%gem_name%.gemspec.tt`
+  because `RubyGems.org` now requires it
 
 
 ## 0.9.0

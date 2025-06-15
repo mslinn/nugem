@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.bindir                = 'exe'
   spec.description = <<~END_DESC
     Nugem creates a scaffold project for new gems. You can choose between Github and Bitbucket,
-    Rubygems or Geminabox, with or without an executable, etc.
+    with or without an executable, and options can be specified.
   END_DESC
   spec.email                 = ['igor@masterybits.com', 'mslinn@mslinn.com']
   spec.executables           = %w[nugem]
@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
                                   '*.gemspec',
                                   '*.md'
                                 ]
-  spec.homepage              = 'https://github.com/mslinn/nugem'
+  spec.homepage              = 'https://www.mslinn.com/ruby/6800-nugem.html'
   spec.license               = 'MIT'
   spec.metadata = {
     'allowed_push_host' => 'https://rubygems.org',
@@ -38,7 +38,9 @@ Gem::Specification.new do |spec|
   spec.summary               = 'Nugem creates a scaffold project for new gems.'
   spec.version               = Nugem::VERSION
 
+  spec.add_dependency 'colorizer'
+  spec.add_dependency 'highline'
   spec.add_dependency 'jekyll'
+  spec.add_dependency 'optparse'
   spec.add_dependency 'rugged'
-  spec.add_dependency 'thor'
 end

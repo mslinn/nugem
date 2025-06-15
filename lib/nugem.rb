@@ -1,4 +1,5 @@
-require 'thor'
+require 'colorizer'
+require 'highline'
 require_relative 'util'
 
 Signal.trap('INT') { exit }
@@ -8,8 +9,6 @@ module Nugem
   def self.dest_root(out_dir, gem_name)
     File.expand_path "#{out_dir}/#{gem_name}"
   end
-
-  FEATURE_GEMINABOX = false
 end
 
 require_relative 'nugem/git'

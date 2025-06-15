@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
+require 'highline'
 require 'open3'
-require 'thor'
 
 module NugemDemo
   def self.run(command, input)
-    shell = Thor::Shell::Color.new
+    shell = HighLine.new
     shell.say command, :yellow
     Open3.popen3(command) do |stdin, stdout, stderr, thread|
       Thread.new do
@@ -29,7 +29,7 @@ module NugemDemo
     def initialize
       # FileUtils.rm_rf 'demo'
 
-      @shell = Thor::Shell::Color.new
+      @shell = HighLine.new
 
       gem_type = ARGV[0] || 'jekyll'
       @gem_type = @shell.ask 'Type of gem to test.', :green, default:    gem_type,
@@ -43,9 +43,6 @@ module NugemDemo
 
       when 'jekyll'
         jekyll_info
-
-      when 'rails'
-        abort 'TODO: Write rails demo'
       end
     end
 

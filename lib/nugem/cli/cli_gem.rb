@@ -1,9 +1,7 @@
-require 'thor'
+require 'optparse'
 
 module Nugem
-  class Cli < Thor
-    include Thor::Actions
-
+  class Cli
     desc 'gem NAME', 'Creates a new gem scaffold.'
 
     long_desc <<~END_DESC
@@ -22,11 +20,10 @@ module Nugem
       super if gem_name.empty?
 
       @executable = options[:executable]
-      @host           = options[:host] # FIXME: conflicts with @host in create_gem_scaffold()
-      @out_dir        = options[:out_dir]
-      @private        = options[:private]
-      @test_framework = options[:test_framework]
-      @yes            = options[:yes]
+      @host       = options[:host] # FIXME: conflicts with @host in create_gem_scaffold()
+      @out_dir    = options[:out_dir]
+      @private    = options[:private]
+      @yes        = options[:yes]
 
       @dir = Nugem.dest_root @out_dir, gem_name
 
@@ -43,11 +40,10 @@ module Nugem
       @module_name = "#{@class_name}Module"
       @host       = options[:bitbucket] ? :bitbucket : :github # FIXME: conflicts with @host in gem()
       @repository = Nugem::Repository.new(
-        host:           @host,
-        user:           git_repository_user_name(@host),
-        name:           @gem_name,
-        gem_server_url: gem_server_url(@private),
-        private:        @private
+        host:    @host,
+        name:    @gem_name,
+        private: @private,
+        user:    git_repository_user_name(@host)
       )
       puts set_color("Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@dir}.", :green)
       exclude_pattern = case @test_framework

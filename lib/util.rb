@@ -1,6 +1,9 @@
 module Nugem
   def self.camel_case(str)
-    Thor::Util.camel_case str.tr('-', '_')
+    str.tr('-', '_')
+      .split('_')
+      .map(&:capitalize)
+      .join
   end
 
   def self.expand_env(str)
