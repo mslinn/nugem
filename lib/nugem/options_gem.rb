@@ -1,9 +1,42 @@
 require 'fileutils'
 
 module Nugem
-  class Options
-    VERBOSITY = %w[trace debug verbose info warning error fatal panic quiet].freeze
+  VERBOSITY = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
+  def self.help(msg = nil)
+    printf "Error: #{msg}\n\n".yellow unless msg.nil?
+    msg = <<~END_HELP
+      nugem: Creates scaffolding for a plain gem or a Jekyll gem.
+
+      nugem gem NAME        # Creates a new gem scaffold.
+      nugem jekyll NAME     # Creates a new Jekyll plugin scaffold.
+
+      Options can be placed anywhere on the command line.
+      The following options are always available:
+
+        -o OUT_DIR, --out-dir=OUT_DIR        # Output directory for the gem. Default: ~/nugem_generated
+        -e, --executable                     # Include an executable for the gem. Default: false
+        -h HOST, --host=HOST                 # Repository host. Default: github
+                                             # Possible values: bitbucket, github, gitlab
+        -p, --private                        # Publish the gem to a private repository. Default: false
+        -y, --yes                            # Answer yes to all questions. Default: false
+        -v VERBOSITY, --verbosity VERBOSITY  # Possible values: #{VERBOSITY.join ', '}. Default: info
+        -t, --todos                          # Generate TODO: messages in generated code. Default: true
+
+      The following options are only available for Jekyll gems and canbe invoked multiple times:
+        --block=BLOCK                                         # Specifies the name of a Jekyll block tag.
+        --blockn=BLOCKN                                       # Specifies the name of a Jekyll no-arg block tag.
+        --filter=FILTER                                       # Specifies the name of a Jekyll/Liquid filter module.
+        --generator=GENERATOR                                 # Specifies a Jekyll generator.
+        --hooks=HOOKS                                         # Specifies Jekyll hooks.
+        --tag=TAG                                             # Specifies the name of a Jekyll tag.
+        --tagn=TAGN                                           # Specifies the name of a Jekyll no-arg tag.
+    END_HELP
+    printf msg.cyan
+    exit 1
+  end
+
+  class Options
     def initialize
       @default_options = {
         executable: false,
