@@ -35,20 +35,10 @@ module Nugem
     test_option 'rspec'
 
     def jekyll(gem_name)
-      # options is frozen, so it cannot be modified.
-      # extracted values are ignored in the case statement below instead.
-      @host           = options['host']
-      @out_dir        = options['out_dir']
-      @private        = options['private']
-      @test_framework = options['test_framework']
-      @todos          = options['todos']
-      @yes            = options['yes']
-
       @gem_name   = gem_name
       @dir        = Nugem.dest_root @out_dir, @gem_name
       @class_name = Nugem.camel_case @gem_name
       @jekyll     = true
-      @rspec      = true
 
       create_plain_scaffold @gem_name
       create_jekyll_scaffold
@@ -61,7 +51,6 @@ module Nugem
         when 'tag'       then option[1].each { |name| create_jekyll_tag_scaffold          name }
         when 'tagn'      then option[1].each { |name| create_jekyll_tag_no_arg_scaffold   name }
         when 'hooks'     then create_jekyll_hooks_scaffold option[1]
-        when 'host', 'executable', 'out_dir', 'private', 'test_framework', 'todos', 'quiet' then next
         else puts "Warning: Unrecognized option: #{option}"
         end
       end
@@ -69,22 +58,19 @@ module Nugem
       initialize_repository @gem_name
     end
 
-    no_commands do
-      # Invoked by directory action when processing Jekyll tags and block tags
-      def parse_jekyll_parameters
-        content = @jekyll_parameter_names_types.map do |name, _type|
-          "@#{name} = @helper.parameter_specified?('#{name}') || nil # Obtain the value of parameter #{name}"
-        end
-        content.join "\n      "
+    # Invoked by directory action when processing Jekyll tags and block tags
+    def parse_jekyll_parameters
+      content = @jekyll_parameter_names_types.map do |name, _type|
+        "@#{name} = @helper.parameter_specified?('#{name}') || nil # Obtain the value of parameter #{name}"
       end
+      content.join "\n      "
 
-      # Invoked by directory action when processing Jekyll tags and block tags
-      def dump_jekyll_parameters
-        content = @jekyll_parameter_names_types.map do |name, _type|
-          "@#{name}='\#{@#{name}}'"
-        end
-        content.join "\n          "
+    # Invoked by directory action when processing Jekyll tags and block tags
+    def dump_jekyll_parameters
+      content = @jekyll_parameter_names_types.map do |name, _type|
+        "@#{name}='\#{@#{name}}'"
       end
+      content.join "\n          "
     end
 
     private

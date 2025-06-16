@@ -47,7 +47,7 @@ module Nugem
       case host
       when :github
         `git config --get user.name`.strip
-      when :bitbucket
+      when :bitbucket 
         `git config --get user.name`.strip
       else
         raise ArgumentError, "Unknown host: #{host}"

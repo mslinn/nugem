@@ -6,4 +6,4 @@ else
   require 'nugem'
 end
 
-Nugem::Cli.start
+Nugem::Options.new.parse_options

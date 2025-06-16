@@ -1,4 +1,4 @@
-require 'colorizer'
+require 'colorize'
 require 'highline'
 
 def require_subdirectory(dir)
