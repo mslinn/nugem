@@ -1,11 +1,14 @@
-require 'colorize'
-
 module Nugem
   def self.camel_case(str)
     str.tr('-', '_')
       .split('_')
       .map(&:capitalize)
       .join
+  end
+
+  # @return Path to the generated gem
+  def self.dest_root(out_dir, gem_name)
+    File.expand_path "#{out_dir}/#{gem_name}"
   end
 
   def self.expand_env(str)

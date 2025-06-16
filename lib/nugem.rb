@@ -1,17 +1,15 @@
 require 'colorizer'
 require 'highline'
-require_relative 'util'
 
-Signal.trap('INT') { exit }
-
-module Nugem
-  # @return Path to the generated gem
-  def self.dest_root(out_dir, gem_name)
-    File.expand_path "#{out_dir}/#{gem_name}"
+def require_subdirectory(dir)
+  Dir[File.join(dir, '*.rb')].each do |file|
+    require file unless file == __FILE__
   end
 end
 
-require_relative 'nugem/git'
-require_relative 'nugem/cli'
-require_relative 'nugem/repository'
-require_relative 'nugem/version'
+require_subdirectory File.realpath(__dir__) # Require all Ruby files in 'lib/', except this file
+Pathname(__dir__).children.select(&:directory?).each do |directory|
+  require_subdirectory directory.to_s
+end
+
+Signal.trap('INT') { exit }
