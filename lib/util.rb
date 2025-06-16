@@ -1,3 +1,5 @@
+require 'colorize'
+
 module Nugem
   def self.camel_case(str)
     str.tr('-', '_')
@@ -19,7 +21,7 @@ module Nugem
     policy.send :validate_name
     true
   rescue Gem::InvalidSpecificationException => e
-    puts "Invalid gem name '#{gem_name}': #{e.message}"
+    puts "Invalid gem name '#{gem_name}': #{e.message}".red
     false
   end
 

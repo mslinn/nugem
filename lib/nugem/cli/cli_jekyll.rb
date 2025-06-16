@@ -2,9 +2,7 @@ require_relative '../cli'
 require_relative 'jekyll_demo'
 
 module Nugem
-  class Cli < Thor # rubocop:disable Metrics/ClassLength
-    include Thor::Actions
-
+  class # rubocop:disable Metrics/ClassLength
     attr_accessor :class_name, :filter_params, :trailing_args, :trailing_dump, :trailing_params
 
     desc 'jekyll NAME', 'Creates a new Jekyll plugin scaffold.'
