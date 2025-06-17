@@ -2,7 +2,7 @@ require_relative '../cli'
 require_relative 'jekyll_demo'
 
 module Nugem
-  class # rubocop:disable Metrics/ClassLength
+  class Cli # rubocop:disable Metrics/ClassLength
     attr_accessor :class_name, :filter_params, :trailing_args, :trailing_dump, :trailing_params
 
     desc 'jekyll NAME', 'Creates a new Jekyll plugin scaffold.'
@@ -64,6 +64,7 @@ module Nugem
         "@#{name} = @helper.parameter_specified?('#{name}') || nil # Obtain the value of parameter #{name}"
       end
       content.join "\n      "
+    end
 
     # Invoked by directory action when processing Jekyll tags and block tags
     def dump_jekyll_parameters
@@ -103,7 +104,8 @@ module Nugem
       puts set_color("Creating Jekyll block tag #{@block_name} scaffold within #{@jekyll_class_name}", :green)
       @mute = true
       directory 'jekyll/block_scaffold', @dir, force: true, mode: :preserve
-      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html", Cli.add_demo_example(block_name, @jekyll_parameter_names_types, :block)
+      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html",
+                     Cli.add_demo_example(block_name, @jekyll_parameter_names_types, :block)
     end
 
     def create_jekyll_block_no_arg_scaffold(block_name)
@@ -112,7 +114,8 @@ module Nugem
       puts set_color("Creating Jekyll block tag no_arg #{@block_name} scaffold within #{@jekyll_class_name}", :green)
       @mute = true
       directory 'jekyll/block_no_arg_scaffold', @dir, force: true, mode: :preserve
-      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html", Cli.add_demo_example(block_name, @jekyll_parameter_names_types, :block)
+      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html",
+                     Cli.add_demo_example(block_name, @jekyll_parameter_names_types, :block)
     end
 
     def create_jekyll_filter_scaffold(filter_name)
@@ -120,7 +123,8 @@ module Nugem
       @filter_name = filter_name
       @jekyll_class_name = Nugem.camel_case filter_name
       prompt = set_color('Jekyll filters have at least one input. ' \
-                         "What are the names of additional inputs for #{filter_name}, if any?", :green)
+                         "What are the names of additional inputs for #{filter_name}, if any?",
+                         :green)
       @filter_params = ask(prompt)
                          .split(/[ ,\t]/)
                          .reject(&:empty?)
@@ -136,7 +140,8 @@ module Nugem
       directory 'jekyll/filter_scaffold', @dir, force: true, mode: :preserve
 
       tp = ': ' + @filter_params.map { |x| "'#{x}_value'" }.join(', ') unless @filter_params.empty?
-      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html", Cli.add_filter_example(filter_name, tp)
+      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html",
+                     Cli.add_filter_example(filter_name, tp)
       # rubocop:enable Style/StringConcatenation
     end
 
@@ -162,7 +167,8 @@ module Nugem
       puts set_color("Creating Jekyll tag no_arg #{@tag_name} scaffold within #{@jekyll_class_name}", :green)
       @mute = true
       directory 'jekyll/tag_no_arg_scaffold', @dir, force: true, mode: :preserve
-      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html", Cli.add_demo_example(tag_name, @jekyll_parameter_names_types, :tag)
+      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html",
+                     Cli.add_demo_example(tag_name, @jekyll_parameter_names_types, :tag)
     end
 
     def create_jekyll_tag_scaffold(tag_name)
@@ -174,7 +180,8 @@ module Nugem
       @mute = true
       # puts set_color("@jekyll_parameter_names_types=#{@jekyll_parameter_names_types}", :yellow)
       directory 'jekyll/tag_scaffold', @dir, force: true, mode: :preserve
-      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html", Cli.add_demo_example(tag_name, @jekyll_parameter_names_types, :tag)
+      append_to_file "#{Nugem.dest_root @out_dir, gem_name}/demo/index.html",
+                     Cli.add_demo_example(tag_name, @jekyll_parameter_names_types, :tag)
     end
   end
 end

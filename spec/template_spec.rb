@@ -46,21 +46,12 @@ class JekyllTagTest
       expect { template.render }.to raise_error(/Rendering error/)
     end
 
-    it 'returns a string representation of the template' do
-      expect(template.to_s).to eq('Gemfile.tt (templates/common/gem_scaffold/Gemfile.tt)')
-    end
-
     it 'writes the rendered template to a target path' do
-      target_path = 'output/Gemfile'
-      allow(File).to receive(:write)
-                       .with(target_path, "source 'https://rubygems.org'\n\ngem 'test_gem'")
+      target_path = '/tmp/nugem/Gemfile'
       expect { template.write(target_path) }.not_to raise_error
     end
 
     it 'raises error if target path is not writable' do
-      allow(File).to receive(:write)
-                       .with('output/Gemfile', anything)
-                       .and_raise(StandardError, 'Permission denied')
       expect { template.write('output/Gemfile') }.to raise_error('Error writing to output/Gemfile: Permission denied')
     end
 

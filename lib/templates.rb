@@ -52,10 +52,6 @@ module Templates
       raise "Error rendering template #{@path}: #{e.message}"
     end
 
-    def to_s
-      "#{@name} (#{@path})"
-    end
-
     def write(target_path)
       destination = "#{target_path}/#{@path}"
       File.write(destination, render)
