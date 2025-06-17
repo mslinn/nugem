@@ -11,8 +11,8 @@ module Nugem
       nugem gem NAME        # Creates a new gem scaffold.
       nugem jekyll NAME     # Creates a new Jekyll plugin scaffold.
 
-      Options can be placed anywhere on the command line.
-      The following options are always available:
+      Options must be placed before the two positional parameters shown above.
+      The following options are available for all gem types:
 
         -o OUT_DIR, --out-dir=OUT_DIR        # Output directory for the gem. Default: ~/nugem_generated
         -e, --executable                     # Include an executable for the gem. Default: false
@@ -23,14 +23,14 @@ module Nugem
         -v VERBOSITY, --verbosity VERBOSITY  # Possible values: #{VERBOSITY.join ', '}. Default: info
         -t, --todos                          # Generate TODO: messages in generated code. Default: true
 
-      The following options are only available for Jekyll gems and canbe invoked multiple times:
-        --block=BLOCK                                         # Specifies the name of a Jekyll block tag.
-        --blockn=BLOCKN                                       # Specifies the name of a Jekyll no-arg block tag.
-        --filter=FILTER                                       # Specifies the name of a Jekyll/Liquid filter module.
-        --generator=GENERATOR                                 # Specifies a Jekyll generator.
-        --hooks=HOOKS                                         # Specifies Jekyll hooks.
-        --tag=TAG                                             # Specifies the name of a Jekyll tag.
-        --tagn=TAGN                                           # Specifies the name of a Jekyll no-arg tag.
+      The following options are only available for Jekyll gems and can be invoked multiple times:
+        --block=BLOCK           # Specifies the name of a Jekyll block tag.
+        --blockn=BLOCKN         # Specifies the name of a Jekyll no-arg block tag.
+        --filter=FILTER         # Specifies the name of a Jekyll/Liquid filter module.
+        --generator=GENERATOR   # Specifies a Jekyll generator.
+        --hooks=HOOKS           # Specifies Jekyll hooks.
+        --tag=TAG               # Specifies the name of a Jekyll tag.
+        --tagn=TAGN             # Specifies the name of a Jekyll no-arg tag.
     END_HELP
     printf msg.cyan
     exit 1
