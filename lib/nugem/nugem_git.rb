@@ -1,8 +1,11 @@
-require 'thor'
 require 'yaml'
+
+require_relative '../highline_wrappers'
 
 module Nugem
   class Nugem
+    include HighlineWrappers
+
     def create_local_git_repository
       puts set_color('Creating the local git repository', :green)
       run 'git init'

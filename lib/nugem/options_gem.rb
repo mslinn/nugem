@@ -37,6 +37,8 @@ module Nugem
   end
 
   class Options
+    include HighlineWrappers
+
     def initialize
       @attribute_name = 'plain'
 

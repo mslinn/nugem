@@ -27,6 +27,4 @@ module Nugem
       exit 2
     end
   end
-
-  ::Nugem.run_me
 end
