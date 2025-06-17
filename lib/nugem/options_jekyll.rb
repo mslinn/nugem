@@ -1,6 +1,10 @@
 module Nugem
   class JekyllOptions < Options
     def initialize
+      super
+
+      @attribute_name = 'jekyll'
+
       jekyll_default_options = {
         gem_type: :jekyll,
       }

@@ -38,6 +38,8 @@ module Nugem
 
   class Options
     def initialize
+      @attribute_name = 'plain'
+
       @default_options = {
         executable: false,
         gem_type:   :plain,
@@ -49,6 +51,19 @@ module Nugem
         todos:      true,
         yes:        false,
       }
+    end
+
+    # Defines a new attribute called `prop_name` in object `obj` and sets it to `prop_value`
+    def attribute_new(prop_name, prop_value)
+      obj = self.class.module_eval { attr_accessor @attribute_name } # idempotent
+      obj.class.module_eval { attr_accessor prop_name }
+      obj.instance_variable_set :"@#{prop_name}", prop_value
+    end
+
+    # Defines sub-attributes for the object attribute called @attribute_name
+    # @param hash simple name/value pairs, nothing nested
+    def attributes_from_hash(hash)
+      hash.each { |key, value| attribute_new key, value }
     end
 
     def parse_options
@@ -81,16 +96,15 @@ module Nugem
           puts "Output directory set to '#{dir}'."
           options[:out_dir] = dir
         end
-        parser.on('-lLOGLEVEL', '--loglevel', VERBOSITY,  'Logging level')
-        parser.on('-p',         '--private',  FalseClass, 'Publish the gem to a private repository')
-        parser.on('-t',         '--todos',    TrueClass,  'Generate TODO: messages in generated code')
-        parser.on('-y',         '--yes',      FalseClass, 'Answer yes to all questions')
+        parser.on '-lLOGLEVEL', '--loglevel', VERBOSITY,  'Logging level'
+        parser.on '-p',         '--private',  FalseClass, 'Publish the gem to a private repository'
+        parser.on '-t',         '--todos',    TrueClass,  'Generate TODO: messages in generated code'
+        parser.on '-y',         '--yes',      FalseClass, 'Answer yes to all questions'
 
         parser.on_tail('-h', '--help', 'Show this message') do
           help
         end
-      end.order!(into: options)
-
+      end.order! into: options
       options
     end
 
