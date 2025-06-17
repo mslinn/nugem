@@ -13,7 +13,7 @@ module Nugem
 
   def self.run_me
     pp = ::Nugem.positional_parameters
-    help if pp.empty?
+    ::Nugem.help if pp.empty?
     gem_type = pp.first
     case gem_type
     when 'gem'

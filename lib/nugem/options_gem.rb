@@ -4,7 +4,7 @@ module Nugem
   VERBOSITY = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
   def self.help(msg = nil)
-    printf "Error: #{msg}\n\n".yellow unless msg.nil?
+    printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
       nugem: Creates scaffolding for a plain gem or a Jekyll gem.
 
