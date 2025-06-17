@@ -4,9 +4,9 @@ def require_directory(dir)
   end
 end
 
-<%- if @jekyll -%>
+<% if @jekyll %>
 require 'jekyll'
 require 'jekyll_plugin_logger'
 require 'jekyll_plugin_support'
-<%- end -%>
+<% end %>
 require_directory __dir__

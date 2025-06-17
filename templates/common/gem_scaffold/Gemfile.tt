@@ -12,9 +12,9 @@ group :test, :development do
   gem 'rubocop-md', require: false
   gem 'rubocop-performance', require: false
   gem 'rubocop-rake', require: false
-  <%- if @rspec -%>
+  <% if @rspec %>
   gem 'rubocop-rspec', require: false
-  <%- end -%>
+  <% end %>
 end
 
 group :test do

@@ -35,9 +35,8 @@ module Templates
       @requires_expansion = path.end_with? '.tt'
 
       raise ArgumentError, 'Binding must be a valid binding object' unless @binding.is_a?(Binding)
-      raise ArgumentError, 'Name must be a non-empty string' unless @name.is_a?(String) && !@name.empty?
       raise ArgumentError, 'Path must be a non-empty string' unless @path.is_a?(String) && !@path.empty?
-      raise ArgumentError, 'Path must point to a valid file' unless File.file?(@path)
+      raise ArgumentError, "Path '#{@path}' does not exist" unless File.file?(@path)
     end
 
     def render

@@ -1,15 +1,15 @@
-<%- if @repository.public? -%>
+<% if @repository.public? %>
 # `<%= gem_name.capitalize %>` [![Gem Version](https://badge.fury.io/rb/<%= gem_name %>.svg)](https://badge.fury.io/rb/<%= gem_name %>)
-<%- else -%>
+<% else %>
 # `<%= gem_name.capitalize %>`
-<%- end -%>
+<% end %>
 
 <%= @todo %>Description of <%= @class_name %>
 
 
 ## Installation
 
-<%- if @jekyll -%>
+<% if @jekyll %>
 Add the following to your Jekyll website's `Gemfile`:
 
 ```ruby
@@ -17,8 +17,8 @@ group :jekyll_plugins do
   gem '<%= @gem_name %>'
 end
 ```
-<%- end -%>
-<%- unless @jekyll -%>
+<% end %>
+<% unless @jekyll %>
 Either add this line to your application&rsquo;s `Gemfile`:
 
 ```ruby
@@ -30,7 +30,7 @@ gem '<%= @gem_name %>'
 ```ruby
 spec.add_dependency '<%= @gem_name %>'
 ```
-<%- end -%>
+<% end %>
 
 And then execute:
 
@@ -83,7 +83,7 @@ $ bundle exec rake install
 ### To Release A New Version
 
 To create a git tag for the new version, push git commits and tags,
-and push the new version of the gem to <%= @repository.gem_server_url -%>, type:
+and push the new version of the gem to <%= @repository.gem_server_url %>, type:
 
 ```shell
 $ bundle exec rake release
@@ -95,8 +95,8 @@ $ bundle exec rake release
 Bug reports and pull requests are welcome at <%= @repository.url %>.
 
 
-<%- if @repository.public? -%>
+<% if @repository.public? %>
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-<%- end -%>
+<% end %>

@@ -19,17 +19,17 @@ if [[ -z "$( which bundle )" ]]; then gem install bundler; fi
 export BUNDLE_WITH="development"
 bundle
 
-<%- if @jekyll -%>
+<% if @jekyll %>
 bundle binstubs jekyll --force --path binstub
-<%- end -%>
+<% end %>
 # See https://www.honeybadger.io/blog/rbenv-rubygems-bundler-path/
 # See https://linuxtut.com/visual-studio-code-i-get-a-syntax-error-when-debugging-when-using-rbenv-6ee58/
 for X in debug rake rspec-core rubocop; do
   bundle binstubs "$X" --force --path binstub
 done
 
-<%- if @jekyll -%>
+<% if @jekyll %>
 if [ "$1" != nodemo ]; then demo/_bin/setup; fi
-<%- end -%>
+<% end %>
 
 # Do any other automated setup that you need to do here

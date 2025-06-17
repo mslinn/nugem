@@ -1,17 +1,17 @@
 require_relative 'lib/<%= @gem_name %>/version'
 
 Gem::Specification.new do |spec|
-  <%- if @repository.github? -%>
+  <% if @repository.github? %>
   host = 'https://github.com/<%= @repository.user %>/<%= @gem_name %>'
-  <%- else -%>
+  <% else %>
   host = 'https://bitbucket.com/<%= @repository.user %>/<%= @gem_name %>'
-  <%- end -%>
+  <% end %>
 
   spec.authors               = ['<%= @repository.user_name %>']
-  <%- if @executable -%>
+  <% if @executable %>
   spec.bindir                = 'exe'
   spec.executables           = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  <%- end -%>
+  <% end %>
   spec.description           = <<~END_DESC
     <%= @todo %>Write a longer description of the gem.
     Use as many lines as you like.
@@ -19,17 +19,17 @@ Gem::Specification.new do |spec|
   spec.email                 = ['<%= @repository.user_email %>']
   spec.files                 = Dir['.rubocop.yml', 'LICENSE.*', 'Rakefile', '{lib,spec}/**/*', '*.gemspec', '*.md']
   spec.homepage              = '<%= @repository.url %>'
-  <%- if @repository.public? -%>
+  <% if @repository.public? %>
   spec.license               = 'MIT'
-  <%- end -%>
+  <% end %>
   spec.metadata = {
     'allowed_push_host' => '<%= @repository.gem_server_url %>',
-  <%- unless @repository.private? -%>
+  <% unless @repository.private? %>
     'bug_tracker_uri'   => "#{host}/issues",
     'changelog_uri'     => "#{host}/CHANGELOG.md",
     'homepage_uri'      => spec.homepage,
     'source_code_uri'   => host,
-  <%- end -%>
+  <% end %>
   }
   spec.name                 = '<%= @gem_name %>'
   spec.platform              = Gem::Platform::RUBY
@@ -42,18 +42,18 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.1.0'
   spec.summary               = '<%= @todo %>Write summary of what the gem is for'
   spec.version               = <%= @class_name %>::VERSION
-  <%- if @geminabox -%>
+  <% if @geminabox %>
   spec.add_dependency 'geminabox', '>= 2.2.1'
-  <%- end -%>
-  <%- if @jekyll -%>
+  <% end %>
+  <% if @jekyll %>
   spec.add_dependency 'jekyll', '>= 3.5.0'
   spec.add_dependency 'jekyll_plugin_support', '>= 1.0.3'
-  <%- end -%>
-  <%- if @rails -%>
+  <% end %>
+  <% if @rails %>
   spec.add_dependency 'rails', '~> 7.0.5'
-  <%- end -%>
-  <%- if @executable -%>
+  <% end %>
+  <% if @executable %>
   spec.add_dependency 'colorator'
   spec.add_dependency 'optparse'
-  <%- end -%>
+  <% end %>
 end
