@@ -17,10 +17,10 @@ module Nugem
     gem_type = pp.first
     case gem_type
     when 'gem'
-      nugem = Nugem::Options.new
+      nugem = Options.new
       nugem.parse_options
     when 'jekyll'
-      nugem = Nugem::JekyllOptions.new
+      nugem = JekyllOptions.new
       nugem.parse_options
     else
       puts "Error: unrecognized gem type '#{gem_type}'."
