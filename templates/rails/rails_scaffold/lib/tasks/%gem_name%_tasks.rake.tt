@@ -1,4 +1,0 @@
-# desc "Explain what this task does"
-# task :<%= @gem_name %> do
-#   # Task goes here
-# end

@@ -1,7 +1,0 @@
-module <%= @class_name %>
-  class Engine < ::Rails::Engine
-  <%- if @mountable -%>
-    isolate_namespace <%= @class_name %>
-  <%- end %>
-  end
-end

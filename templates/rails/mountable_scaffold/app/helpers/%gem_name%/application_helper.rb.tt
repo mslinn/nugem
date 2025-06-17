@@ -1,4 +1,0 @@
-module <%= @class_name %>
-  module ApplicationHelper
-  end
-end

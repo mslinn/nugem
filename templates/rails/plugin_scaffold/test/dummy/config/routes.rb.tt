@@ -1,5 +1,0 @@
-Rails.application.routes.draw do
-<%- if @mountable -%>
-  mount <%= @class_name %>::Engine => "/<%= @gem_name %>"
-<%- end -%>
-end

@@ -57,6 +57,15 @@ module Templates
       "#{@name} (#{@path})"
     end
 
+    def write(target_path)
+      destination = "#{target_path}/#{@path}"
+      File.write(destination, render)
+    rescue Errno::EACCES => e
+      raise "Permission denied when writing expanded template to #{destination}. Error: #{e.message}"
+    rescue StandardError => e
+      raise "Error writing expanded template to #{destination}: #{e.message}"
+    end
+
     def ==(other)
       other.is_a?(Template) && @path == other.path
     end

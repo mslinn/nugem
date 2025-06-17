@@ -10,36 +10,12 @@ group :test, :development do
   gem 'rspec', require: false
   gem 'rubocop', require: false
   gem 'rubocop-md', require: false
-  <%- if @minitest -%>
-  gem 'rubocop-minitest', require: false
-  <%- end -%>
   gem 'rubocop-performance', require: false
   gem 'rubocop-rake', require: false
   <%- if @rspec -%>
   gem 'rubocop-rspec', require: false
   <%- end -%>
 end
-<%- if @rails -%>
-
-group :test, :development do
-  gem 'capybara', '~> 3.39.1', require: false
-  gem 'capybara_minitest_spec', '~> 1.0.7', require: false
-  <%- if @repository.public? -%>
-  gem 'coveralls', require: false
-  <%- end -%>
-  gem 'database_cleaner', '~> 2.0.2', require: false
-  gem 'erb_lint', require: false
-  <%- if @minitest -%>
-  gem 'minitest', '>= 5.18.0', require: false
-  gem 'minitest-reporters', '>= 1.6.0', require: false
-  gem 'minitest-screenshot-reporter', '~> 0.0.6', require: false
-  <%- end -%>
-  gem 'poltergeist', '~> 1.10.1', require: false
-  gem 'quiet_assets'
-  gem 'selenium-webdriver', '~> 4.9.1', require: false
-  gem 'sqlite3'
-  end
-<%- end -%>
 
 group :test do
   gem 'rspec-match_ignoring_whitespace'
