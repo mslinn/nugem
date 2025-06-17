@@ -1,4 +1,4 @@
-require_relative '../lib/nugem/cli/cli_jekyll'
+require_relative 'spec_helper'
 
 class JekyllTagTest
   RSpec.describe ::Nugem::Cli do

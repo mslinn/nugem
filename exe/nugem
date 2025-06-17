@@ -16,15 +16,17 @@ module Nugem
     help if pp.empty?
     gem_type = pp.first
     case gem_type
-    when 'plain'
+    when 'gem'
       nugem = Nugem::Options.new
       nugem.parse_options
     when 'jekyll'
       nugem = Nugem::JekyllOptions.new
       nugem.parse_options
     else
-      puts "Error: unrecognized gem type #{gem_type}."
+      puts "Error: unrecognized gem type '#{gem_type}'."
       exit 2
     end
   end
 end
+
+Nugem.run_me

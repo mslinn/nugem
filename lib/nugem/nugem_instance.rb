@@ -45,9 +45,7 @@ module Nugem
 
     def git_repository_user_name(host)
       case host
-      when :github
-        `git config --get user.name`.strip
-      when :bitbucket 
+      when :bitbucket | :github
         `git config --get user.name`.strip
       else
         raise ArgumentError, "Unknown host: #{host}"
@@ -103,7 +101,7 @@ module Nugem
       puts "Copying files from #{source} to #{destination} with options: #{options.inspect}"
       # Actual implementation would go here, using FileUtils or similar
       # For now, just simulating the action
-      FileUtils.mkdir_p(destination) unless Dir.exist?(destination)
+      FileUtils.mkdir_p(destination)
       puts 'Files copied successfully.' # Simulated success message
     rescue StandardError => e
       puts "Error copying files: #{e.message}".red

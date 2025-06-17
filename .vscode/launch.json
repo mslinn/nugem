@@ -5,95 +5,124 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "env": {},
-      "name": "Debug nugem jekyll jekyll_collection_index",
-      "program": "ruby ${workspaceFolder}/exe/nugem jekyll --tag=ensure_last_modified_set --private --out_dir=/tmp/nugem jekyll_collection_index",
-      "request": "launch",
-      "type": "ruby_lsp",
-    },
-    {
-      "env": {
-        "VO_DEBUGGING": "true"
-      },
-      "name": "Run exe/nugem help",
-      "program": "${workspaceFolder}/exe/nugem -h",
-      "request": "launch",
-      "type": "ruby_lsp"
-    },
-    {
-      "env": {
-        "VO_DEBUGGING": "true"
-      },
-      "name": "Run exe/nugem help gem",
-      "program": "${workspaceFolder}/exe/nugem -h gem",
-      "request": "launch",
-      "type": "ruby_lsp"
-    },
-    {
-      "env": {
-        "VO_DEBUGGING": "true"
-      },
-      "name": "Run exe/nugem help jekyll",
-      "program": "${workspaceFolder}/exe/nugem -h jekyll",
-      "request": "launch",
-      "type": "ruby_lsp"
-    },
-    {
-      "env": {"VO_DEBUGGING": "true"},
-      "name": "Run exe/nugem gem test",
-      "program": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
-      "request": "launch",
-      "type": "ruby_lsp"
-    },
-    {
-      "name": "Run bin/demo gem test",
-      "program": "${workspaceFolder}/bin/demo gem test",
-      "request": "launch",
-      "type": "ruby_lsp"
-    },
-    {
-      "name": "Run bin/demo jekyll",
-      "program": "${workspaceFolder}/bin/demo jekyll",
-      "request": "launch",
-      "type": "ruby_lsp"
-    },
-    {
-      "name": "Run bin/build_run_demo",
-      "program": "${workspaceFolder}/bin/build_run_demo",
-      "request": "launch",
-      "type": "ruby_lsp"
-    },
-    {
-      "name": "Attach ruby_lsp",
-      "request": "attach",
-      "type": "ruby_lsp",
-    },
-    {
-      "args": [],
       "debugPort": "0",
-      "name": "Debug current file with rdbg",
-      "script": "${file}",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Debug nugem jekyll test",
+      "script": "${workspaceFolder}/exe/nugem jekyll --tag=tag1 --private --out_dir=/tmp/nugem test",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
     },
     {
       "debugPort": "0",
-      "name": "Attach with rdbg",
-      "request": "attach",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run exe/nugem help",
+      "script": "${workspaceFolder}/exe/nugem -h",
+      "request": "launch",
       "type": "rdbg",
+      "useBundler": true,
     },
     {
-      "name": "RSpec - active spec file only",
-      "program": "${workspaceFolder}/binstub/rspec -I ${workspaceFolder} ${file}",
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run exe/nugem gem -h",
+      "script": "${workspaceFolder}/exe/nugem gem -h",
       "request": "launch",
-      "type": "ruby_lsp",
+      "type": "rdbg",
+      "useBundler": true,    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run exe/nugem jekyll -h",
+      "script": "${workspaceFolder}/exe/nugem jekyll -h",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
     },
     {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run exe/nugem gem test",
+      "script": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run bin/demo gem test",
+      "script": "${workspaceFolder}/bin/demo gem test",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run bin/demo jekyll",
+      "script": "${workspaceFolder}/bin/demo jekyll",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run bin/build_run_demo",
+      "script": "${workspaceFolder}/bin/build_run_demo",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "args": [
+        "-I",
+        "${workspaceRoot}/lib",
+        "-I",
+        "${workspaceRoot}/spec",
+        "-P",
+        "${workspaceRoot}/spec/**/*_spec.rb"
+      ],
+      "cwd": "${workspaceRoot}/demo",
+      "debugPort": "0",
       "name": "RSpec - all",
-      "program": "${workspaceFolder}/binstub/rspec -I ${workspaceFolder}",
       "request": "launch",
-      "type": "ruby_lsp",
+      "script": "${workspaceRoot}/binstub/rspec",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "args": [
+        "-I",
+        "${workspaceRoot}/lib",
+        "-I",
+        "${workspaceRoot}/spec",
+        "${file}"
+      ],
+      "cwd": "${workspaceRoot}/demo",
+      "debugPort": "0",
+      "name": "RSpec - active spec only",
+      "request": "launch",
+      "script": "${workspaceRoot}/binstub/rspec",
+      "type": "rdbg",
+      "useBundler": true,
     }
   ]
 }
