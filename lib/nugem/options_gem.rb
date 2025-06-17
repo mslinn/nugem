@@ -104,20 +104,20 @@ module Nugem
         parser.on '-y',         '--yes',      FalseClass, 'Answer yes to all questions'
 
         parser.on_tail('-h', '--help', 'Show this message') do
-          help
+          ::Nugem.help
         end
       end.order! into: options
       options
     end
 
     def parse_positional_parameters(label = 'gem')
-      help("The type and name of the #{label} to create was not specfied.") if ARGV.empty?
-      help('Invalid syntax.') if ARGV.length > 2
+      ::Nugem.help("The type and name of the #{label} to create was not specfied.") if ARGV.empty?
+      ::Nugem.help('Invalid syntax.') if ARGV.length > 2
 
       @options[:gem_type] = ARGV[0]
       @options[:gem_name] = ARGV[1]
 
-      help("Invalid #{@options[:gem_type]} name.") unless Nugem.validate_gem_name(@options[:gem_name])
+      ::Nugem.help("Invalid #{@options[:gem_type]} name.") unless Nugem.validate_gem_name(@options[:gem_name])
     end
   end
 end

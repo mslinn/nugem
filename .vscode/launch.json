@@ -32,7 +32,7 @@
         "VO_DEBUGGING": "true"
       },
       "name": "Run exe/nugem gem -h",
-      "script": "${workspaceFolder}/exe/nugem gem -h",
+      "script": "${workspaceFolder}/exe/nugem -h gem",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,    },
@@ -42,7 +42,7 @@
         "VO_DEBUGGING": "true"
       },
       "name": "Run exe/nugem jekyll -h",
-      "script": "${workspaceFolder}/exe/nugem jekyll -h",
+      "script": "${workspaceFolder}/exe/nugem -h jekyll",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
