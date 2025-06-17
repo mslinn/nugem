@@ -65,45 +65,43 @@ module Nugem
 
     require_relative 'cli/cli_jekyll'
 
-    no_tasks do # rubocop:disable Metrics/BlockLength
-      def count_todos(filename)
-        filename_fq = "#{Nugem.dest_root @out_dir, gem_name}/#{filename}"
-        content = File.read filename_fq
-        content.scan('TODO').length
+    def count_todos(filename)
+      filename_fq = "#{Nugem.dest_root @out_dir, gem_name}/#{filename}"
+      content = File.read filename_fq
+      content.scan('TODO').length
+    end
+
+    def initialize_repository(gem_name)
+      Dir.chdir Nugem.dest_root(@out_dir, gem_name) do
+        # puts set_color("Working in #{Dir.pwd}", :green)
+        run 'chmod +x bin/*'
+        run 'chmod +x exe/*' if @executable
+        create_local_git_repository
+        FileUtils.rm_f 'Gemfile.lock'
+        # puts set_color("Running 'bundle'", :green)
+        # run 'bundle', abort_on_failure: false
+        create_repo = @yes || yes?(set_color("Do you want to create a repository on #{@repository.host.camel_case} named #{gem_name}? (y/N)",
+                                             :green))
+        create_remote_git_repository @repository if create_repo
+      end
+      puts set_color("The #{gem_name} gem was successfully created.", :green)
+      puts set_color('Remember to run bin/setup in the new gem directory', :green)
+      report_todos gem_name
+    end
+
+    def report_todos(gem_name)
+      gemspec_todos = count_todos "#{gem_name}.gemspec"
+      readme_todos  = count_todos 'README.md'
+      if readme_todos.zero? && gemspec_todos.zero?
+        puts set_color("There are no TODOs. You can run 'bundle' from within your new gem project now.", :blue)
+        return
       end
 
-      def initialize_repository(gem_name)
-        Dir.chdir Nugem.dest_root(@out_dir, gem_name) do
-          # puts set_color("Working in #{Dir.pwd}", :green)
-          run 'chmod +x bin/*'
-          run 'chmod +x exe/*' if @executable
-          create_local_git_repository
-          FileUtils.rm_f 'Gemfile.lock'
-          # puts set_color("Running 'bundle'", :green)
-          # run 'bundle', abort_on_failure: false
-          create_repo = @yes || yes?(set_color("Do you want to create a repository on #{@repository.host.camel_case} named #{gem_name}? (y/N)",
-                                               :green))
-          create_remote_git_repository @repository if create_repo
-        end
-        puts set_color("The #{gem_name} gem was successfully created.", :green)
-        puts set_color('Remember to run bin/setup in the new gem directory', :green)
-        report_todos gem_name
-      end
-
-      def report_todos(gem_name)
-        gemspec_todos = count_todos "#{gem_name}.gemspec"
-        readme_todos  = count_todos 'README.md'
-        if readme_todos.zero? && gemspec_todos.zero?
-          puts set_color("There are no TODOs. You can run 'bundle' from within your new gem project now.", :blue)
-          return
-        end
-
-        msg = 'Please complete'
-        msg << " the #{gemspec_todos} TODOs in #{gem_name}.gemspec" if gemspec_todos.positive?
-        msg << ' and' if gemspec_todos.positive? && readme_todos.positive?
-        msg << " the #{readme_todos} TODOs in README.md." if readme_todos.positive?
-        puts set_color(msg, :yellow)
-      end
+      msg = 'Please complete'
+      msg << " the #{gemspec_todos} TODOs in #{gem_name}.gemspec" if gemspec_todos.positive?
+      msg << ' and' if gemspec_todos.positive? && readme_todos.positive?
+      msg << " the #{readme_todos} TODOs in README.md." if readme_todos.positive?
+      puts set_color(msg, :yellow)
     end
   end
 end

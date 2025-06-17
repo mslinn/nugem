@@ -1,7 +1,5 @@
 module Nugem
-  class Cli < Thor
-    include Thor::Actions
-
+  class Cli
     def self.combinations(params)
       (0..params.length).flat_map do |n|
         params.combination(n).map do |param|
