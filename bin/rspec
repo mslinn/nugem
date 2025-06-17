@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Run all rspec tests
+
+DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd "$DIR/../" || exit
+bundle exec rspec \
+  -I ../lib \
+  -I ../spec \
+  -P ../spec/**/*_spec.rb
