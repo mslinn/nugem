@@ -1,5 +1,6 @@
 require 'colorize'
-require 'highline/import'
+
+require_relative 'highline_wrappers'
 
 def require_subdirectory(dir)
   Dir[File.join(dir, '*.rb')].each do |file|

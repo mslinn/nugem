@@ -11,30 +11,6 @@ module Nugem
     File.expand_path "#{out_dir}/#{gem_name}"
   end
 
-  def yes_no?(prompt = 'Continue?', default: true)
-    a = ''
-    s = default ? '[Y/n]' : '[y/N]'
-    d = default ? 'y' : 'n'
-    until %w[y n].include? a # rubocop:disable Performance/CollectionLiteralInLoop
-      a = ask("#{prompt} #{s} ") do |q|
-        q.limit = 1
-        q.case = :downcase
-      end
-      a = d if a.empty?
-    end
-    a == 'y'
-  end
-
-  # Invokes yes_no? with the default answer being 'no'
-  def no?(prompt = 'Continue?')
-    yes_no? prompt, default: false
-  end
-
-  # Invokes yes_no? with the default answer being 'yes'
-  def yes?(prompt = 'Continue?')
-    yes_no? prompt, default: true
-  end
-
   def self.expand_env(str)
     str.gsub(/\$([a-zA-Z_][a-zA-Z0-9_]*)|\${\g<1>}|%\g<1>%/) do
       ENV.fetch(Regexp.last_match(1), nil)
