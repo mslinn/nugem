@@ -1,6 +1,6 @@
 module Nugem
-  class Cli
-    def self.combinations(params)
+  module DemoExample
+    def combinations(params)
       (0..params.length).flat_map do |n|
         params.combination(n).map do |param|
           next [] if param.empty?
@@ -19,7 +19,7 @@ module Nugem
       end
     end
 
-    def self.add_demo_example(tag, params, tag_type = :tag)
+    def add(tag, params, tag_type = :tag)
       last_tag = ''
       examples = combinations(params).map do |option|
         options = option.join ' '

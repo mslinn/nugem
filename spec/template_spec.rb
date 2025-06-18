@@ -5,10 +5,10 @@ class JekyllTagTest
   @gem_name = 'test_gem'
   @rspec = true
   the_binding = binding
-  template = Templates::Template.new(the_binding, 'templates/common/gem_scaffold/Gemfile.tt')
-  template2 = Templates::Template.new(the_binding, 'templates/common/gem_scaffold/.shellcheckrc')
+  template = ERBTemplates::Template.new(the_binding, 'templates/common/gem_scaffold/Gemfile.tt')
+  template2 = ERBTemplates::Template.new(the_binding, 'templates/common/gem_scaffold/.shellcheckrc')
 
-  RSpec.describe Templates::Template do
+  RSpec.describe ERBTemplates::Template do
     it 'initializes with valid parameters' do
       expect(template.name).to eq('Gemfile.tt')
       expect(template.path).to eq('templates/common/gem_scaffold/Gemfile.tt')

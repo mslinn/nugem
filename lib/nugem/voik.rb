@@ -1,11 +1,8 @@
 require 'fileutils'
 require 'rugged'
-require_relative 'git'
-require_relative 'cli/cli_gem'
 
-# Nugem::Cli is a Thor class that is invoked when a user runs a nugem executable.
-# This file defines the common aspects of the Thor class.
-# The cli/ directory contains class extensions specific to each Thor subcommand.
+# Nugem::Cli is a class that is invoked when a user runs a nugem executable.
+# This file defines the common aspects of the class.
 module Nugem
   class Cli
     # These declarations make the class instance variable values available as an accessor,
@@ -17,7 +14,7 @@ module Nugem
 
     check_unknown_options!
 
-    class_option :out_dir, type: :string, default: 'generated',
+    class_option :out_dir, type: :string, default: Dir.home,
                  desc: 'Output directory for the gem.', aliases: :o
 
     class_option :executable, type: :boolean, default: false,

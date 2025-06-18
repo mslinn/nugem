@@ -1,7 +1,7 @@
 require_relative 'spec_helper'
 
 class JekyllTagTest
-  RSpec.describe ::Nugem::Cli do
+  RSpec.describe ::Nugem::DemoExample do
     it 'tests tag option combinations' do
       params = [
         %w[option1 string],
@@ -34,7 +34,7 @@ class JekyllTagTest
       ]
       expect(actual).to eq(expected)
 
-      actual = described_class.add_demo_example 'my_tag', params, :tag
+      actual = described_class.add 'my_tag', params, :tag
       expected = <<~END_EX
         <!-- #region my_tag  -->
         <h2 id="my_tag">my_tag </h2>
