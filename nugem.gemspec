@@ -39,6 +39,7 @@ Gem::Specification.new do |spec|
   spec.version               = Nugem::VERSION
 
   spec.add_dependency 'colorizer'
+  spec.add_dependency 'gem_support'
   spec.add_dependency 'highline'
   spec.add_dependency 'jekyll'
   spec.add_dependency 'optparse'

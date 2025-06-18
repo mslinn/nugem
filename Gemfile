@@ -3,6 +3,13 @@ source 'https://rubygems.org'
 # Runtime gem dependencies are specified in nugem.gemspec
 gemspec
 
+gem_support = ENV.fetch('gem_support', nil)
+unless gem_support
+  puts "Environment variable 'gem_support' is not set. Please set it to the path of the gem_support gem."
+  exit 1
+end
+gem 'gem_support', path: gem_support
+
 group :development do
   gem 'bump'
   gem 'erb_lint'
