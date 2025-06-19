@@ -2,7 +2,7 @@ require 'colorize'
 
 def require_subdirectory(dir)
   Dir[File.join(dir, '*.rb')].each do |file|
-    require file unless file == __FILE__
+    require_relative file unless file == __FILE__
   end
 end
 

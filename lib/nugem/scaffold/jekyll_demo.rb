@@ -1,6 +1,6 @@
 module Nugem
-  module DemoExample
-    def combinations(params)
+  module JekyllDemo
+    def self.combinations(params)
       (0..params.length).flat_map do |n|
         params.combination(n).map do |param|
           next [] if param.empty?
@@ -19,9 +19,9 @@ module Nugem
       end
     end
 
-    def add(tag, params, tag_type = :tag)
+    def self.add(tag, params, tag_type = :tag)
       last_tag = ''
-      examples = combinations(params).map do |option|
+      examples = JekyllDemo.combinations(params).map do |option|
         options = option.join ' '
         label = options.empty? ? ' (invoked without parameters)' : options
         close_tag = case tag_type

@@ -1,12 +1,14 @@
-require_relative 'spec_helper'
-require_relative '../lib/templates'
+require 'rspec/match_ignoring_whitespace'
 
-class JekyllTagTest
+require_relative 'spec_helper'
+require_relative '../lib/nugem'
+
+class TemplateTest
   @gem_name = 'test_gem'
   @rspec = true
   the_binding = binding
-  template = ERBTemplates::Template.new(the_binding, 'templates/common/gem_scaffold/', 'Gemfile.tt')
-  template2 = ERBTemplates::Template.new(the_binding, 'templates/common/gem_scaffold/', '.shellcheckrc')
+  template = ERBTemplates::Template.new(the_binding, 'common/gem_scaffold/', 'Gemfile.tt')
+  template2 = ERBTemplates::Template.new(the_binding, 'common/gem_scaffold/', '.shellcheckrc')
 
   RSpec.describe ERBTemplates::Template do
     it 'initializes with valid parameters' do

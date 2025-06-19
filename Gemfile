@@ -20,3 +20,7 @@ group :test, :development do
   gem 'rake', require: false
   gem 'rspec', require: false
 end
+
+group :test do
+  gem 'rspec-match_ignoring_whitespace'
+end

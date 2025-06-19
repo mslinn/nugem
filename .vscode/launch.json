@@ -69,12 +69,9 @@
     },
     {
       "args": [
-        "-I",
-        "${workspaceRoot}/lib",
-        "-I",
-        "${workspaceRoot}/spec",
-        "-P",
-        "${workspaceRoot}/spec/**/*_spec.rb"
+        "-I", "${workspaceRoot}/lib",
+        "-I", "${workspaceRoot}/spec",
+        "-P", "${workspaceRoot}/spec/**/*_spec.rb"
       ],
       "debugPort": "0",
       "name": "RSpec - all",
@@ -85,10 +82,8 @@
     },
     {
       "args": [
-        "-I",
-        "${workspaceRoot}/lib",
-        "-I",
-        "${workspaceRoot}/spec",
+        "-I", "${workspaceRoot}/lib",
+        "-I", "${workspaceRoot}/spec",
         "${file}"
       ],
       "debugPort": "0",
