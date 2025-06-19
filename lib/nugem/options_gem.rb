@@ -1,6 +1,7 @@
 require 'fileutils'
 
 module Nugem
+  HOSTS = %w[github gitlab bitbucket].freeze
   VERBOSITY = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
   def self.help(msg = nil)
@@ -17,7 +18,7 @@ module Nugem
         -o OUT_DIR, --out-dir=OUT_DIR        # Output directory for the gem. Default: ~/nugem_generated
         -e, --executable                     # Include an executable for the gem. Default: false
         -h HOST, --host=HOST                 # Repository host. Default: github
-                                             # Possible values: bitbucket, github, gitlab
+                                             # Possible values: #{HOSTS.join ', '}
         -p, --private                        # Publish the gem to a private repository. Default: false
         -y, --yes                            # Answer yes to all questions. Default: false
         -v VERBOSITY, --verbosity VERBOSITY  # Possible values: #{VERBOSITY.join ', '}. Default: info
