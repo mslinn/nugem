@@ -13,13 +13,16 @@ Gem::Specification.new do |spec|
   spec.executables           = %w[nugem]
   spec.files                 = Dir[
                                   '.rubocop.yml',
+                                  '.rspec',
+                                  '.shellcheckrc',
                                   'Gemfile',
                                   'LICENSE.*',
                                   'Rakefile',
-                                  '{lib,spec,templates}/**/*',
+                                  '{exe,lib,spec,templates}/**/*',
                                   'templates/**/.*',
                                   'templates/**/.*/*',
                                   '*.gemspec',
+                                  '*.json',
                                   '*.md'
                                 ]
   spec.homepage              = 'https://www.mslinn.com/ruby/6800-nugem.html'
