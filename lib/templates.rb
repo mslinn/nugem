@@ -20,7 +20,7 @@ module ERBTemplates
   def self.template_directory(subdir = '')
     raise ArgumentError, 'Subdirectory must be a string' unless subdir.is_a?(String)
 
-    gem_dir = File.join ::GemSupport.current_spec(__dir__)
+    gem_dir = ::GemSupport.current_spec(__dir__)
     if gem_dir # Running from a gem
       gem_dir.full_gem_path('templates', subdir)
     else # Not running from a gem; compute the local templates subdirectory

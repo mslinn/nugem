@@ -132,7 +132,7 @@ module Dumpers
     else
       logger.info { "site.config['env'] is undefined" }
     end
-    site.collections.each do |key, _|
+    site.collections.each_key do |key|
       logger.info { "site.collections.#{key}" }
     end
 
@@ -144,7 +144,7 @@ module Dumpers
     site.data.sort.each { |key, value| logger.info { "  site.data.#{key} = '#{value}'" } }
 
     logger.info { "site.documents has #{site.documents.length} entries." }
-    site.documents.each { |key, _value| logger.info "site.documents.#{key}" }
+    site.documents.each_key { |key| logger.info "site.documents.#{key}" }
 
     logger.info do
       <<~END_INFO
@@ -154,10 +154,10 @@ module Dumpers
       END_INFO
     end
 
-    site.pages.each { |key, _value| logger.info "site.pages.#{key}" }
+    site.pages.each_key { |key| logger.info "site.pages.#{key}" }
 
     logger.info { "site.posts has #{site.posts.docs.length} entries." }
-    site.posts.docs.each { |key, _value| logger.info "site.posts.docs.#{key}" }
+    site.posts.docs.each_key { |key| logger.info "site.posts.docs.#{key}" }
 
     logger.info { "site.tags has #{site.tags.length} entries." }
     site.tags.sort.each { |key, value| logger.info { "site.tags.#{key} = '#{value}'" } }

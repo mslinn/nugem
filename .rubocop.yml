@@ -65,7 +65,9 @@ Metrics/PerceivedComplexity:
 
 Naming/FileName:
   Exclude:
+    - CHANGELOG.md
     - Rakefile
+    - README.md
 
 Style/Documentation:
   Enabled: false
