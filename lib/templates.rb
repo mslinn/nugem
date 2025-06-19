@@ -1,4 +1,5 @@
 require 'erb'
+require 'gem_support'
 
 # Methods to mix in to other modules or classes for handling ERB templates.
 # This module provides methods to manage templates, including loading,
@@ -10,15 +11,30 @@ require 'erb'
 #     puts template.render
 #   end
 module ERBTemplates
+  # Returns the path to the templates directory.
+  # If a subdirectory is specified, it returns the path to that subdirectory within.
+  #  # @param subdir [String] Optional subdirectory within the templates directory.
+  #   If not provided, defaults to an empty string, which returns the main templates directory.
+  # Assumes the working directory is the root of the project if not running from a gem.
   # @return [String] Path to the templates directory, or the specified subdirectory within it.
-  def template_directory(subdir = '')
-    File.join current_spec.full_gem_path, 'templates', subdir
+  def self.template_directory(subdir = '')
+    raise ArgumentError, 'Subdirectory must be a string' unless subdir.is_a?(String)
+
+    gem_dir = File.join ::GemSupport.current_spec(__dir__)
+    if gem_dir # Running from a gem
+      gem_dir.full_gem_path('templates', subdir)
+    else # Not running from a gem; compute the local templates subdirectory
+      path = File.join(Dir.pwd, 'templates', subdir)
+      raise 'Templates directory not found' unless Dir.exist?(path)
+
+      path
+    end
   end
 
   # @return [Array<String>] List of all files in the templates directory
-  def template_files(subdir = '')
+  def self.template_files(subdir = '')
     Dir
-      .entries(template_directory(subdir))
+      .entries(ERBTemplates.template_directory(subdir))
       .select { |f| File.file? f }
   end
 
@@ -35,7 +51,7 @@ module ERBTemplates
       @offset = offset
       @relative_path = relative_path
       @requires_expansion = relative_path.end_with? '.tt'
-      @source_path = File.join(template_directory, @offset, @relative_path)
+      @source_path = File.join(ERBTemplates.template_directory, @offset, @relative_path)
 
       raise ArgumentError, "Path '#{@source_path}' does not exist" unless File.file?(@source_path)
     end

@@ -1,4 +1,5 @@
 require_relative 'spec_helper'
+require_relative '../lib/nugem/scaffold/jekyll_demo'
 
 class JekyllTagTest
   RSpec.describe ::Nugem::DemoExample do
