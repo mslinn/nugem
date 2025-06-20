@@ -38,7 +38,7 @@ class JekyllTagTest
       expect(actual).to eq(expected)
 
       actual = described_class.add 'my_tag', params, :tag
-      puts actual.yellow
+      # puts actual.yellow
       expected = <<~END_EX
         <h2 id="tag_my_tag" class='code'>my_tag</h2>
         <!-- #region my_tag  (invoked without parameters) -->
@@ -46,28 +46,40 @@ class JekyllTagTest
         {% my_tag  %}
         <!-- endregion -->
 
-        <!-- #region my_tag  (invoked without parameters) --->
-        <h2 id="my_tag">my_tag option1='somevalue'</h2>
+        <!-- #region my_tag option1='somevalue' -->
+        <h3 id="my_tag" class="code">my_tag option1='somevalue'</h3>
         {% my_tag option1='somevalue' %}
         <!-- endregion -->
 
-        <h2 id="my_tag">my_tag option2</h2>
+        <!-- #region my_tag option2 -->
+        <h3 id="my_tag" class="code">my_tag option2</h3>
         {% my_tag option2 %}
+        <!-- endregion -->
 
-        <h2 id="my_tag">my_tag option3=1234</h2>
+        <!-- #region my_tag option3=1234 -->
+        <h3 id="my_tag" class="code">my_tag option3=1234</h3>
         {% my_tag option3=1234 %}
+        <!-- endregion -->
 
-        <h2 id="my_tag">my_tag option1='somevalue' option2</h2>
+        <!-- #region my_tag option1='somevalue' option2 -->
+        <h3 id="my_tag" class="code">my_tag option1='somevalue' option2</h3>
         {% my_tag option1='somevalue' option2 %}
+        <!-- endregion -->
 
-        <h2 id="my_tag">my_tag option1='somevalue' option3=1234</h2>
+        <!-- #region my_tag option1='somevalue' option3=1234 -->
+        <h3 id="my_tag" class="code">my_tag option1='somevalue' option3=1234</h3>
         {% my_tag option1='somevalue' option3=1234 %}
+        <!-- endregion -->
 
-        <h2 id="my_tag">my_tag option2 option3=1234</h2>
+        <!-- #region my_tag option2 option3=1234 -->
+        <h3 id="my_tag" class="code">my_tag option2 option3=1234</h3>
         {% my_tag option2 option3=1234 %}
+        <!-- endregion -->
 
-        <h2 id="my_tag">my_tag option1='somevalue' option2 option3=1234</h2>
+        <!-- #region my_tag option1='somevalue' option2 option3=1234 -->
+        <h3 id="my_tag" class="code">my_tag option1='somevalue' option2 option3=1234</h3>
         {% my_tag option1='somevalue' option2 option3=1234 %}
+        <!-- endregion -->
       END_EX
       expect(actual).to match_ignoring_whitespace(expected)
     end
