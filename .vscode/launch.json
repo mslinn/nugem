@@ -73,12 +73,12 @@
         "-I", "${workspaceRoot}/spec",
         "-P", "${workspaceRoot}/spec/**/*_spec.rb"
       ],
+      "askParameters": false,
       "debugPort": "0",
       "name": "RSpec - all",
       "request": "launch",
       "script": "${workspaceRoot}/binstub/rspec",
       "type": "rdbg",
-      "useBundler": true,
     },
     {
       "args": [

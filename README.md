@@ -286,6 +286,22 @@ The above will create a git tag for the version, push git commits and tags,
 and push the `.gem` file to https://rubygems.org.
 
 
+### Tests
+
+Run all tests with:
+
+```shell
+$ bin/rspec
+```
+
+Run a specific test file with:
+
+```shell
+$ bin/rspec spec/template_spec.rb
+```
+
+
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/mslinn/nugem.
