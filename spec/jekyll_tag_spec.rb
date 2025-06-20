@@ -38,7 +38,6 @@ class JekyllTagTest
       expect(actual).to eq(expected)
 
       actual = described_class.add 'my_tag', params, :tag
-      # puts actual.yellow
       expected = <<~END_EX
         <h2 id="tag_my_tag" class='code'>my_tag</h2>
         <!-- #region my_tag  (invoked without parameters) -->
