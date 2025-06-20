@@ -7,8 +7,8 @@ class TemplateTest
   @gem_name = 'test_gem'
   @rspec = true
   the_binding = binding
-  template = ERBTemplates::Template.new(the_binding, 'common/gem_scaffold/', 'Gemfile.tt')
-  template2 = ERBTemplates::Template.new(the_binding, 'common/gem_scaffold/', '.shellcheckrc')
+  template = ERBTemplates::Template.new(the_binding, 'common/gem_scaffold', 'Gemfile.tt')
+  template2 = ERBTemplates::Template.new(the_binding, 'common/gem_scaffold', '.shellcheckrc')
 
   RSpec.describe ERBTemplates::Template do
     it 'initializes with valid parameters' do
@@ -17,18 +17,21 @@ class TemplateTest
     end
 
     it 'raises error for invalid binding' do
-      expect { described_class.new(nil, 'templates/common/gem_scaffold/Gemfile.tt') }
-        .to raise_error(ArgumentError, 'Binding must be a valid binding object')
+      expect do
+        described_class.new(nil, 'common/gem_scaffold', 'Gemfile.tt')
+      end.to raise_error(ArgumentError, 'Binding must be a valid binding object')
     end
 
     it 'raises error for invalid path' do
-      expect { described_class.new(the_binding, '') }
-        .to raise_error(ArgumentError, 'Path must be a non-empty string')
+      expect do
+        described_class.new(the_binding, '', '')
+      end.to raise_error(ArgumentError, 'Offset must be a non-empty string')
     end
 
     it 'raises error for non-existent file' do
-      expect { described_class.new(the_binding, 'non_existent_file.tt') }
-        .to raise_error(ArgumentError, /Path 'non_existent_file.tt' does not exist/)
+      expect do
+        described_class.new(the_binding, 'common/gem_scaffold', 'non_existent_file.tt')
+      end.to raise_error(ArgumentError, /Path.*non_existent_file.tt' does not exist/)
     end
 
     it 'renders a template with ERB' do

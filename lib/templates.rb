@@ -39,11 +39,14 @@ module ERBTemplates
   end
 
   class Template
-    attr_reader :name, :path
+    attr_reader :binding, :name, :offset, :path, :relative_path, :source_path
 
+    # @param binding Variable context for ERB evaluation
+    # @param offset Partial path between root of template directory tree and the relative path
+    # @param relative_path will be evaluated and copied to the destination
     def initialize(binding, offset, relative_path)
       raise ArgumentError, 'Binding must be a valid binding object' unless binding.is_a?(Binding)
-      raise ArgumentError, 'offset must be a non-empty string' unless offset.is_a?(String) && !offset.empty?
+      raise ArgumentError, 'Offset must be a non-empty string' unless offset.is_a?(String) && !offset.empty?
       raise ArgumentError, 'relative_path must be a non-empty string' unless relative_path.is_a?(String) && !relative_path.empty?
 
       @binding = binding
@@ -51,13 +54,14 @@ module ERBTemplates
       @offset = offset
       @relative_path = relative_path
       @requires_expansion = relative_path.end_with? '.tt'
+      @path = File.join(File.basename(ERBTemplates.template_directory), @offset, @relative_path)
       @source_path = File.join(ERBTemplates.template_directory, @offset, @relative_path)
 
       raise ArgumentError, "Path '#{@source_path}' does not exist" unless File.file?(@source_path)
     end
 
     def render
-      content = File.read(File.join(@offset, @relative_path))
+      content = File.read(File.join(ERBTemplates.template_directory, @offset, @relative_path))
       if @requires_expansion
         ERB.new(content).result(@binding)
       else
