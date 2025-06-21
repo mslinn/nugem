@@ -19,7 +19,7 @@ module Nugem
         -h, --help                           # Display this help message
         -H HOST, --host=HOST                 # Repository host. Default: github
                                              # Possible values: #{HOSTS.join ', '}
-        -l LOGLEVEL, --loglevel LOGLEVEL     # Possible values: #{LOGLEVELS.join ', '}. Default: info
+        -L LOGLEVEL, --loglevel LOGLEVEL     # Possible values: #{LOGLEVELS.join ', '}. Default: info
         -o OUT_DIR, --out-dir=OUT_DIR        # Output directory for the gem. Default: ~/nugem_generated
         -p, --private                        # Publish the gem to a private repository. Default: false
         -T, --todos                          # Generate TODO: messages in generated code. Default: true
@@ -88,8 +88,14 @@ module Nugem
           Dir.mkdir dir
         end
       end
-      puts "Output directory is '#{dir}'."
       dir
+    end
+
+    # Only generate output if loglevel is info or lower
+    def summarize(options)
+      return if LOGLEVELS.index(options[:loglevel]) < LOGLEVELS.index('info')
+
+      puts "Output directory is '#{options[:out_dir]}'.".green
     end
 
     def parse_options
@@ -103,7 +109,7 @@ module Nugem
 
         parser.on '-e',         '--executable', FalseClass, 'Include an executable for the generated gem'
         parser.on '-HHOST',     '--host', %w[github bitbucket], 'Repository host'
-        parser.on '-lLOGLEVEL', '--loglevel', LOGLEVELS, 'Logging level'
+        parser.on '-LLOGLEVEL', '--loglevel', LOGLEVELS, 'Logging level'
         parser.on('-oOUT_DIR',  '--out_dir', 'Output directory for the gem') do |dir|
           options[:out_dir] = parse_dir dir, options[:out_dir]
         end
@@ -114,6 +120,7 @@ module Nugem
           ::Nugem.help
         end
       end.order! into: options
+      summarize options
       options
     end
 

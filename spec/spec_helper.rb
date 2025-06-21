@@ -1,3 +1,5 @@
+require 'rspec/expectations'
+
 RSpec.configure do |config|
   # See https://relishapp.com/rspec/rspec-core/docs/command-line/only-failures
   config.example_status_persistence_file_path = 'spec/status_persistence.txt'
