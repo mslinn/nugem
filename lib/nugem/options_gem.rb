@@ -60,6 +60,34 @@ module Nugem
       }
     end
 
+    # Only generate output if loglevel is info or lower
+    def act_and_summarize(options, parse_dry_run: false)
+      dir = options[:out_dir]
+      overwrite = options[:overwrite]
+      show_log_level_info = LOGLEVELS.index(options[:loglevel]) < LOGLEVELS.index('info')
+
+      if parse_dry_run
+        puts "Dry run: skipping the removal of #{dir}".yellow if overwrite && show_log_level_info
+      else
+        puts "Removing #{dir}".yellow if show_log_level_info
+        FileUtils.rm_rf(Dir.glob(dir), force: true, secure: true)
+        Dir.mkdir dir
+      end
+      return unless show_log_level_info
+
+      executable_msg = options[:executable] ? "An executable called #{options[:executable]} will be included" : 'No executable will be included'
+      yes_msg = options[:yes] ? "All questions will be automatically be answered with 'yes'." : 'User responses will be used for yes/no questions.'
+      puts <<~END_SUMMARY.green
+        Loglevel #{LOGLEVELS.index(options[:loglevel])}
+        Output directory: '#{dir}'
+        #{executable_msg}
+        Git host: #{options[:host]}
+        A #{options[:private] ? 'private' : 'public'} git repository will be created
+        TODOs #{options[:todos] ? 'will' : 'will not'} be included in the source code
+        #{yes_msg}
+      END_SUMMARY
+    end
+
     # Defines a new attribute called `prop_name` in object `obj` and sets it to `prop_value`
     def attribute_new(prop_name, prop_value)
       obj = self.class.module_eval { attr_accessor @attribute_name } # idempotent
@@ -73,32 +101,21 @@ module Nugem
       hash.each { |key, value| attribute_new key, value }
     end
 
-    def parse_dir(dir, default_value, dry_run: false)
+    def parse_dir(dir, default_value)
       dir ||= default_value
       if Dir.exist?(dir) && !Dir.empty?(dir)
         puts "Output directory '#{dir}' already exists and is not empty."
-        overwrite = if options[:yes]
-                      puts "Overwriting contents of #{dir} because --yes was specified."
-                      true
-                    else
-                      ask "Do you want to overwrite the contents of #{dir}? (y/n)"
-                    end
-        if overwrite && !dry_run
-          FileUtils.rm_r Dir.glob(dir), force: true, secure: true
-          Dir.mkdir dir
-        end
+        @options[:overwrite] = if options[:yes]
+                                 puts "Overwriting contents of #{dir} because --yes was specified."
+                                 true
+                               else
+                                 ask "Do you want to overwrite the contents of #{dir}? (y/n)"
+                               end
       end
       dir
     end
 
-    # Only generate output if loglevel is info or lower
-    def summarize(options)
-      return if LOGLEVELS.index(options[:loglevel]) < LOGLEVELS.index('info')
-
-      puts "Output directory is '#{options[:out_dir]}'.".green
-    end
-
-    def parse_options(parse_dry_run: true)
+    def parse_options(parse_dry_run: false)
       options = @default_options
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
@@ -107,20 +124,21 @@ module Nugem
         parser.program_name = File.basename __FILE__
         @parser = parser
 
-        parser.on '-e',         '--executable', FalseClass, 'Include an executable for the generated gem'
-        parser.on '-HHOST',     '--host', %w[github bitbucket], 'Repository host'
-        parser.on '-LLOGLEVEL', '--loglevel', LOGLEVELS, 'Logging level'
-        parser.on('-oOUT_DIR',  '--out_dir', 'Output directory for the gem') do |dir|
-          options[:out_dir] = parse_dir dir, options[:out_dir], parse_dry_run
+        # TODO: how to parse more than one executable?
+        parser.on '-eEXECUTABLE', '--executable', FalseClass, 'Include an executable with the given name for the generated gem'
+        parser.on '-HHOST',       '--host', %w[github bitbucket], 'Repository host'
+        parser.on '-LLOGLEVEL',   '--loglevel', LOGLEVELS, 'Logging level'
+        parser.on('-oOUT_DIR',    '--out_dir', 'Output directory for the gem') do |dir|
+          options[:out_dir] = parse_dir dir, options[:out_dir]
         end
-        parser.on '-p',         '--private',  FalseClass, 'Publish the gem to a private repository'
-        parser.on '-T',         '--todos',    TrueClass,  'Generate TODO: messages in generated code'
-        parser.on '-y',         '--yes',      FalseClass, 'Answer yes to all questions'
-        parser.on_tail('-h',    '--help', 'Show this message') do
+        parser.on '-p',           '--private',  FalseClass, 'Publish the gem to a private repository'
+        parser.on '-T',           '--todos',    TrueClass,  'Generate TODO: messages in generated code'
+        parser.on '-y',           '--yes',      FalseClass, 'Answer yes to all questions'
+        parser.on_tail('-h',      '--help', 'Show this message') do
           ::Nugem.help
         end
       end.order! into: options
-      summarize options
+      act_and_summarize options, parse_dry_run: parse_dry_run
       options
     end
 
