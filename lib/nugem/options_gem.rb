@@ -2,42 +2,46 @@ require 'fileutils'
 
 module Nugem
   HOSTS = %w[github gitlab bitbucket].freeze
-  VERBOSITY = %w[trace debug verbose info warning error fatal panic quiet].freeze
+  LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
   def self.help(msg = nil)
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
-      nugem: Creates scaffolding for a plain gem or a Jekyll gem.
+      nugem: Creates scaffolding for a plain gem or a Jekyll plugin.
+      (Jekyll plugins are specialized gems.)
 
-      nugem gem NAME        # Creates a new gem scaffold.
-      nugem jekyll NAME     # Creates a new Jekyll plugin scaffold.
+      nugem [OPTIONS] gem NAME        # Creates the scaffold for a new gem called NAME.
+      nugem [OPTIONS] jekyll NAME     # Creates the scaffold for a new Jekyll plugin called NAME.
 
-      Options must be placed before the two positional parameters shown above.
-      The following options are available for all gem types:
+      The following OPTIONS are available for all gem types:
 
-        -o OUT_DIR, --out-dir=OUT_DIR        # Output directory for the gem. Default: ~/nugem_generated
         -e, --executable                     # Include an executable for the gem. Default: false
-        -h HOST, --host=HOST                 # Repository host. Default: github
+        -h, --help                           # Display this help message
+        -H HOST, --host=HOST                 # Repository host. Default: github
                                              # Possible values: #{HOSTS.join ', '}
+        -l LOGLEVEL, --loglevel LOGLEVEL     # Possible values: #{LOGLEVELS.join ', '}. Default: info
+        -o OUT_DIR, --out-dir=OUT_DIR        # Output directory for the gem. Default: ~/nugem_generated
         -p, --private                        # Publish the gem to a private repository. Default: false
+        -T, --todos                          # Generate TODO: messages in generated code. Default: true
         -y, --yes                            # Answer yes to all questions. Default: false
-        -v VERBOSITY, --verbosity VERBOSITY  # Possible values: #{VERBOSITY.join ', '}. Default: info
-        -t, --todos                          # Generate TODO: messages in generated code. Default: true
 
-      The following options are only available for Jekyll gems and can be invoked multiple times:
-        --block=BLOCK           # Specifies the name of a Jekyll block tag.
-        --blockn=BLOCKN         # Specifies the name of a Jekyll no-arg block tag.
-        --filter=FILTER         # Specifies the name of a Jekyll/Liquid filter module.
-        --generator=GENERATOR   # Specifies a Jekyll generator.
-        --hooks=HOOKS           # Specifies Jekyll hooks.
-        --tag=TAG               # Specifies the name of a Jekyll tag.
-        --tagn=TAGN             # Specifies the name of a Jekyll no-arg tag.
+      The following options are only available for Jekyll plugin.
+      Each of these OPTIONs can be invoked multiple times, except -K / --hooks:
+        -B BLOCK, --block=BLOCK              # Specifies the name of a Jekyll block tag.
+        -f FILTER, --filter=FILTER           # Specifies the name of a Jekyll/Liquid filter module.
+        -g GENERATOR, --generator=GENERATOR  # Specifies a Jekyll generator.
+        -K HOOKS, --hooks=HOOKS              # Specifies Jekyll hooks.
+        -n TAGN, --tagn=TAGN                 # Specifies the name of a Jekyll no-arg tag.
+        -N BLOCKN, --blockn=BLOCKN           # Specifies the name of a Jekyll no-arg block tag.
+        -t TAG, --tag=TAG                    # Specifies the name of a Jekyll tag.
     END_HELP
     printf msg.cyan
     exit 1
   end
 
   class Options
+    attr_reader :attribute_name, :default_options, :options
+
     include HighlineWrappers
 
     def initialize
@@ -47,7 +51,7 @@ module Nugem
         executable: false,
         gem_type:   :plain,
         host:       'github',
-        loglevel:   VERBOSITY[4], # Default is 'warning'
+        loglevel:   LOGLEVELS[3], # Default is 'info'
         out_dir:    "#{Dir.home}/nugem_generated",
         private:    false,
         quiet:      true,
@@ -69,6 +73,25 @@ module Nugem
       hash.each { |key, value| attribute_new key, value }
     end
 
+    def parse_dir(dir, default_value)
+      dir ||= default_value
+      if Dir.exist?(dir) && !Dir.empty?(dir)
+        puts "Output directory '#{dir}' already exists and is not empty."
+        overwrite = if options[:yes]
+                      puts "Overwriting contents of #{dir} because --yes was specified."
+                      true
+                    else
+                      ask "Do you want to overwrite the contents of #{dir}? (y/n)"
+                    end
+        if overwrite
+          FileUtils.rm_r Dir.glob(dir), force: true, secure: true
+          Dir.mkdir dir
+        end
+      end
+      puts "Output directory is '#{dir}'."
+      dir
+    end
+
     def parse_options
       options = @default_options
       # @return hash containing options
@@ -78,33 +101,16 @@ module Nugem
         parser.program_name = File.basename __FILE__
         @parser = parser
 
-        parser.on('-e', '--executable', FalseClass, 'Include an executable for the generated gem')
-        parser.on('-HHOST', '--host', %w[github bitbucket], 'Repository host')
-        parser.on('GEM_NAME', 'Repository host')
-        parser.on('-oOUT_DIR', '--out_dir', 'Output directory for the gem') do |dir|
-          dir ||= options[:out_dir]
-          if Dir.exist?(dir) && !Dir.empty?(dir)
-            puts "Output directory '#{dir}' already exists and is not empty."
-            overwrite = if options[:yes]
-                          puts "Overwriting contents of #{dir} because --yes was specified."
-                          true
-                        else
-                          ask "Do you want to overwrite the contents of #{dir}? (y/n)"
-                        end
-            if overwrite
-              FileUtils.rm_r Dir.glob(dir), force: true, secure: true
-              Dir.mkdir dir
-            end
-          end
-          puts "Output directory set to '#{dir}'."
-          options[:out_dir] = dir
+        parser.on '-e',         '--executable', FalseClass, 'Include an executable for the generated gem'
+        parser.on '-HHOST',     '--host', %w[github bitbucket], 'Repository host'
+        parser.on '-lLOGLEVEL', '--loglevel', LOGLEVELS, 'Logging level'
+        parser.on('-oOUT_DIR',  '--out_dir', 'Output directory for the gem') do |dir|
+          options[:out_dir] = parse_dir dir, options[:out_dir]
         end
-        parser.on '-lLOGLEVEL', '--loglevel', VERBOSITY,  'Logging level'
         parser.on '-p',         '--private',  FalseClass, 'Publish the gem to a private repository'
-        parser.on '-t',         '--todos',    TrueClass,  'Generate TODO: messages in generated code'
+        parser.on '-T',         '--todos',    TrueClass,  'Generate TODO: messages in generated code'
         parser.on '-y',         '--yes',      FalseClass, 'Answer yes to all questions'
-
-        parser.on_tail('-h', '--help', 'Show this message') do
+        parser.on_tail('-h',    '--help', 'Show this message') do
           ::Nugem.help
         end
       end.order! into: options
