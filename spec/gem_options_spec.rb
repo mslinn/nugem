@@ -7,9 +7,10 @@ require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
 class GemOptionsTest
-  TEST_DIR = File.join(Dir.tmpdir, 'nugem/test').freeze
   ARGV.clear
-  ARGV = '-L debug gem' # rubocop:disable Style/MutableConstant
+  ARGV = '-L debug gem'.freeze
+
+  TEST_DIR = File.join(Dir.tmpdir, 'nugem/test').freeze
 
   RSpec.describe ::Nugem::Options do
     after(:context) do # rubocop:disable RSpec/BeforeAfterAll
@@ -23,8 +24,7 @@ class GemOptionsTest
     it 'tests default values' do
       options = described_class.new
       options.parse_options
-      expected = options[:out_dir]
-      expect(expected).to eq(TEST_DIR)
+      expect(options[:out_dir]).to eq(TEST_DIR)
     end
   end
 end
