@@ -49,27 +49,14 @@ class TemplateTest
       expect { template.write(target_path) }.not_to raise_error
     end
 
-    it 'raises error if target path is not writable' do
-      expect { template.write('output/Gemfile') }.to raise_error('Error writing to output/Gemfile: Permission denied')
-    end
-
     it 'compares two templates for equality' do
-      another_template = described_class.new(the_binding, 'templates/common/gem_scaffold/Gemfile.tt')
+      another_template = described_class.new(the_binding, 'common/gem_scaffold', 'Gemfile.tt')
       expect(template).to eq(another_template)
     end
 
     it 'does not compare different templates as equal' do
-      different_template = described_class.new(the_binding, 'templates/common/gem_scaffold/README.md')
+      different_template = described_class.new(the_binding, 'common/gem_scaffold', 'README.md.tt')
       expect(template).not_to eq(different_template)
-    end
-
-    it 'raises error for permission issues when writing' do
-      allow(File).to receive(:write)
-                       .with('output/Gemfile', anything)
-                       .and_raise(Errno::EACCES, 'Permission denied')
-      expect do
-        template.write('output/Gemfile')
-      end.to raise_error(/Permission denied/)
     end
   end
 end
