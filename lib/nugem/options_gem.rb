@@ -73,7 +73,7 @@ module Nugem
       hash.each { |key, value| attribute_new key, value }
     end
 
-    def parse_dir(dir, default_value)
+    def parse_dir(dir, default_value, dry_run: false)
       dir ||= default_value
       if Dir.exist?(dir) && !Dir.empty?(dir)
         puts "Output directory '#{dir}' already exists and is not empty."
@@ -83,7 +83,7 @@ module Nugem
                     else
                       ask "Do you want to overwrite the contents of #{dir}? (y/n)"
                     end
-        if overwrite
+        if overwrite && !dry_run
           FileUtils.rm_r Dir.glob(dir), force: true, secure: true
           Dir.mkdir dir
         end
@@ -98,7 +98,7 @@ module Nugem
       puts "Output directory is '#{options[:out_dir]}'.".green
     end
 
-    def parse_options
+    def parse_options(parse_dry_run: true)
       options = @default_options
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
@@ -111,7 +111,7 @@ module Nugem
         parser.on '-HHOST',     '--host', %w[github bitbucket], 'Repository host'
         parser.on '-LLOGLEVEL', '--loglevel', LOGLEVELS, 'Logging level'
         parser.on('-oOUT_DIR',  '--out_dir', 'Output directory for the gem') do |dir|
-          options[:out_dir] = parse_dir dir, options[:out_dir]
+          options[:out_dir] = parse_dir dir, options[:out_dir], parse_dry_run
         end
         parser.on '-p',         '--private',  FalseClass, 'Publish the gem to a private repository'
         parser.on '-T',         '--todos',    TrueClass,  'Generate TODO: messages in generated code'

@@ -24,7 +24,7 @@ class GemOptionsTest
 
     it 'tests default values' do
       gem_options = described_class.new
-      options = gem_options.parse_options
+      options = gem_options.parse_options(parse_dry_run: true)
       expect(options[:out_dir]).to eq(DEFAULT_TEST_DIR)
     end
   end
