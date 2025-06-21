@@ -61,7 +61,8 @@ module ERBTemplates
     end
 
     def render
-      content = File.read(File.join(ERBTemplates.template_directory, @offset, @relative_path))
+      path = File.join(ERBTemplates.template_directory, @offset, @relative_path)
+      content = File.read(path)
       if @requires_expansion
         ERB.new(content).result(@binding)
       else
@@ -75,6 +76,7 @@ module ERBTemplates
 
     def write(target_path)
       destination = File.join(target_path, @relative_path)
+      FileUtils.mkdir_p(File.dirname(destination))
       File.write(destination, render)
     rescue Errno::EACCES => e
       raise "Permission denied when writing expanded template to #{destination}. Error: #{e.message}"

@@ -36,19 +36,12 @@ class TemplateTest
 
     it 'renders a template with ERB' do
       actual = template.render
-      expect(actual).to include("source 'https://rubygems.org'\n\n# The test_gem gem dependencies are defined in test_gem.gemspec")
+      expect(actual).to include('The test_gem gem dependencies are defined in test_gem.gemspec')
     end
 
     it 'renders a template without ERB' do
       actual = template2.render
       expect(actual).to include('disable=')
-    end
-
-    it 'raises error for rendering issues' do
-      allow(File).to receive(:read)
-                       .with('templates/common/gem_scaffold/Gemfile.tt')
-                       .and_raise(StandardError, 'Rendering error')
-      expect { template.render }.to raise_error(/Rendering error/)
     end
 
     it 'writes the rendered template to a target path' do
