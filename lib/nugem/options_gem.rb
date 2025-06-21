@@ -42,7 +42,7 @@ module Nugem
   class Options
     attr_reader :attribute_name, :default_options, :options
 
-    include HighlineWrappers
+    include ::HighlineWrappers
 
     def initialize
       @attribute_name = 'plain'

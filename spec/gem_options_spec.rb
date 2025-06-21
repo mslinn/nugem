@@ -10,6 +10,7 @@ class GemOptionsTest
   ARGV.clear
   ARGV = '-L debug gem'.freeze
 
+  DEFAULT_TEST_DIR = File.join(Dir.home, 'nugem_generated').freeze
   TEST_DIR = File.join(Dir.tmpdir, 'nugem/test').freeze
 
   RSpec.describe ::Nugem::Options do
@@ -22,9 +23,9 @@ class GemOptionsTest
     end
 
     it 'tests default values' do
-      options = described_class.new
-      options.parse_options
-      expect(options[:out_dir]).to eq(TEST_DIR)
+      gem_options = described_class.new
+      options = gem_options.parse_options
+      expect(options[:out_dir]).to eq(DEFAULT_TEST_DIR)
     end
   end
 end
