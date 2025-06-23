@@ -64,14 +64,14 @@ module Nugem
     case gem_type
     when 'gem'
       nugem = Options.new
-      nugem.parse_options
     when 'jekyll'
       nugem = JekyllOptions.new
-      nugem.parse_options
     else
       puts "Error: unrecognized gem type '#{gem_type}'."
       exit 2
     end
+    nugem.parse_options
+    nugem.act_and_summarize options, parse_dry_run: parse_dry_run
   end
 
   def self.todo

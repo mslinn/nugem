@@ -8,10 +8,10 @@ module Nugem
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
       nugem: Creates scaffolding for a plain gem or a Jekyll plugin.
-      (Jekyll plugins are specialized gems.)
+      (Jekyll plugins are a type of specialized gem.)
 
-      nugem [OPTIONS] gem NAME        # Creates the scaffold for a new gem called NAME.
-      nugem [OPTIONS] jekyll NAME     # Creates the scaffold for a new Jekyll plugin called NAME.
+      nugem [OPTIONS] gem NAME     # Creates the scaffold for implementing a new plain-old Ruby gem called NAME.
+      nugem [OPTIONS] jekyll NAME  # Creates the scaffold for a new Jekyll plugin called NAME.
 
       The following OPTIONS are available for all gem types:
 
@@ -60,6 +60,8 @@ module Nugem
       }
     end
 
+    # Do application-level sanity check stuff
+    # Called after user parameters have been gathered and saved as state in this instance
     # Only generate output if loglevel is info or lower
     def act_and_summarize(options, parse_dry_run: false)
       dir = options[:out_dir]
@@ -115,7 +117,9 @@ module Nugem
       dir
     end
 
-    def parse_options(parse_dry_run: false)
+    # Gather all the possible parameter values. Other than built-in type checking,
+    # act_and_summarize will do the the application-level sanity check stuff
+    def parse_options
       options = @default_options
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
@@ -125,20 +129,19 @@ module Nugem
         @parser = parser
 
         # TODO: how to parse more than one executable?
-        parser.on '-eEXECUTABLE', '--executable', FalseClass, 'Include an executable with the given name for the generated gem'
-        parser.on '-HHOST',       '--host', %w[github bitbucket], 'Repository host'
-        parser.on '-LLOGLEVEL',   '--loglevel', LOGLEVELS, 'Logging level'
-        parser.on('-oOUT_DIR',    '--out_dir', 'Output directory for the gem') do |dir|
+        parser.on '-eEXECUTABLE', '--executable', FalseClass,           'Include an executable with the given name for the generated gem'
+        parser.on '-HHOST',       '--host',       %w[github bitbucket], 'Repository host'
+        parser.on '-LLOGLEVEL',   '--loglevel',   LOGLEVELS,            'Logging level'
+        parser.on('-oOUT_DIR',    '--out_dir',                          'Output directory for the gem') do |dir|
           options[:out_dir] = parse_dir dir, options[:out_dir]
         end
-        parser.on '-p',           '--private',  FalseClass, 'Publish the gem to a private repository'
-        parser.on '-T',           '--todos',    TrueClass,  'Generate TODO: messages in generated code'
-        parser.on '-y',           '--yes',      FalseClass, 'Answer yes to all questions'
-        parser.on_tail('-h',      '--help', 'Show this message') do
+        parser.on '-p',           '--private',  FalseClass,            'Publish the gem to a private repository'
+        parser.on '-T',           '--todos',    TrueClass,             'Generate TODO: messages in generated code'
+        parser.on '-y',           '--yes',      FalseClass,            'Answer yes to all questions'
+        parser.on_tail('-h',      '--help',                            'Show this message') do
           ::Nugem.help
         end
       end.order! into: options
-      act_and_summarize options, parse_dry_run: parse_dry_run
       options
     end
 
