@@ -119,12 +119,13 @@ module Nugem
 
     # Gather all the possible parameter values. Other than built-in type checking,
     # act_and_summarize will do the the application-level sanity check stuff
-    def parse_options
+    def parse_options(argv_override: nil)
       options = @default_options
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       OptionParser.new do |parser|
+        parser.default_argv = argv_override if argv_override
         parser.program_name = File.basename __FILE__
         @parser = parser
 
