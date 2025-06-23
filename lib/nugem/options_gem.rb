@@ -1,4 +1,6 @@
 require 'fileutils'
+require 'sod'
+require 'sod/types/pathname'
 
 module Nugem
   HOSTS = %w[github gitlab bitbucket].freeze
@@ -129,17 +131,18 @@ module Nugem
         parser.program_name = File.basename __FILE__
         @parser = parser
 
+        # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
         # TODO: how to parse more than one executable?
-        parser.on '-eEXECUTABLE', '--executable', FalseClass,           'Include an executable with the given name for the generated gem'
-        parser.on '-HHOST',       '--host',       %w[github bitbucket], 'Repository host'
-        parser.on '-LLOGLEVEL',   '--loglevel',   LOGLEVELS,            'Logging level'
-        parser.on('-oOUT_DIR',    '--out_dir',                          'Output directory for the gem') do |dir|
+        parser.on '-eEXECUTABLE', '--executable',   FalseClass,           'Include an executable with the given name for the generated gem'
+        parser.on '-HHOST',       '--host',         %w[github bitbucket], 'Repository host'
+        parser.on '-LLOGLEVEL',   '--loglevel',     LOGLEVELS,            'Logging level'
+        parser.on('-oOUT_DIR',    '--out_dir',      Pathname,             'Output directory for the gem') do |dir|
           options[:out_dir] = parse_dir dir, options[:out_dir]
         end
-        parser.on '-p',           '--private',  FalseClass,            'Publish the gem to a private repository'
-        parser.on '-T',           '--todos',    TrueClass,             'Generate TODO: messages in generated code'
-        parser.on '-y',           '--yes',      FalseClass,            'Answer yes to all questions'
-        parser.on_tail('-h',      '--help',                            'Show this message') do
+        parser.on '-p',           '--private',    FalseClass,            'Publish the gem to a private repository'
+        parser.on '-T',           '--[no-]todos', TrueClass,             'Generate TODO: messages in generated code'
+        parser.on '-y',           '--yes',        FalseClass,            'Answer yes to all questions'
+        parser.on_tail('-h',      '--help',                              'Show this message') do
           ::Nugem.help
         end
       end.order! into: options

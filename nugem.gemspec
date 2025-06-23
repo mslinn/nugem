@@ -47,4 +47,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'jekyll'
   spec.add_dependency 'optparse'
   spec.add_dependency 'rugged'
+  spec.add_dependency 'sod' # See https://rubygems.org/gems/sod
 end
