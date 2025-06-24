@@ -17,25 +17,25 @@ module Nugem
 
       The following OPTIONS are available for all gem types:
 
-        -e, --executable                     # Include an executable for the gem. Default: false
-        -h, --help                           # Display this help message
-        -H HOST, --host=HOST                 # Repository host. Default: github
-                                             # Possible values: #{HOSTS.join ', '}
-        -L LOGLEVEL, --loglevel LOGLEVEL     # Possible values: #{LOGLEVELS.join ', '}. Default: info
-        -o OUT_DIR, --out-dir=OUT_DIR        # Output directory for the gem. Default: ~/nugem_generated
-        -N, --no-todos                       # Suppress TODO: messages in generated code. Default: false
-        -p, --private                        # Publish the gem to a private repository. Default: false
-        -y, --yes                            # Answer yes to all questions. Default: false
+        -e NAME1[,NAME2...], --executable NAME1[,NAME2...] # Include executables with the given names for the gem.
+        -h, --help                                         # Display this help message
+        -H HOST, --host=HOST                               # Repository host. Default: github
+                                                           # Possible values: #{HOSTS.join ', '}
+        -L LOGLEVEL, --loglevel LOGLEVEL                   # Possible values: #{LOGLEVELS.join ', '}. Default: info
+        -o OUT_DIR, --out-dir=OUT_DIR                      # Output directory for the gem. Default: ~/nugem_generated
+        -N, --no-todos                                     # Suppress TODO: messages in generated code. Default: false
+        -p, --private                                      # Publish the gem to a private repository. Default: false
+        -y, --yes                                          # Answer yes to all questions. Default: false
 
       The following options are only available for Jekyll plugin.
       Each of these OPTIONs can be invoked multiple times, except -K / --hooks:
-        -B BLOCK, --block=BLOCK              # Specifies the name of a Jekyll block tag.
-        -f FILTER, --filter=FILTER           # Specifies the name of a Jekyll/Liquid filter module.
-        -g GENERATOR, --generator=GENERATOR  # Specifies a Jekyll generator.
-        -K HOOKS, --hooks=HOOKS              # Specifies Jekyll hooks.
-        -n TAGN, --tagn=TAGN                 # Specifies the name of a Jekyll no-arg tag.
-        -N BLOCKN, --blockn=BLOCKN           # Specifies the name of a Jekyll no-arg block tag.
-        -t TAG, --tag=TAG                    # Specifies the name of a Jekyll tag.
+        -B BLOCK1[,BLOCK2...], --block=BLOCK1[,BLOCK2...]                # Specifies the name of a Jekyll block tag.
+        -f FILTER1[,FILTER2], --filter=FILTER1[,FILTER2]                 # Specifies the name of a Jekyll/Liquid filter module.
+        -g GENERATOR1[,GENERATOR2], --generator=GENERATOR1[,GENERATOR2]  # Specifies Jekyll generator(s).
+        -K HOOKS, --hooks=HOOKS                                          # Specifies Jekyll hooks.
+        -n TAG1[,TAG2], --tagn=TAG1[,TAG2]                               # Specifies the name of Jekyll no-arg tag(s).
+        -N BLOCK1[,BLOCK2], --blockn=BLOCK1[,BLOCK2]                     # Specifies the name of Jekyll no-arg block tag(s).
+        -t TAG1[,TAG2], --tag=TAG1[,TAG2]                                # Specifies the name of Jekyll tag(s).
     END_HELP
     printf msg.cyan
     exit 1
