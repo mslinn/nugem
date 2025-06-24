@@ -104,19 +104,6 @@ module Nugem
       END_SUMMARY
     end
 
-    # Defines a new attribute called `prop_name` in object `obj` and sets it to `prop_value`
-    def attribute_new(prop_name, prop_value)
-      obj = self.class.module_eval { attr_accessor @attribute_name } # idempotent
-      obj.class.module_eval { attr_accessor prop_name }
-      obj.instance_variable_set :"@#{prop_name}", prop_value
-    end
-
-    # Defines sub-attributes for the object attribute called @attribute_name
-    # @param hash simple name/value pairs, nothing nested
-    def attributes_from_hash(hash)
-      hash.each { |key, value| attribute_new key, value }
-    end
-
     def parse_dir(dir, default_value)
       dir ||= default_value
       if Dir.exist?(dir) && !Dir.empty?(dir)
