@@ -24,7 +24,7 @@ module Nugem
     Dir.chdir Nugem.dest_root(@out_dir, gem_name) do
       # puts set_color("Working in #{Dir.pwd}", :green)
       run 'chmod +x bin/*'
-      run 'chmod +x exe/*' if @executable
+      run 'chmod +x exe/*' if @executables
       create_local_git_repository
       FileUtils.rm_f 'Gemfile.lock'
       # puts set_color("Running 'bundle'", :green)

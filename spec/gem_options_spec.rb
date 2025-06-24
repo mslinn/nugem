@@ -30,19 +30,19 @@ class GemOptionsTest
     let(:options2) { described_class.new }
     let(:debug_options2) do
       options2.default_options.merge({
-                                       executable: true,
-                                       loglevel:   'debug',
-                                       out_dir:    TEST_OUT_DIR,
-                                       private:    true,
+                                       executables: 'blah',
+                                       loglevel:    'debug',
+                                       out_dir:     TEST_OUT_DIR,
+                                       private:     true,
                                      })
     end
 
-    let(:argv3) { ['-L', 'debug', '-e', 'ex1', '-e', 'ex2', 'gem'] }
+    let(:argv3) { ['-L', 'debug', '-e', 'ex1,ex2', 'gem'] }
     let(:options3) { described_class.new }
     let(:debug_options3) do
       options3.default_options.merge({
-                                       executable: [argv3[3], argv3[5]],
-                                       loglevel:   argv3[1],
+                                       executables: %w[ex1 ex2],
+                                       loglevel:    'debug',
                                      })
     end
 
@@ -65,7 +65,7 @@ class GemOptionsTest
       expected_summary = <<~END_SUMMARY
         Loglevel #{options.default_options[:loglevel]}
         Output directory: '#{options.default_options[:out_dir]}'
-        No executable will be included
+        No executables will be included
         Git host: github
         A public git repository will be created
         TODOs will be included in the source code

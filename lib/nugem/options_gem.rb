@@ -17,25 +17,25 @@ module Nugem
 
       The following OPTIONS are available for all gem types:
 
-        -e NAME1[,NAME2...], --executable NAME1[,NAME2...] # Include executables with the given names for the gem.
-        -h, --help                                         # Display this help message
-        -H HOST, --host=HOST                               # Repository host. Default: github
-                                                           # Possible values: #{HOSTS.join ', '}
-        -L LOGLEVEL, --loglevel LOGLEVEL                   # Possible values: #{LOGLEVELS.join ', '}. Default: info
-        -o OUT_DIR, --out-dir=OUT_DIR                      # Output directory for the gem. Default: ~/nugem_generated
-        -N, --no-todos                                     # Suppress TODO: messages in generated code. Default: false
-        -p, --private                                      # Publish the gem to a private repository. Default: false
-        -y, --yes                                          # Answer yes to all questions. Default: false
+        -e NAME1[,NAME2...], --executables NAME1[,NAME2...] # Include executables with the given names for the gem.
+        -h, --help                                          # Display this help message
+        -H HOST, --host=HOST                                # Repository host. Default: github
+                                                            # Possible values: #{HOSTS.join ', '}
+        -L LOGLEVEL, --loglevel LOGLEVEL                    # Possible values: #{LOGLEVELS.join ', '}. Default: info
+        -o OUT_DIR, --out-dir=OUT_DIR                       # Output directory for the gem. Default: ~/nugem_generated
+        -N, --no-todos                                      # Suppress TODO: messages in generated code. Default: false
+        -p, --private                                       # Publish the gem to a private repository. Default: false
+        -y, --yes                                           # Answer yes to all questions. Default: false
 
       The following options are only available for Jekyll plugin.
       Each of these OPTIONs can be invoked multiple times, except -K / --hooks:
-        -B BLOCK1[,BLOCK2...], --block=BLOCK1[,BLOCK2...]                # Specifies the name of a Jekyll block tag.
-        -f FILTER1[,FILTER2], --filter=FILTER1[,FILTER2]                 # Specifies the name of a Jekyll/Liquid filter module.
-        -g GENERATOR1[,GENERATOR2], --generator=GENERATOR1[,GENERATOR2]  # Specifies Jekyll generator(s).
-        -K HOOKS, --hooks=HOOKS                                          # Specifies Jekyll hooks.
-        -n TAG1[,TAG2], --tagn=TAG1[,TAG2]                               # Specifies the name of Jekyll no-arg tag(s).
-        -N BLOCK1[,BLOCK2], --blockn=BLOCK1[,BLOCK2]                     # Specifies the name of Jekyll no-arg block tag(s).
-        -t TAG1[,TAG2], --tag=TAG1[,TAG2]                                # Specifies the name of Jekyll tag(s).
+        -B BLOCK1[,BLOCK2...], --blocks=BLOCK1[,BLOCK2...]                      # Specifies the name of a Jekyll block tag.
+        -N BLOCK1[,BLOCK2...], --blockns=BLOCK1[,BLOCK2...]                     # Specifies the name of Jekyll no-arg block tag(s).
+        -f FILTER1[,FILTER2...], --filters=FILTER1[,FILTER2...]                 # Specifies the name of a Jekyll/Liquid filter module.
+        -g GENERATOR1[,GENERATOR2...], --generators=GENERATOR1[,GENERATOR2...]  # Specifies Jekyll generator(s).
+        -K HOOKS, --hooks=HOOKS                                                 # Specifies Jekyll hooks.
+        -t TAG1[,TAG2...], --tags=TAG1[,TAG2...]                                # Specifies the name of Jekyll tag(s).
+        -n TAG1[,TAG2...], --tagns=TAG1[,TAG2...]                               # Specifies the name of Jekyll no-arg tag(s).
     END_HELP
     printf msg.cyan
     exit 1
@@ -51,14 +51,14 @@ module Nugem
       @attribute_name = 'plain'
 
       @default_options = {
-        executable: false,
-        gem_type:   :plain,
-        host:       'github',
-        loglevel:   LOGLEVELS[3], # Default is 'info'
-        out_dir:    "#{Dir.home}/nugem_generated",
-        private:    false,
-        todos:      true,
-        yes:        false,
+        executables: false,
+        gem_type:    :plain,
+        host:        'github',
+        loglevel:    LOGLEVELS[3], # Default is 'info'
+        out_dir:     "#{Dir.home}/nugem_generated",
+        private:     false,
+        todos:       true,
+        yes:         false,
       }
     end
 
@@ -79,7 +79,15 @@ module Nugem
       end
       return unless show_log_level_info
 
-      executable_msg = options[:executable] ? "An executable called #{options[:executable]} will be included" : 'No executable will be included'
+      executable_msg = if options[:executables]
+                         if options[:executables].length > 1
+                           "Executables called #{options[:executables].join ', '} will be included"
+                         else
+                           "An executable called #{options[:executables].join} will be included"
+                         end
+                       else
+                         'No executables will be included'
+                       end
       yes_msg = options[:yes] ? "All questions will be automatically be answered with 'yes'" : 'User responses will be used for yes/no questions'
       <<~END_SUMMARY
         Loglevel #{options[:loglevel]}
@@ -133,7 +141,10 @@ module Nugem
 
         # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
         # TODO: how to parse more than one executable?
-        parser.on '-e', '--executable EXECUTABLE',  String, 'Include an executable with the given name for the generated gem'
+        parser.on('-e', '--executables EXECUTABLES', String,
+                  'Include executables with the given names for the generated gem; separate with commas') do |value|
+          value.split(',')
+        end
         parser.on '-H', '--host HOST',              %w[github bitbucket], 'Repository host'
         parser.on '-L', '--loglevel LOGLEVEL',      LOGLEVELS,            'Logging level'
         parser.on('-o', '--out_dir OUT_DIR',        Pathname,             'Output directory for the gem') do |dir|

@@ -19,11 +19,11 @@ module Nugem
       # puts set_color("gem_name=#{gem_name}", :yellow)
       super if gem_name.empty?
 
-      @executable = options[:executable]
-      @host       = options[:host] # FIXME: conflicts with @host in create_gem_scaffold()
-      @out_dir    = options[:out_dir]
-      @private    = options[:private]
-      @yes        = options[:yes]
+      @executables = options[:executables]
+      @host        = options[:host] # FIXME: conflicts with @host in create_gem_scaffold()
+      @out_dir     = options[:out_dir]
+      @private     = options[:private]
+      @yes         = options[:yes]
 
       @dir = Nugem.dest_root @out_dir, gem_name
 
@@ -51,7 +51,7 @@ module Nugem
                         when 'rspec'    then /test.*/
                         end
       directory('common/gem_scaffold',        @dir, force: true, mode: :preserve, exclude_pattern:)
-      directory 'common/executable_scaffold', @dir, force: true, mode: :preserve if @executable
+      directory 'common/executable_scaffold', @dir, force: true, mode: :preserve if @executables
       template  'common/LICENCE.txt',         "#{@dir}/LICENCE.txt", force: true if @repository.public?
     end
   end

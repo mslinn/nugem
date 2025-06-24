@@ -33,7 +33,7 @@ module Nugem
                         when 'rspec'    then /test.*/
                         end
       directory('common/gem_scaffold',        @dir, force: true, mode: :preserve, exclude_pattern:)
-      directory 'common/executable_scaffold', @dir, force: true, mode: :preserve if @options[:executable]
+      directory 'common/executable_scaffold', @dir, force: true, mode: :preserve if @options[:executables]
       template  'common/LICENCE.txt',         "#{@dir}/LICENCE.txt", force: true if @repository.public?
     end
 
