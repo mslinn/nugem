@@ -61,7 +61,7 @@ class GemOptionsTest
 
     it 'tests gem with loglevel debug and summarize' do
       actual = options.parse_options(argv_override: argv)
-      actual_summary = options.act_and_summarize(actual, parse_dry_run: true)
+      actual_summary = options.act(actual, parse_dry_run: true)
       expected_summary = <<~END_SUMMARY
         Loglevel #{options.default_options[:loglevel]}
         Output directory: '#{options.default_options[:out_dir]}'
@@ -76,7 +76,7 @@ class GemOptionsTest
 
     it 'tests gem with loglevel debug and executable blah' do
       actual = options2.parse_options(argv_override: argv2)
-      actual_summary = options2.act_and_summarize(actual, parse_dry_run: true)
+      actual_summary = options2.act(actual, parse_dry_run: true)
       expected_summary = <<~END_SUMMARY
         Loglevel #{options2.default_options[:loglevel]}
         Output directory: '#{options2.default_options[:out_dir]}'

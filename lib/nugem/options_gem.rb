@@ -65,7 +65,7 @@ module Nugem
     # Do application-level sanity check stuff
     # Called after user parameters have been gathered and saved as state in this instance
     # Only generate output if loglevel is info or lower
-    def act_and_summarize(options, parse_dry_run: false)
+    def act(options, parse_dry_run: false)
       dir = options[:out_dir]
       overwrite = options[:overwrite]
       show_log_level_info = LOGLEVELS.index(options[:loglevel]) < LOGLEVELS.index('info')
@@ -77,8 +77,10 @@ module Nugem
         FileUtils.rm_rf(Dir.glob(dir), force: true, secure: true)
         Dir.mkdir dir
       end
-      return unless show_log_level_info
+      summarize(options) if show_log_level_info
+    end
 
+    def summarize(options)
       executable_msg = if options[:executables]
                          if options[:executables].length > 1
                            "Executables called #{options[:executables].join ', '} will be included"
@@ -95,7 +97,7 @@ module Nugem
                 end
       <<~END_SUMMARY
         Loglevel #{options[:loglevel]}
-        Output directory: '#{dir}'
+        Output directory: '#{options[:out_dir]}'
         #{executable_msg}
         Git host: #{options[:host]}
         A #{options[:private] ? 'private' : 'public'} git repository will be created
