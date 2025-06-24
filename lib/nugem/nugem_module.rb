@@ -71,7 +71,7 @@ module Nugem
       exit 2
     end
     nugem.parse_options
-    nugem.act_and_summarize options, parse_dry_run: parse_dry_run
+    puts nugem.act_and_summarize(options, parse_dry_run: parse_dry_run).green
   end
 
   def self.todo

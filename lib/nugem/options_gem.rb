@@ -42,7 +42,8 @@ module Nugem
   end
 
   class Options
-    attr_reader :attribute_name, :default_options, :options
+    attr_reader :attribute_name, :default_options
+    attr_accessor :options
 
     include ::HighlineWrappers
 
@@ -80,8 +81,8 @@ module Nugem
       return unless show_log_level_info
 
       executable_msg = options[:executable] ? "An executable called #{options[:executable]} will be included" : 'No executable will be included'
-      yes_msg = options[:yes] ? "All questions will be automatically be answered with 'yes'." : 'User responses will be used for yes/no questions.'
-      puts <<~END_SUMMARY.green
+      yes_msg = options[:yes] ? "All questions will be automatically be answered with 'yes'" : 'User responses will be used for yes/no questions'
+      <<~END_SUMMARY
         Loglevel #{LOGLEVELS.index(options[:loglevel])}
         Output directory: '#{dir}'
         #{executable_msg}
