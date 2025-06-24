@@ -82,7 +82,7 @@ module Nugem
       executable_msg = options[:executable] ? "An executable called #{options[:executable]} will be included" : 'No executable will be included'
       yes_msg = options[:yes] ? "All questions will be automatically be answered with 'yes'" : 'User responses will be used for yes/no questions'
       <<~END_SUMMARY
-        Loglevel #{LOGLEVELS.index(options[:loglevel])}
+        Loglevel #{options[:loglevel]}
         Output directory: '#{dir}'
         #{executable_msg}
         Git host: #{options[:host]}
@@ -133,16 +133,16 @@ module Nugem
 
         # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
         # TODO: how to parse more than one executable?
-        parser.on '-eEXECUTABLE', '--executable',   FalseClass,           'Include an executable with the given name for the generated gem'
-        parser.on '-HHOST',       '--host',         %w[github bitbucket], 'Repository host'
-        parser.on '-LLOGLEVEL',   '--loglevel',     LOGLEVELS,            'Logging level'
-        parser.on('-oOUT_DIR',    '--out_dir',      Pathname,             'Output directory for the gem') do |dir|
+        parser.on '-e', '--executable EXECUTABLE',  String, 'Include an executable with the given name for the generated gem'
+        parser.on '-H', '--host HOST',              %w[github bitbucket], 'Repository host'
+        parser.on '-L', '--loglevel LOGLEVEL',      LOGLEVELS,            'Logging level'
+        parser.on('-o', '--out_dir OUT_DIR',        Pathname,             'Output directory for the gem') do |dir|
           options[:out_dir] = parse_dir dir, options[:out_dir]
         end
-        parser.on '-p',           '--private',    FalseClass,            'Publish the gem to a private repository'
-        parser.on '-N',           '--no-todos',   TrueClass,             'Generate TODO: messages in generated code'
-        parser.on '-y',           '--yes',        FalseClass,            'Answer yes to all questions'
-        parser.on_tail('-h',      '--help',                              'Show this message') do
+        parser.on '-p', '--private',                TrueClass,             'Publish the gem to a private repository'
+        parser.on '-N', '--no-todos',               TrueClass,             'Generate TODO: messages in generated code'
+        parser.on '-y', '--yes',                    TrueClass,             'Answer yes to all questions'
+        parser.on_tail('-h', '--help',                                     'Show this message') do
           ::Nugem.help
         end
       end.order! into: options
