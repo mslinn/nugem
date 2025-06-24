@@ -15,6 +15,29 @@ class GemOptionsTest
     let(:options) { described_class.new }
     let(:debug_options) { options.default_options + { loglevel: argv[1] } }
 
+    let(:argv2) do
+      [
+        '-e', 'blah',
+        '-H', 'bitbucket',
+        '-L', 'debug',
+        '-o', TEST_OUT_DIR,
+        '-N',
+        '-p',
+        '-y',
+        'gem'
+      ]
+    end
+    let(:options2) { described_class.new }
+    let(:debug_options2) do
+      options.default_options +
+        {
+          executable: argv2[3],
+          loglevel:   argv2[1],
+          out_dir:    TEST_OUT_DIR,
+          private:    true,
+        }
+    end
+
     after(:context) do # rubocop:disable RSpec/BeforeAfterAll
       FileUtils.rm_rf TEST_OUT_DIR, secure: true
     end
@@ -39,6 +62,21 @@ class GemOptionsTest
         A public git repository will be created
         TODOs will be included in the source code
         User responses will be used for yes/no questions
+      END_SUMMARY
+      expect(actual_summary).to eq(expected_summary)
+    end
+
+    it 'tests gem with loglevel debug and executable blah' do
+      actual = options2.parse_options(argv_override: argv2)
+      actual_summary = actual.act_and_summarize(options2, parse_dry_run: true)
+      expected_summary = <<~END_SUMMARY
+        Loglevel #{LOGLEVELS.index(options2[:loglevel])}
+        Output directory: '#{options2[:out_dir]}'
+        An executable called blah will be included
+        Git host: github
+        A public git repository will be created
+        TODOs will be included in the source code
+        All questions will be automatically be answered with 'yes'
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
     end

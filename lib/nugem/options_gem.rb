@@ -23,8 +23,8 @@ module Nugem
                                              # Possible values: #{HOSTS.join ', '}
         -L LOGLEVEL, --loglevel LOGLEVEL     # Possible values: #{LOGLEVELS.join ', '}. Default: info
         -o OUT_DIR, --out-dir=OUT_DIR        # Output directory for the gem. Default: ~/nugem_generated
+        -N, --no-todos                       # Suppress TODO: messages in generated code. Default: false
         -p, --private                        # Publish the gem to a private repository. Default: false
-        -T, --todos                          # Generate TODO: messages in generated code. Default: true
         -y, --yes                            # Answer yes to all questions. Default: false
 
       The following options are only available for Jekyll plugin.
@@ -57,7 +57,6 @@ module Nugem
         loglevel:   LOGLEVELS[3], # Default is 'info'
         out_dir:    "#{Dir.home}/nugem_generated",
         private:    false,
-        quiet:      true,
         todos:      true,
         yes:        false,
       }
@@ -141,7 +140,7 @@ module Nugem
           options[:out_dir] = parse_dir dir, options[:out_dir]
         end
         parser.on '-p',           '--private',    FalseClass,            'Publish the gem to a private repository'
-        parser.on '-T',           '--[no-]todos', TrueClass,             'Generate TODO: messages in generated code'
+        parser.on '-N',           '--no-todos',   TrueClass,             'Generate TODO: messages in generated code'
         parser.on '-y',           '--yes',        FalseClass,            'Answer yes to all questions'
         parser.on_tail('-h',      '--help',                              'Show this message') do
           ::Nugem.help
