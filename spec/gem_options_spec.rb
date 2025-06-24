@@ -29,12 +29,22 @@ class GemOptionsTest
     end
     let(:options2) { described_class.new }
     let(:debug_options2) do
-      options.default_options +
+      options2.default_options +
         {
           executable: argv2[3],
           loglevel:   argv2[1],
           out_dir:    TEST_OUT_DIR,
           private:    true,
+        }
+    end
+
+    let(:argv3) { ['-L', 'debug', '-e', 'ex1', '-e', 'ex2', 'gem'] }
+    let(:options3) { described_class.new }
+    let(:debug_options3) do
+      options3.default_options +
+        {
+          executable: [argv3[3], argv3[5]],
+          loglevel:   argv3[1],
         }
     end
 
@@ -79,6 +89,11 @@ class GemOptionsTest
         All questions will be automatically be answered with 'yes'
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
+    end
+
+    it 'tests gem for loglevel debug and 2 execuables' do
+      actual = options3.parse_options(argv_override: argv3)
+      expect(actual).to eq(debug_options3)
     end
   end
 end

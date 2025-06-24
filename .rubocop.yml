@@ -69,6 +69,12 @@ Naming/FileName:
     - Rakefile
     - README.md
 
+RSpec/IndexedLet:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
 Style/Documentation:
   Enabled: false
 
