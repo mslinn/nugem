@@ -140,8 +140,6 @@ module Nugem
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       OptionParser.new do |parser|
         parser.default_argv = argv_override if argv_override
-        parser.program_name = File.basename __FILE__
-        @parser = parser
 
         # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
         # TODO: how to parse more than one executable?
