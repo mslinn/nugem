@@ -88,7 +88,11 @@ module Nugem
                        else
                          'No executables will be included'
                        end
-      yes_msg = options[:yes] ? "All questions will be automatically be answered with 'yes'" : 'User responses will be used for yes/no questions'
+      yes_msg = if options[:yes]
+                  "All questions will be automatically be answered with 'yes'"
+                else
+                  'User responses will be used for yes/no questions'
+                end
       <<~END_SUMMARY
         Loglevel #{options[:loglevel]}
         Output directory: '#{dir}'
