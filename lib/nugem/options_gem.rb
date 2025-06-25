@@ -21,13 +21,14 @@ module Nugem
         -h, --help                                          # Display this help message
         -H HOST, --host=HOST                                # Repository host. Default: github
                                                             # Possible values: #{HOSTS.join ', '}
-        -L LOGLEVEL, --loglevel LOGLEVEL                    # Possible values: #{LOGLEVELS.join ', '}. Default: info
+        -L LOGLEVEL, --loglevel LOGLEVEL                    # Possible values: #{LOGLEVELS.join ', '}.
+                                                            # Default: info
         -o OUT_DIR, --out-dir=OUT_DIR                       # Output directory for the gem. Default: ~/nugem_generated
         -N, --no-todos                                      # Suppress TODO: messages in generated code. Default: false
         -p, --private                                       # Publish the gem to a private repository. Default: false
         -y, --yes                                           # Answer yes to all questions. Default: false
 
-      The following options are only available for Jekyll plugin.
+      The following options are only available for Jekyll plugins.
       Each of these OPTIONs can be invoked multiple times, except -K / --hooks:
         -B BLOCK1[,BLOCK2...], --blocks=BLOCK1[,BLOCK2...]                      # Specifies the name of a Jekyll block tag.
         -N BLOCK1[,BLOCK2...], --blockns=BLOCK1[,BLOCK2...]                     # Specifies the name of Jekyll no-arg block tag(s).
@@ -149,6 +150,8 @@ module Nugem
         end
       end.order! into: options
       options
+    rescue OptionParser::InvalidOption => e
+      ::Nugem.help e.message
     end
 
     def parse_positional_parameters(label = 'gem')

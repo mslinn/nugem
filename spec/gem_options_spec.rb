@@ -46,6 +46,15 @@ class GemOptionsTest
                                      })
     end
 
+    let(:argv4) { ['-L', 'debug', '-x', 'gem'] }
+    let(:options4) { described_class.new }
+    let(:debug_options4) do
+      options3.default_options.merge({
+                                       executables: %w[ex1 ex2],
+                                       loglevel:    'debug',
+                                     })
+    end
+
     after(:context) do # rubocop:disable RSpec/BeforeAfterAll
       FileUtils.rm_rf TEST_OUT_DIR, secure: true
     end
@@ -92,6 +101,10 @@ class GemOptionsTest
     it 'tests gem for loglevel debug and 2 executables' do
       actual = options3.parse_options(argv_override: argv3)
       expect(actual).to eq(debug_options3)
+    end
+
+    it 'throws an error when it encounters invalid options' do
+      expect(options4.parse_options(argv_override: argv4)).to raise_error('invalid option: -x')
     end
   end
 end
