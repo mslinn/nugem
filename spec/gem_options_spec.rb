@@ -7,8 +7,7 @@ require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
 class GemOptionsTest
-  DEFAULT_OUT_DIR = File.join(Dir.home,   'nugem_generated').freeze
-  TEST_OUT_DIR    = File.join(Dir.tmpdir, 'nugem_test').freeze
+  TEST_OUT_DIR = File.join(Dir.tmpdir, 'nugem_test').freeze
 
   RSpec.describe ::Nugem::Options do
     after(:context) do # rubocop:disable RSpec/BeforeAfterAll

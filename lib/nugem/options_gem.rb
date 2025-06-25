@@ -3,6 +3,7 @@ require 'sod'
 require 'sod/types/pathname'
 
 module Nugem
+  DEFAULT_OUT_DIR = File.join(Dir.home, 'nugem_generated').freeze
   HOSTS = %w[github gitlab bitbucket].freeze
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
@@ -57,7 +58,7 @@ module Nugem
         gem_type:    :plain,
         host:        'github',
         loglevel:    LOGLEVELS[3], # Default is 'info'
-        out_dir:     "#{Dir.home}/nugem_generated",
+        out_dir:     DEFAULT_OUT_DIR,
         private:     false,
         todos:       true,
         yes:         false,
@@ -139,8 +140,8 @@ module Nugem
         end
         parser.on '-H', '--host HOST',              %w[github bitbucket], 'Repository host'
         parser.on '-L', '--loglevel LOGLEVEL',      LOGLEVELS,            'Logging level'
-        parser.on('-o', '--out_dir OUT_DIR',        Pathname,             'Output directory for the gem') do |dir|
-          options[:out_dir] = parse_dir dir, options[:out_dir]
+        parser.on('-o', '--out_dir OUT_DIR',        Pathname,             'Output directory for the gem') do |path|
+          options[:out_dir] = parse_dir path.to_s, options[:out_dir]
         end
         parser.on '-p', '--private',                TrueClass,             'Publish the gem to a private repository'
         parser.on '-N', '--no-todos',               TrueClass,             'Generate TODO: messages in generated code'
