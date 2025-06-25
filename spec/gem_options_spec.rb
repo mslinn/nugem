@@ -11,50 +11,6 @@ class GemOptionsTest
   TEST_OUT_DIR    = File.join(Dir.tmpdir, 'nugem_test').freeze
 
   RSpec.describe ::Nugem::Options do
-    let(:argv) { ['-L', 'debug', 'gem'] }
-    let(:options) { described_class.new(errors_are_fatal: false) }
-    let(:debug_options) { options.value.merge({ loglevel: 'debug' }) }
-
-    let(:argv2) do
-      [
-        '-e', 'blah',
-        '-H', 'bitbucket',
-        '-L', 'debug',
-        '-o', TEST_OUT_DIR,
-        '-N',
-        '-p',
-        '-y',
-        'gem'
-      ]
-    end
-    let(:options2) { described_class.new(errors_are_fatal: false) }
-    let(:debug_options2) do
-      options2.value.merge({
-                             executables: 'blah',
-                             loglevel:    'debug',
-                             out_dir:     TEST_OUT_DIR,
-                             private:     true,
-                           })
-    end
-
-    let(:argv3) { ['-L', 'debug', '-e', 'ex1,ex2', 'gem'] }
-    let(:options3) { described_class.new(errors_are_fatal: false) }
-    let(:debug_options3) do
-      options3.value.merge({
-                             executables: %w[ex1 ex2],
-                             loglevel:    'debug',
-                           })
-    end
-
-    let(:argv4) { ['-L', 'debug', '-x', 'gem'] }
-    let(:options4) { described_class.new(errors_are_fatal: false) }
-    let(:debug_options4) do
-      options4.value.merge({
-                             executables: %w[ex1 ex2],
-                             loglevel:    'debug',
-                           })
-    end
-
     after(:context) do # rubocop:disable RSpec/BeforeAfterAll
       FileUtils.rm_rf TEST_OUT_DIR, secure: true
     end
@@ -63,13 +19,14 @@ class GemOptionsTest
       FileUtils.rm_rf TEST_OUT_DIR, secure: true
     end
 
-    it 'tests gem with loglevel debug' do
+    it 'tests gem with loglevel debug and summarize' do
+      argv = ['-L', 'debug', 'gem']
+      options = described_class.new(errors_are_fatal: false)
+      debug_options = options.value.merge({ loglevel: 'debug' })
+
       actual = options.parse_options(argv_override: argv)
       expect(actual).to eq(debug_options)
-    end
 
-    it 'tests gem with loglevel debug and summarize' do
-      actual = options.parse_options(argv_override: argv)
       actual_summary = options.act(actual, parse_dry_run: true)
       expected_summary = <<~END_SUMMARY
         Loglevel #{options.value[:loglevel]}
@@ -84,11 +41,30 @@ class GemOptionsTest
     end
 
     it 'tests gem with loglevel debug and executable blah' do
-      actual = options2.parse_options(argv_override: argv2)
-      actual_summary = options2.act(actual, parse_dry_run: true)
+      argv = [
+        '-e', 'blah',
+        '-H', 'bitbucket',
+        '-L', 'debug',
+        '-o', TEST_OUT_DIR,
+        '-N',
+        '-p',
+        '-y',
+        'gem'
+      ]
+      options = described_class.new(errors_are_fatal: false)
+      actual = options.parse_options(argv_override: argv)
+      expected = options.value.merge({
+                                       executables: ['blah'],
+                                       loglevel:    'debug',
+                                       out_dir:     TEST_OUT_DIR,
+                                       private:     true,
+                                     })
+      expect(actual).to eq(expected)
+
+      actual_summary = options.act(actual, parse_dry_run: true)
       expected_summary = <<~END_SUMMARY
-        Loglevel #{options2.value[:loglevel]}
-        Output directory: '#{options2.value[:out_dir]}'
+        Loglevel #{options.value[:loglevel]}
+        Output directory: '#{options.value[:out_dir]}'
         An executable called blah will be included
         Git host: bitbucket
         A private git repository will be created
@@ -99,13 +75,21 @@ class GemOptionsTest
     end
 
     it 'tests gem for loglevel debug and 2 executables' do
-      actual = options3.parse_options(argv_override: argv3)
-      expect(actual).to eq(debug_options3)
+      argv = ['-L', 'debug', '-e', 'ex1,ex2', 'gem']
+      options = described_class.new(errors_are_fatal: false)
+      expected = options.value.merge({
+                                       executables: %w[ex1 ex2],
+                                       loglevel:    'debug',
+                                     })
+      actual = options.parse_options(argv_override: argv)
+      expect(actual).to eq(expected)
     end
 
     it 'throws an error when it encounters invalid options' do
+      argv = ['-L', 'debug', '-x', 'gem']
+      options = described_class.new(errors_are_fatal: false)
       expect do
-        options4.parse_options(argv_override: argv4)
+        options.parse_options(argv_override: argv)
       end.to raise_error(ArgumentError, 'invalid option: -x')
     end
   end
