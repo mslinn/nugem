@@ -87,9 +87,8 @@ class GemOptionsTest
     it 'throws an error when it encounters invalid options' do
       argv = ['-L', 'debug', '-x', 'gem']
       options = described_class.new(errors_are_fatal: false)
-      expect do
-        options.parse_options(argv_override: argv)
-      end.to raise_error(ArgumentError, 'invalid option: -x')
+      actual = options.parse_options(argv_override: argv)
+      expect(actual).to eq('invalid option: -x')
     end
   end
 end
