@@ -84,7 +84,7 @@ class GemOptionsTest
       expect(actual).to eq(expected)
     end
 
-    it 'throws an error when it encounters invalid options' do
+    it 'handles invalid options' do
       argv = ['-L', 'debug', '-x', 'gem']
       options = described_class.new(errors_are_fatal: false)
       actual = options.parse_options(argv_override: argv)
