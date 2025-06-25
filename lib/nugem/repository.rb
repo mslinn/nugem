@@ -6,6 +6,7 @@ module Nugem
     Host = Struct.new(:domain, :camel_case, :id, keyword_init: true)
     HOSTS = [
       Host.new(domain: 'github.com',    camel_case: 'GitHub',    id: :github),
+      Host.new(domain: 'gitlab.com',    camel_case: 'GitLab',    id: :gitlab),
       Host.new(domain: 'bitbucket.org', camel_case: 'BitBucket', id: :bitbucket),
     ].freeze
 
@@ -32,6 +33,10 @@ module Nugem
       @host.id == :github
     end
 
+    def gitlab?
+      @host.id == :gitlab
+    end
+
     def origin
       "git@#{@host.domain}:#{@user}/#{@name}.git"
     end
@@ -39,6 +44,7 @@ module Nugem
     # TODO: Currently all private repositories are on BitBucket and all public repos are on GitHub
     # TODO: Drop BitBucket?
     # TODO: Support private repos on GitHub
+    # TODO: Support GitLab
     def private?
       @private
     end

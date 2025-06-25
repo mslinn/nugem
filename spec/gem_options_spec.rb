@@ -12,8 +12,8 @@ class GemOptionsTest
 
   RSpec.describe ::Nugem::Options do
     let(:argv) { ['-L', 'debug', 'gem'] }
-    let(:options) { described_class.new }
-    let(:debug_options) { options.default_options.merge({ loglevel: 'debug' }) }
+    let(:options) { described_class.new(errors_are_fatal: false) }
+    let(:debug_options) { options.value.merge({ loglevel: 'debug' }) }
 
     let(:argv2) do
       [
@@ -27,32 +27,32 @@ class GemOptionsTest
         'gem'
       ]
     end
-    let(:options2) { described_class.new }
+    let(:options2) { described_class.new(errors_are_fatal: false) }
     let(:debug_options2) do
-      options2.default_options.merge({
-                                       executables: 'blah',
-                                       loglevel:    'debug',
-                                       out_dir:     TEST_OUT_DIR,
-                                       private:     true,
-                                     })
+      options2.value.merge({
+                             executables: 'blah',
+                             loglevel:    'debug',
+                             out_dir:     TEST_OUT_DIR,
+                             private:     true,
+                           })
     end
 
     let(:argv3) { ['-L', 'debug', '-e', 'ex1,ex2', 'gem'] }
-    let(:options3) { described_class.new }
+    let(:options3) { described_class.new(errors_are_fatal: false) }
     let(:debug_options3) do
-      options3.default_options.merge({
-                                       executables: %w[ex1 ex2],
-                                       loglevel:    'debug',
-                                     })
+      options3.value.merge({
+                             executables: %w[ex1 ex2],
+                             loglevel:    'debug',
+                           })
     end
 
     let(:argv4) { ['-L', 'debug', '-x', 'gem'] }
-    let(:options4) { described_class.new }
+    let(:options4) { described_class.new(errors_are_fatal: false) }
     let(:debug_options4) do
-      options3.default_options.merge({
-                                       executables: %w[ex1 ex2],
-                                       loglevel:    'debug',
-                                     })
+      options4.value.merge({
+                             executables: %w[ex1 ex2],
+                             loglevel:    'debug',
+                           })
     end
 
     after(:context) do # rubocop:disable RSpec/BeforeAfterAll
@@ -72,8 +72,8 @@ class GemOptionsTest
       actual = options.parse_options(argv_override: argv)
       actual_summary = options.act(actual, parse_dry_run: true)
       expected_summary = <<~END_SUMMARY
-        Loglevel #{options.default_options[:loglevel]}
-        Output directory: '#{options.default_options[:out_dir]}'
+        Loglevel #{options.value[:loglevel]}
+        Output directory: '#{options.value[:out_dir]}'
         No executables will be included
         Git host: github
         A public git repository will be created
@@ -87,8 +87,8 @@ class GemOptionsTest
       actual = options2.parse_options(argv_override: argv2)
       actual_summary = options2.act(actual, parse_dry_run: true)
       expected_summary = <<~END_SUMMARY
-        Loglevel #{options2.default_options[:loglevel]}
-        Output directory: '#{options2.default_options[:out_dir]}'
+        Loglevel #{options2.value[:loglevel]}
+        Output directory: '#{options2.value[:out_dir]}'
         An executable called blah will be included
         Git host: bitbucket
         A private git repository will be created
@@ -104,7 +104,9 @@ class GemOptionsTest
     end
 
     it 'throws an error when it encounters invalid options' do
-      expect(options4.parse_options(argv_override: argv4)).to raise_error('invalid option: -x')
+      expect do
+        options4.parse_options(argv_override: argv4)
+      end.to raise_error(ArgumentError, 'invalid option: -x')
     end
   end
 end

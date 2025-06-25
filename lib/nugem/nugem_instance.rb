@@ -39,13 +39,13 @@ module Nugem
 
     def initialize_repository
       puts set_color("Initializing repository for #{@gem_name} at #{@repository.host}.", :green)
-      @repository.create if %i[github bitbucket].include?(@repository.host)
+      @repository.create if %i[github gitlab bitbucket].include?(@repository.host)
       @repository.push_to_remote(@dir) if @repository.public?
     end
 
     def git_repository_user_name(host)
       case host
-      when :bitbucket | :github
+      when :bitbucket | :gitlab | :github
         `git config --get user.name`.strip
       else
         raise ArgumentError, "Unknown host: #{host}"

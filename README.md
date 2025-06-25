@@ -1,15 +1,15 @@
 # `Nugem` [![Gem Version](https://badge.fury.io/rb/nugem.svg)](https://badge.fury.io/rb/nugem)
 
 `Nugem` creates a scaffold project for a new gem in a new git repository.
-After you add your special code to the gem scaffold,
-the project is ready to be released to a public or private gem server.
+After you add your special code to the gem scaffold and test it,
+the project can be released to a public or private gem server.
 
 This gem generates a new working Visual Studio Code project with the following features:
 
 - Compatible with `rbenv`.
 - `Gemfile` and `.gemspec` files set up.
 - Generates a README with badges.
-- Visual Studio Code project is set up with current Ruby extensions.
+- Generates a new Visual Studio Code project, set up with current Ruby extensions.
   - Rubocop configured.
   - Shellcheck configured.
   - Markdown lint configured.

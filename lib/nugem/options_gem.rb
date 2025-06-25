@@ -6,7 +6,7 @@ module Nugem
   HOSTS = %w[github gitlab bitbucket].freeze
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
-  def self.help(msg = nil)
+  def self.help(msg = nil, errors_are_fatal: true)
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
       nugem: Creates scaffolding for a plain gem or a Jekyll plugin.
@@ -39,19 +39,20 @@ module Nugem
         -n TAG1[,TAG2...], --tagns=TAG1[,TAG2...]                               # Specifies the name of Jekyll no-arg tag(s).
     END_HELP
     printf msg.cyan
-    exit 1
+    exit 1 if errors_are_fatal
   end
 
   class Options
-    attr_reader :attribute_name, :default_options
-    attr_accessor :options
+    attr_reader :attribute_name, :value
+    attr_accessor :errors_are_fatal, :options
 
     include ::HighlineWrappers
 
-    def initialize
+    def initialize(errors_are_fatal: true)
       @attribute_name = 'plain'
+      @errors_are_fatal = errors_are_fatal
 
-      @default_options = {
+      @value = {
         executables: false,
         gem_type:    :plain,
         host:        'github',
@@ -124,7 +125,7 @@ module Nugem
     # Gather all the possible parameter values. Other than built-in type checking,
     # act_and_summarize will do the the application-level sanity check stuff
     def parse_options(argv_override: nil)
-      options = @default_options
+      options = @value
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
@@ -132,7 +133,6 @@ module Nugem
         parser.default_argv = argv_override if argv_override
 
         # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
-        # TODO: how to parse more than one executable?
         parser.on('-e', '--executables EXECUTABLES', String,
                   'Include executables with the given names for the generated gem; separate with commas') do |value|
           value.split(',')
@@ -146,22 +146,22 @@ module Nugem
         parser.on '-N', '--no-todos',               TrueClass,             'Generate TODO: messages in generated code'
         parser.on '-y', '--yes',                    TrueClass,             'Answer yes to all questions'
         parser.on_tail('-h', '--help',                                     'Show this message') do
-          ::Nugem.help
+          ::Nugem.help(errors_are_fatal: errors_are_fatal)
         end
       end.order! into: options
       options
     rescue OptionParser::InvalidOption => e
-      ::Nugem.help e.message
+      ::Nugem.help(e.message, errors_are_fatal: errors_are_fatal)
     end
 
     def parse_positional_parameters(label = 'gem')
-      ::Nugem.help("The type and name of the #{label} to create was not specfied.") if ARGV.empty?
-      ::Nugem.help('Invalid syntax.') if ARGV.length > 2
+      ::Nugem.help("The type and name of the #{label} to create was not specfied.", errors_are_fatal: errors_are_fatal) if ARGV.empty?
+      ::Nugem.help('Invalid syntax.', errors_are_fatal: errors_are_fatal) if ARGV.length > 2
 
       @options[:gem_type] = ARGV[0]
       @options[:gem_name] = ARGV[1]
 
-      ::Nugem.help("Invalid #{@options[:gem_type]} name.") unless Nugem.validate_gem_name(@options[:gem_name])
+      ::Nugem.help("Invalid #{@options[:gem_type]} name.", errors_are_fatal: errors_are_fatal) unless Nugem.validate_gem_name(@options[:gem_name])
     end
   end
 end

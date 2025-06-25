@@ -10,7 +10,7 @@ module Nugem
     END_DESC
 
     method_option :host, type: :string, default: 'github',
-      enum: %w[bitbucket github], desc: 'Repository host.'
+      enum: %w[bitbucket github gitlab], desc: 'Repository host.'
 
     method_option :private, type: :boolean, default: false,
       desc: 'Publish the gem in a private repository.'
@@ -34,6 +34,7 @@ module Nugem
     private
 
     # Defines globals for templates
+    # TODO: Support GitLab
     def create_plain_scaffold(gem_name)
       @gem_name = gem_name
       @class_name = Nugem.camel_case @gem_name

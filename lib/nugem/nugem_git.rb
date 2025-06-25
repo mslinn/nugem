@@ -22,6 +22,7 @@ module Nugem
       YAML.safe_load_file(gh_hosts_file)
     end
 
+    # TODO: support GitLab
     def create_remote_git_repository(repository)
       puts set_color("Creating a remote #{repository.host} repository", :green)
       if repository.github?
@@ -56,6 +57,7 @@ module Nugem
       git_config_key = "nugem.#{host}user"
       user = global_config[git_config_key]
 
+      # TODO: support BitBucket and GitLab
       gh_config = github_config
       user ||= gh_config&.dig('github.com', 'user')
 
