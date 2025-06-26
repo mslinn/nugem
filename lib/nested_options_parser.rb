@@ -3,11 +3,25 @@ require 'optparse'
 class NestedOptionParser
   def initialize(default_options, option_parser_proc, subcommand_parser_procs = [], argv: ARGV)
     @unmatched_args = []
-    # @option_parser = evaluate option_parser_proc
     @subcommand_parser_procs = subcommand_parser_procs
-    evaluate(default_options, argv, &option_parser_proc)
-    puts "ARGV=#{ARGV}"
-    puts "@unmatched_args=#{@unmatched_args}"
+
+    # Establish default values:
+    @options = {}
+    @remaining_argv = argv
+    report "Before processing"
+    # @option_parser = evaluate option_parser_proc
+    result = evaluate(default_options, argv, &option_parser_proc)
+    report "After processing, result=#{result} (should be same as @options)"
+  end
+
+  def report(msg)
+    puts <<~END_MSG
+      #{msg}:
+        ARGV=#{ARGV}"
+        @unmatched_args=#{@unmatched_args}
+        @options=#{@options}
+        @remaining_argv=#{@remaining_argv}
+    END_MSG
   end
 
   # How to add this to every option_parser_proc:
@@ -15,29 +29,33 @@ class NestedOptionParser
   # needs to affect the caller's ARGV
 
   def evaluate(default_options, argv, &op_proc)
-    options = default_options
-    OptionParser.new do |parser|
+    @options = default_options
+    @remaining_argv = OptionParser.new do |parser|
       parser.default_argv = argv
       parser.raise_unknown = false
       yield parser, op_proc
-      parser.on(/.*/) do |arg|
-        puts "Unmatched: #{arg}"
-        @unmatched_args << arg
-      end
-    end.order! into: options
-    puts "After parsing, options=#{options}"
-    options
+    end.order!(into: @options)
+    @options
   rescue OptionParser::InvalidOption => e
-    puts e.message
+    puts "Error: #{e.message}"
     exit 1
   end
 end
 
 
 my_option_parser_proc = proc do |parser|
-  puts "Evaluating my_option_parser_proc"
   parser.on '-h', '--help'
   parser.on '-o', '--out_dir OUT_DIR'
 end
 
-NestedOptionParser.new({}, my_option_parser_proc, argv: %w[-h -x])
+NestedOptionParser.new(
+  {},
+  my_option_parser_proc,
+  argv: %w[-h -x pos_param1 pos_param2 -y -z]
+)
+
+NestedOptionParser.new(
+  {},
+  my_option_parser_proc,
+  argv: %w[-a --blah -h -x pos_param1 pos_param2 -y -z]
+)
