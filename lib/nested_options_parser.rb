@@ -5,13 +5,30 @@ class NestedOptionParser
     @unmatched_args = []
     @subcommand_parser_procs = subcommand_parser_procs
 
+    @positional_parameters, optional_parameters = argv.partition { |x| x.start_with? '-' }
+
     # Establish default values:
     @options = {}
-    @remaining_argv = argv
-    report "Before processing"
+    @remaining_argv = optional_parameters
+    report 'Before processing'
     # @option_parser = evaluate option_parser_proc
     result = evaluate(default_options, argv, &option_parser_proc)
     report "After processing, result=#{result} (should be same as @options)"
+  end
+
+  def evaluate(default_options, argv, &op_proc)
+    @options = default_options
+    @remaining_argv = OptionParser.new do |parser|
+      parser.default_argv = argv
+      parser.raise_unknown = false
+      yield parser, op_proc
+    rescue OptionParser::InvalidOption => e
+      @remaining_argv << e.args.first if e.args.any?
+    end.order!(into: @options)
+    @options
+  rescue OptionParser::InvalidOption => e
+    puts "Error: #{e.message}"
+    exit 1
   end
 
   def report(msg)
@@ -21,27 +38,10 @@ class NestedOptionParser
         @unmatched_args=#{@unmatched_args}
         @options=#{@options}
         @remaining_argv=#{@remaining_argv}
+        @positional_parameters=#{@positional_parameters}
     END_MSG
   end
-
-  # How to add this to every option_parser_proc:
-  # parser.on /.*/ { |subcommand| subcommand.call } # Somehow the modified ARGV from the subcommand
-  # needs to affect the caller's ARGV
-
-  def evaluate(default_options, argv, &op_proc)
-    @options = default_options
-    @remaining_argv = OptionParser.new do |parser|
-      parser.default_argv = argv
-      parser.raise_unknown = false
-      yield parser, op_proc
-    end.order!(into: @options)
-    @options
-  rescue OptionParser::InvalidOption => e
-    puts "Error: #{e.message}"
-    exit 1
-  end
 end
-
 
 my_option_parser_proc = proc do |parser|
   parser.on '-h', '--help'
