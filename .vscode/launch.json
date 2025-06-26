@@ -92,6 +92,15 @@
       "script": "${workspaceRoot}/binstub/rspec",
       "type": "rdbg",
       "useBundler": true,
-    }
+    },
+    {
+      "args": [],
+      "debugPort": "0",
+      "name": "Debug current file with rdbg",
+      "request": "launch",
+      "script": "${file}",
+      "type": "rdbg",
+      "useBundler": true,
+    },
   ]
 }
