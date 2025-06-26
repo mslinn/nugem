@@ -5,14 +5,12 @@ class NestedOptionParser
     @unmatched_args = []
     @subcommand_parser_procs = subcommand_parser_procs
 
-    @positional_parameters, optional_parameters = argv.partition { |x| x.start_with? '-' }
+    @positional_parameters, @remaining_argv = argv.partition { |x| x.start_with? '-' }
 
-    # Establish default values:
-    @options = {}
-    @remaining_argv = optional_parameters
+    @options = {} # Set default values here
     report 'Before processing'
     # @option_parser = evaluate option_parser_proc
-    result = evaluate(default_options, argv, &option_parser_proc)
+    result = evaluate(default_options, @remaining_argv, &option_parser_proc)
     report "After processing, result=#{result} (should be same as @options)"
   end
 
