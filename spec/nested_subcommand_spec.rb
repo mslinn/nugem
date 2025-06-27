@@ -8,7 +8,7 @@ class NestedOptionParserTest
   RSpec.describe NestedOptionParser do
     let(:nop1) do
       described_class.new(
-        default_options = {},
+        {},
         proc do |parser|
           parser.on '-h', '--help'
           parser.on '-o', '--out_dir OUT_DIR'
