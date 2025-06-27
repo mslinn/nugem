@@ -1,7 +1,7 @@
 require 'optparse'
 
 class NestedOptionParser
-  def initialize(default_options, option_parser_proc, subcommand_parser_procs = [], argv: ARGV)
+  def initialize(default_options, option_parser_proc, sub_name=nil, subcommand_parser_procs = [], argv: ARGV)
     @unmatched_args = []
     @subcommand_parser_procs = subcommand_parser_procs
 
@@ -12,6 +12,10 @@ class NestedOptionParser
     # @option_parser = evaluate option_parser_proc
     result = evaluate(default_options, @remaining_argv, &option_parser_proc)
     report "After processing, result=#{result} (should be same as @options)"
+  end
+
+  def argv
+    @unmatched_args + @positional_parameters
   end
 
   def evaluate(default_options, argv, &op_proc)
@@ -41,19 +45,19 @@ class NestedOptionParser
   end
 end
 
-my_option_parser_proc = proc do |parser|
-  parser.on '-h', '--help'
-  parser.on '-o', '--out_dir OUT_DIR'
-end
+# my_option_parser_proc = proc do |parser|
+#   parser.on '-h', '--help'
+#   parser.on '-o', '--out_dir OUT_DIR'
+# end
 
-NestedOptionParser.new(
-  {},
-  my_option_parser_proc,
-  argv: %w[-h -x pos_param1 pos_param2 -y -z]
-)
+# NestedOptionParser.new(
+#   {},
+#   my_option_parser_proc,
+#   argv: %w[-h -x pos_param1 pos_param2 -y -z]
+# )
 
-NestedOptionParser.new(
-  {},
-  my_option_parser_proc,
-  argv: %w[-a --blah -h -x pos_param1 pos_param2 -y -z]
+# NestedOptionParser.new(
+#   {},
+#   my_option_parser_proc,
+#   argv: %w[-a --blah -h -x pos_param1 pos_param2 -y -z]
 )

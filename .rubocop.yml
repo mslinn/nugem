@@ -43,9 +43,7 @@ Metrics/AbcSize:
   Max: 50
 
 Metrics/BlockLength:
-  Exclude:
-    - nugem.gemspec
-  Max: 30
+  Enabled: false
 
 Metrics/ClassLength:
   Enabled: false
