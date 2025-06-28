@@ -18,11 +18,13 @@ class NestedOptionParser
     @unmatched_args + @positional_parameters
   end
 
+  # Suppresses the Exception raised by OptionParser when an unknown option is encountered.
+  # Instead, it collects the unmatched arguments in @unmatched_args.
   def evaluate(default_options, argv, &op_proc)
     @options = default_options
     @remaining_argv = OptionParser.new do |parser|
       parser.default_argv = argv
-      parser.raise_unknown = false
+      parser.raise_unknown = false # if @subcommand_parser_procs
       yield parser, op_proc
     rescue OptionParser::InvalidOption => e
       @remaining_argv << e.args.first if e.args.any?
