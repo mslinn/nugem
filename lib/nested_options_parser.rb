@@ -36,23 +36,15 @@ class NestedOptionParser
     sub_name: nil,
     subcommand_parser_procs: []
   )
+    @options = default_option_hash
     @sub_name = sub_name
     @subcommand_parser_procs = subcommand_parser_procs
 
     @remaining_argv, @positional_parameters = default_argv.partition { |x| x.start_with? '-' }
 
-    if sub_name && subcommand_parser_procs.empty?
-      puts "Warning: sub_name '#{@sub_name}' is set, but subcommand_parser_procs was provided. This may lead to unexpected behavior.".red
-      exit 2
-    end
-    if sub_name.to_s.empty? && !subcommand_parser_procs.empty?
-      puts "Warning: sub_name '#{@sub_name}' was not set, but subcommand_parser_procs is empty. This may lead to unexpected behavior.".red
-      exit 3
-    end
-    @options = {} # Set default values here
     report 'Before processing'
-    result = evaluate(default_option_hash, @remaining_argv, &option_parser_proc)
-    report "After processing, result=#{result} (should be same as @options)"
+    @options = evaluate(default_option_hash, @remaining_argv, &option_parser_proc)
+    report "After processing, @options=#{@options}"
   end
 
   def argv
@@ -72,15 +64,15 @@ class NestedOptionParser
   #
   # @return [Hash] The options hash after parsing.
   def evaluate(default_option_hash, default_argv, &op_proc)
-    @options = default_option_hash
+    options = default_option_hash
     @remaining_argv = OptionParser.new do |parser|
       parser.default_argv = default_argv
       parser.raise_unknown = false # if @subcommand_parser_procs
       yield parser, op_proc
     rescue OptionParser::InvalidOption => e
       @remaining_argv << e.args.first if e.args.any?
-    end.order!(into: @options)
-    @options
+    end.order!(into: options)
+    options
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}"
     exit 1
