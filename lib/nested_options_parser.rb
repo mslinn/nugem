@@ -47,6 +47,10 @@ class NestedOptionParser
     report "After processing, @options=#{@options}"
   end
 
+  # Returns the command line arguments that were not matched by the option parser, ready for a subcommand parser.
+  # This includes any positional parameters that were not matched by the option parser.
+  #
+  # @return [Array<String>] The remaining command line arguments after parsing.
   def argv
     @remaining_argv + @positional_parameters
   end
