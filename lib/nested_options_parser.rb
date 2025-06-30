@@ -20,7 +20,7 @@ class NestedOptionParser
   #
   # @example
   #   NestedOptionParser.new(
-  #     argv: %w[-h -x pos_param1 pos_param2 -y -z]
+  #     default_argv: %w[-h -x pos_param1 pos_param2 -y -z]
   #     default_option_hash: { help: false },
   #     option_parser_proc: option_parser_proc: proc do |parser|
   #       parser.on '-h', '--help'
@@ -56,7 +56,7 @@ class NestedOptionParser
   # Instead, it collects the unmatched arguments in @remaining_argv.
   #
   # @param default_option_hash [Hash] Default options to set before parsing.
-  # @param argv [Array<String>] The remaining command line arguments to parse.
+  # @param default_argv [Array<String>] The remaining command line arguments to parse.
   # @yield [OptionParser, Proc] Yields the OptionParser instance and the option parser proc.
   # @yieldparam parser [OptionParser] The OptionParser instance to configure.
   # @yieldparam op_proc [Proc] The proc that defines the options for this parser.
