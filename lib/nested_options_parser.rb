@@ -1,7 +1,7 @@
 require 'optparse'
 
 class NestedOptionParser
-  attr_reader :unmatched_args, :positional_parameters, :options, :remaining_argv
+  attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_argv, :unmatched_args
 
   # Initialize a NestedOptionParser instance.
   # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
@@ -36,6 +36,7 @@ class NestedOptionParser
     sub_name: nil,
     subcommand_parser_procs: []
   )
+    @option_parser_proc = option_parser_proc
     @options = default_option_hash
     @sub_name = sub_name
     @subcommand_parser_procs = subcommand_parser_procs

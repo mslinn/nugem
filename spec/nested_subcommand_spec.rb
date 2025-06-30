@@ -33,7 +33,7 @@ class NestedOptionParserTest
       )
 
       nop_top = described_class.new(
-        option_parser_proc:      nop1,
+        option_parser_proc:      nop1.option_parser_proc,
         subcommand_parser_procs: [nop2],
         default_argv:            %w[-a --unused -h pos_param1 pos_param2 -y --out_dir . -z]
       )
@@ -41,8 +41,8 @@ class NestedOptionParserTest
       # TODO: figure out expected values; these are placeholders
       expect(nop_top.remaining_argv).to        eq(%w[-a --unused -z])
       expect(nop_top.positional_parameters).to eq(%w[pos_param1 pos_param2])
-      expect(nop_top.options).to eq(%w[-h -y --out_dir .])
-      expect(nop_top.argv).to eq(%w[-h -y --out_dir . pos_param1 pos_param2])
+      expect(nop_top.options).to               eq(%w[-h -y --out_dir .])
+      expect(nop_top.argv).to                  eq(%w[-h -y --out_dir . pos_param1 pos_param2])
     end
   end
 end
