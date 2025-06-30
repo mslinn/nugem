@@ -1,7 +1,16 @@
 require 'optparse'
 
 class NestedOptionParser
-  def initialize(default_option_hash: {}, option_parser_proc:, sub_name: nil, subcommand_parser_procs: [], argv: ARGV)
+  attr_reader :unmatched_args, :positional_parameters, :options, :remaining_argv
+
+  # Initializes a NestedOptionParser instance.
+  #
+  # @param option_parser_proc [Proc] A proc that defines the options for this parser.
+  # @param default_option_hash [Hash] Default options to be set before parsing.
+  # @param sub_name [String] Name of the subcommand (if applicable).
+  # @param subcommand_parser_procs [Array<Proc>] Procs for subcommand parsers.
+  # @param argv [Array<String>] The command line arguments to parse.
+  def initialize(option_parser_proc:, default_option_hash: {}, sub_name: nil, subcommand_parser_procs: [], argv: ARGV)
     @unmatched_args = []
     @subcommand_parser_procs = subcommand_parser_procs
 
@@ -62,4 +71,4 @@ end
 #   {},
 #   my_option_parser_proc,
 #   argv: %w[-a --blah -h -x pos_param1 pos_param2 -y -z]
-)
+# )
