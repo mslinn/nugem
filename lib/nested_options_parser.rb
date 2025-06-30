@@ -1,7 +1,7 @@
 require 'optparse'
 
 class NestedOptionParser
-  def initialize(default_options, option_parser_proc, sub_name=nil, subcommand_parser_procs = [], argv: ARGV)
+  def initialize(default_option_hash: {}, option_parser_proc:, sub_name: nil, subcommand_parser_procs: [], argv: ARGV)
     @unmatched_args = []
     @subcommand_parser_procs = subcommand_parser_procs
 
@@ -10,7 +10,7 @@ class NestedOptionParser
     @options = {} # Set default values here
     report 'Before processing'
     # @option_parser = evaluate option_parser_proc
-    result = evaluate(default_options, @remaining_argv, &option_parser_proc)
+    result = evaluate(default_option_hash, @remaining_argv, &option_parser_proc)
     report "After processing, result=#{result} (should be same as @options)"
   end
 
@@ -20,8 +20,8 @@ class NestedOptionParser
 
   # Suppresses the Exception raised by OptionParser when an unknown option is encountered.
   # Instead, it collects the unmatched arguments in @unmatched_args.
-  def evaluate(default_options, argv, &op_proc)
-    @options = default_options
+  def evaluate(default_option_hash, argv, &op_proc)
+    @options = default_option_hash
     @remaining_argv = OptionParser.new do |parser|
       parser.default_argv = argv
       parser.raise_unknown = false # if @subcommand_parser_procs
