@@ -3,14 +3,14 @@ require 'optparse'
 class NestedOptionParser
   attr_reader :unmatched_args, :positional_parameters, :options, :remaining_argv
 
-  # Initializes a NestedOptionParser instance.
-  #
+  # Initialize a NestedOptionParser instance.
   # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
   # options for the subcommand by calling `OptionParser.on`.
   # The subcommand parser procs can be defined in the `subcommand_parser_procs` parameter.
   #
-  # @param argv [Array<String>] The command line arguments to parse.
-  # @param option_parser_proc [Proc] A proc that parses the options for a command by calling `OptionParser.on`.
+  # @param default_argv [Array<String>] The command line arguments to parse.
+  # @param option_parser_proc [Proc] A proc that parses the options for a command by calling `OptionParser.on` and
+  # similar methods at least once.
   # @param default_option_hash [Hash] Default options to be set before parsing.
   # @param sub_name [String] Name of the subcommand (if applicable). The top-level command does not have a sub_name.
   #   For example, if you have a command `myapp mysubcommand`, then `sub_name` would be `mysubcommand`.
@@ -31,7 +31,7 @@ class NestedOptionParser
   #   )
   def initialize(
     option_parser_proc:,
-    this_argv: ARGV,
+    default_argv: ARGV,
     default_option_hash: {},
     sub_name: nil,
     subcommand_parser_procs: []
@@ -39,8 +39,16 @@ class NestedOptionParser
     @sub_name = sub_name
     @subcommand_parser_procs = subcommand_parser_procs
 
-    @remaining_argv, @positional_parameters = this_argv.partition { |x| x.start_with? '-' }
+    @remaining_argv, @positional_parameters = default_argv.partition { |x| x.start_with? '-' }
 
+    if sub_name && subcommand_parser_procs.empty?
+      puts "Warning: sub_name '#{@sub_name}' is set, but subcommand_parser_procs was provided. This may lead to unexpected behavior.".red
+      exit 2
+    end
+    if sub_name.to_s.empty? && !subcommand_parser_procs.empty?
+      puts "Warning: sub_name '#{@sub_name}' was not set, but subcommand_parser_procs is empty. This may lead to unexpected behavior.".red
+      exit 3
+    end
     @options = {} # Set default values here
     report 'Before processing'
     result = evaluate(default_option_hash, @remaining_argv, &option_parser_proc)
@@ -62,12 +70,11 @@ class NestedOptionParser
   # @yieldparam op_proc [Proc] The proc that defines the options for this parser.
   # @return [Hash] The options parsed from the command line arguments.
   #
-  #
   # @return [Hash] The options hash after parsing.
-  def evaluate(default_option_hash, this_argv, &op_proc)
+  def evaluate(default_option_hash, default_argv, &op_proc)
     @options = default_option_hash
     @remaining_argv = OptionParser.new do |parser|
-      parser.default_argv = this_argv
+      parser.default_argv = default_argv
       parser.raise_unknown = false # if @subcommand_parser_procs
       yield parser, op_proc
     rescue OptionParser::InvalidOption => e
@@ -82,7 +89,6 @@ class NestedOptionParser
   def report(msg)
     puts <<~END_MSG
       #{msg}:
-        ARGV=#{ARGV}"
         @unmatched_args=#{@unmatched_args}
         @options=#{@options}
         @remaining_argv=#{@remaining_argv}
