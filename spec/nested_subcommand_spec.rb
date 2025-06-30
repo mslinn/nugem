@@ -8,6 +8,7 @@ class NestedOptionParserTest
   RSpec.describe NestedOptionParser do
     let(:nop1) do
       described_class.new(
+        argv:               %w[-x -y -z pos_param1 pos_param2],
         option_parser_proc: proc do |parser|
           parser.on '-h', '--help'
           parser.on '-o', '--out_dir OUT_DIR'
@@ -16,7 +17,7 @@ class NestedOptionParserTest
     end
 
     it 'initializes a NestedOptionParser' do
-      expect(nop1.unmatched_args).to        eq(%w[-x -y -z])
+      expect(nop1.remaining_argv).to        eq(%w[-x -y -z])
       expect(nop1.positional_parameters).to eq(%w[pos_param1 pos_param2])
       expect(nop1.options).to eq(%w[-h])
       expect(nop1.argv).to eq(%w[-h pos_param1 pos_param2])
@@ -38,7 +39,7 @@ class NestedOptionParserTest
       )
 
       # TODO: figure out expected values; these are placeholders
-      expect(nop_top.unmatched_args).to        eq(%w[-a --unused -z])
+      expect(nop_top.remaining_argv).to        eq(%w[-a --unused -z])
       expect(nop_top.positional_parameters).to eq(%w[pos_param1 pos_param2])
       expect(nop_top.options).to eq(%w[-h -y --out_dir .])
       expect(nop_top.argv).to eq(%w[-h -y --out_dir . pos_param1 pos_param2])
