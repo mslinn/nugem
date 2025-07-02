@@ -48,9 +48,9 @@ $ gem update nugem
 ```
 
 
-## Subcommands and Options
+## Subcommands and Option Positions
 
-`Nugem` has 2 subcommands `gem`, `jekyll`.
+See [`subcommands.md`](subcommands.md) for details on `nugem` subcommands and option positions.
 
 
 ### Common Options
