@@ -140,9 +140,9 @@ module Nugem
                   'Include executables with the given names for the generated gem; separate with commas') do |value|
           value.split(',')
         end
-        parser.on '-H', '--host HOST',              %w[github bitbucket], 'Repository host'
-        parser.on '-L', '--loglevel LOGLEVEL',      LOGLEVELS,            'Logging level'
-        parser.on('-o', '--out_dir OUT_DIR',        Pathname,             'Output directory for the gem') do |path|
+        parser.on '-H', '--host=HOST',              %w[github bitbucket], 'Repository host'
+        parser.on '-L', '--loglevel=LOGLEVEL',      LOGLEVELS,            'Logging level'
+        parser.on('-o', '--out_dir=OUT_DIR',        Pathname,             'Output directory for the gem') do |path|
           options[:out_dir] = parse_dir path.to_s, options[:out_dir]
         end
         parser.on '-p', '--private',                TrueClass,             'Publish the gem to a private repository'

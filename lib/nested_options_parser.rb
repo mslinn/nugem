@@ -10,7 +10,7 @@ class NestedOptionParser
   # options for the subcommand by calling `OptionParser.on`.
   # The subcommand parser procs can be defined in the `subcommand_parser_procs` parameter.
   #
-  # @param default_argv [Array<String>] The command line arguments to parse.
+  # @param argv [Array<String>] The command line arguments to parse.
   # @param option_parser_proc [Proc] A proc that parses the options for a command by calling `OptionParser.on` and
   # similar methods at least once.
   # @param default_option_hash [Hash] Default options to be set before parsing.
@@ -22,7 +22,7 @@ class NestedOptionParser
   #
   # @example
   #   NestedOptionParser.new(
-  #     default_argv: %w[-h -x pos_param1 pos_param2 -y -z]
+  #     argv: %w[-h -x pos_param1 pos_param2 -y -z]
   #     default_option_hash: { help: false },
   #     option_parser_proc: option_parser_proc: proc do |parser|
   #       parser.on '-h', '--help'
@@ -33,32 +33,35 @@ class NestedOptionParser
   #   )
   def initialize(
     option_parser_proc:,
-    default_argv: ARGV,
+    argv: ARGV,
     default_option_hash: {},
     sub_cmds: []
   )
+    ENV['POSIXLY_CORRECT'] = 'true'
     @option_parser_proc = option_parser_proc
     @options = default_option_hash
     @sub_cmds = sub_cmds
 
-    @remaining_argv, @positional_parameters = default_argv.partition { |x| x.start_with? '-' }
+    @remaining_argv, @positional_parameters = argv.partition { |x| x.start_with? '-' }
 
-    # If this is a subcommand, remove the subcommand name from positional_parameters.
-    if @sub_cmds.any? # TODO: fix this crap
-      @positional_parameters.shift if @remaining_argv.first && @remaining_argv.first.start_with?('-')
-      @remaining_argv.shift if @remaining_argv.first && @remaining_argv.first.start_with?(@sub_cmds.first.name)
+    # If this is a subcommand, remove the subcommand name from positional_parameters and set @subcommand to the SubCmd instance.
+    if @sub_cmds.any? && @positional_parameters && @sub_cmds.include?(@positional_parameters.first)
+      # Remove the subcommand name from positional parameters
+      subcommand_name = @positional_parameters.shift
+      @subcommand = sub_cmds.find { |sub_cmd| sub_cmd.name == subcommand_name }
     end
 
-    report 'Before processing'
+    report "\nBefore processing"
     @options = evaluate(default_option_hash, @remaining_argv, &option_parser_proc)
-    report "After processing, @options=#{@options}"
-    @sub_cmds.each do |_name, parser_proc|
-      @options = evaluate(
-        default_argv:        @remaining_argv,
-        default_option_hash: @options,
-        option_parser_proc:  parser_proc
-      )
-    end
+    report "After evaluating main command, @options=#{@options}"
+    return unless @subcommand
+
+    @options = evaluate(
+      @remaining_argv,
+      default_option_hash: @options,
+      option_parser_proc:  @subcommand.parser_proc
+    )
+    report "After evaluating subcommand #{@subcommand.name}, @options=#{@options}"
   end
 
   # Returns the command line arguments that were not matched by the option parser, ready for a subcommand parser.
@@ -74,22 +77,21 @@ class NestedOptionParser
   # Instead, it collects the unmatched arguments in @remaining_argv.
   #
   # @param default_option_hash [Hash] Default options to set before parsing.
-  # @param default_argv [Array<String>] The remaining command line arguments to parse.
+  # @param argv [Array<String>] The remaining command line arguments to parse.
   # @yield [OptionParser, Proc] Yields the OptionParser instance and the option parser proc.
   # @yieldparam parser [OptionParser] The OptionParser instance to configure.
   # @yieldparam op_proc [Proc] The proc that defines the options for this parser.
   # @return [Hash] The options parsed from the command line arguments.
   #
   # @return [Hash] The options hash after parsing.
-  def evaluate(default_option_hash, default_argv, &op_proc)
+  def evaluate(default_option_hash, argv, &op_proc)
     options = default_option_hash
     @remaining_argv = OptionParser.new do |parser|
-      parser.default_argv = default_argv
       parser.raise_unknown = false # if @subcommand_parser_procs
       yield parser, op_proc
     rescue OptionParser::InvalidOption => e
       @remaining_argv << e.args.first if e.args.any?
-    end.order!(into: options)
+    end.order!(argv, into: options)
     options
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}"
