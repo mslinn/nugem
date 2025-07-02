@@ -24,23 +24,19 @@ class NestedOptionParserTest
     end
 
     it 'initializes a NestedOptionParser as a subcommand NOP' do
-      nop2 = described_class.new(
-        sub_name:           'nop2',
-        option_parser_proc: proc do |parser|
-          parser.on '-y', '--yes'
-          parser.on '-o', '--out_dir OUT_DIR'
-        end
-      )
-
+      sub_cmd = SubCmd.new('subcmd1', proc do |parser|
+        parser.on '-y', '--yes'
+      end)
       nop_top = described_class.new(
-        option_parser_proc:      nop1.option_parser_proc,
-        subcommand_parser_procs: [nop2],
-        default_argv:            %w[-a --unused -h pos_param1 pos_param2 -y --out_dir . -z]
+        option_parser_proc: nop1.option_parser_proc,
+        sub_cmds:           [sub_cmd],
+        default_argv:       %w[-a --unused -h subcmd1 pos_param1 pos_param2 -y --out_dir . -z]
       )
 
       # TODO: figure out expected values; these are placeholders
-      expect(nop_top.remaining_argv).to        eq(%w[-a --unused -z])
-      expect(nop_top.positional_parameters).to eq(%w[pos_param1 pos_param2])
+      # The --out_dir path was removed, but -h, -y, --out_dir were returned.
+      expect(nop_top.remaining_argv).to        eq(%w[-a --unused -z]) # should not get -h, -y, --out_dir .
+      expect(nop_top.positional_parameters).to eq(%w[subcmd1 pos_param1 pos_param2])
       expect(nop_top.options).to               eq(%w[-h -y --out_dir .])
       expect(nop_top.argv).to                  eq(%w[-h -y --out_dir . pos_param1 pos_param2])
     end

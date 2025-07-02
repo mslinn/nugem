@@ -1,7 +1,9 @@
 require 'optparse'
 
+SubCmd = Struct.new(:name, :parser_proc)
+
 class NestedOptionParser
-  attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_argv, :unmatched_args
+  attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_argv, :unmatched_args, :sub_cmds
 
   # Initialize a NestedOptionParser instance.
   # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
@@ -33,19 +35,30 @@ class NestedOptionParser
     option_parser_proc:,
     default_argv: ARGV,
     default_option_hash: {},
-    sub_name: nil,
-    subcommand_parser_procs: []
+    sub_cmds: []
   )
     @option_parser_proc = option_parser_proc
     @options = default_option_hash
-    @sub_name = sub_name
-    @subcommand_parser_procs = subcommand_parser_procs
+    @sub_cmds = sub_cmds
 
     @remaining_argv, @positional_parameters = default_argv.partition { |x| x.start_with? '-' }
+
+    # If this is a subcommand, remove the subcommand name from positional_parameters.
+    if @sub_cmds.any? # TODO: fix this crap
+      @positional_parameters.shift if @remaining_argv.first && @remaining_argv.first.start_with?('-')
+      @remaining_argv.shift if @remaining_argv.first && @remaining_argv.first.start_with?(@sub_cmds.first.name)
+    end
 
     report 'Before processing'
     @options = evaluate(default_option_hash, @remaining_argv, &option_parser_proc)
     report "After processing, @options=#{@options}"
+    @sub_cmds.each do |_name, parser_proc|
+      @options = evaluate(
+        default_argv:        @remaining_argv,
+        default_option_hash: @options,
+        option_parser_proc:  parser_proc
+      )
+    end
   end
 
   # Returns the command line arguments that were not matched by the option parser, ready for a subcommand parser.
