@@ -11,12 +11,9 @@ class NestedOptionParserTest
     let(:nop1) do
       described_class.new(
         argv:               %w[-h -x -y -z --out_dir=/etc/hosts pos_param1 pos_param2],
-        option_parser_proc: proc do |parser|
+        option_parser_proc: lambda do |parser|
           parser.on '-h', '--help'
-          parser.on('-o', '--out_dir=OUT_DIR', Pathname, 'Output directory') do |path|
-            puts 'Got --out_dir'
-            options[:out_dir] = path
-          end
+          parser.on('-o', '--out_dir=OUT_DIR', Pathname, 'Output directory') { |x| puts x.green }
         end
       )
     end

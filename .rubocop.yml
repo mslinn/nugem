@@ -72,6 +72,9 @@ RSpec/IndexedLet:
 RSpec/MultipleMemoizedHelpers:
   Enabled: false
 
+RSpec/PredicateMatcher:
+  Enabled: false
+
 Style/Documentation:
   Enabled: false
 

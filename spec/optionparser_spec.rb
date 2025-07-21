@@ -5,7 +5,7 @@ require 'sod'
 require 'sod/types/pathname'
 require_relative 'spec_helper'
 
-class NestedOptionParserTest
+class OptionParserTest
   RSpec.describe OptionParser do
     option_parser = described_class.new do |parser|
       parser.on('-o', '--out_dir=OUT_DIR', Pathname, 'Output directory')

@@ -52,7 +52,7 @@ class NestedOptionParser
     end
 
     report "\nBefore processing"
-    @options = evaluate(default_option_hash, @remaining_options, &option_parser_proc)
+    @options = evaluate(default_option_hash, @remaining_options, option_parser_proc)
     report "After evaluating main command, @options=#{@options}"
     return unless @subcommand
 
@@ -84,11 +84,11 @@ class NestedOptionParser
   # @return [Hash] The options parsed from the command line arguments.
   #
   # @return [Hash] The options hash after parsing.
-  def evaluate(default_option_hash, argv, &op_proc)
+  def evaluate(default_option_hash, argv, op_proc)
     options = default_option_hash
     @remaining_options = OptionParser.new do |parser|
       parser.raise_unknown = false # if @subcommand_parser_procs
-      yield parser, op_proc
+      op_proc.call parser
     rescue OptionParser::InvalidOption => e
       @remaining_options << e.args.first if e.args.any?
     end.order!(argv, into: options)
