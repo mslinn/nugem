@@ -43,7 +43,11 @@ class NestedOptionParser
     @remaining_options, @positional_parameters = argv.partition { |x| x.start_with? '-' }
 
     # report "\nBefore processing"
-    @options = evaluate(default_option_hash, @remaining_options, option_parser_proc)
+    @options = evaluate(
+      default_option_hash: default_option_hash,
+      arguments:           @remaining_options,
+      op_proc:             option_parser_proc
+    )
     # report "After evaluating main command, @options=#{@options}"
 
     # If this is a subcommand, remove the subcommand name from positional_parameters and
@@ -59,7 +63,7 @@ class NestedOptionParser
     end
 
     @options = evaluate(
-      argv:                @remaining_options,
+      arguments:           @remaining_options,
       default_option_hash: @options,
       option_parser_proc:  subcommand.parser_proc
     )
@@ -91,10 +95,10 @@ class NestedOptionParser
   # @return [Hash] The options parsed from the command line arguments.
   #
   # @return [Hash] The options hash after parsing.
-  def evaluate(default_option_hash, argv, op_proc)
+  def evaluate(default_option_hash:, arguments:, op_proc:)
     options = default_option_hash
     option_parser = OptionParser.new(&op_proc)
-    option_parser.order!(argv, into: options)
+    option_parser.order! arguments, into: options
     options
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}"

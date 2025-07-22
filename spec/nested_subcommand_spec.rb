@@ -1,3 +1,4 @@
+require 'pathname'
 require 'rspec/expectations'
 require 'sod'
 require 'sod/types/pathname'
@@ -12,8 +13,8 @@ class NestedOptionParserTest
         argv:               %w[-h -x -y -z --out_dir=/etc/hosts pos_param1 pos_param2],
         option_parser_proc: proc do |parser|
           parser.raise_unknown = false # Required for subcommand processing to work
-          parser.on '-o', '--out_dir=OUT_DIR', Pathname
           parser.on '-h', '--help'
+          parser.on '-o', '--out_dir=OUT_DIR', Pathname
         end
       )
     end
