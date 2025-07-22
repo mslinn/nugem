@@ -46,7 +46,7 @@ class NestedOptionParser
     @options = evaluate(
       default_option_hash: default_option_hash,
       arguments:           @remaining_options,
-      op_proc:             option_parser_proc
+      option_parser_proc:  option_parser_proc
     )
     # report "After evaluating main command, @options=#{@options}"
 
@@ -65,7 +65,7 @@ class NestedOptionParser
     @options = evaluate(
       arguments:           @remaining_options,
       default_option_hash: @options,
-      op_proc:             subcommand.parser_proc
+      option_parser_proc:  subcommand.parser_proc
     )
     # report "After evaluating subcommand #{subcommand.name}, @options=#{@options}"
     return if @remaining_options.empty?
@@ -91,13 +91,13 @@ class NestedOptionParser
   # @param argv [Array<String>] The remaining command line arguments to parse.
   # @yield [OptionParser, Proc] Yields the OptionParser instance and the option parser proc.
   # @yieldparam parser [OptionParser] The OptionParser instance to configure.
-  # @yieldparam op_proc [Proc] The proc that defines the options for this parser.
+  # @yieldparam option_parser_proc [Proc] The proc that defines the options for this parser.
   # @return [Hash] The options parsed from the command line arguments.
   #
   # @return [Hash] The options hash after parsing.
-  def evaluate(default_option_hash:, arguments:, op_proc:)
+  def evaluate(default_option_hash:, arguments:, option_parser_proc:)
     options = default_option_hash
-    option_parser = OptionParser.new(&op_proc)
+    option_parser = OptionParser.new(&option_parser_proc)
     option_parser.order! arguments, into: options
     options
   rescue OptionParser::InvalidOption => e
