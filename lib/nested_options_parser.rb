@@ -65,7 +65,7 @@ class NestedOptionParser
     @options = evaluate(
       arguments:           @remaining_options,
       default_option_hash: @options,
-      option_parser_proc:  subcommand.parser_proc
+      op_proc:             subcommand.parser_proc
     )
     # report "After evaluating subcommand #{subcommand.name}, @options=#{@options}"
     return if @remaining_options.empty?
