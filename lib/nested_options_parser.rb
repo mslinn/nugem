@@ -3,8 +3,7 @@ require 'optparse'
 SubCmd = Struct.new(:name, :parser_proc)
 
 class NestedOptionParser
-  attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_options,
-              :unmatched_args, :sub_cmds
+  attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_options, :sub_cmds
 
   # Initialize a NestedOptionParser instance.
   # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
@@ -39,29 +38,36 @@ class NestedOptionParser
     sub_cmds: []
   )
     @option_parser_proc = option_parser_proc
-    @options = default_option_hash
     @sub_cmds = sub_cmds
 
     @remaining_options, @positional_parameters = argv.partition { |x| x.start_with? '-' }
 
-    # If this is a subcommand, remove the subcommand name from positional_parameters and set @subcommand to the SubCmd instance.
-    if @sub_cmds.any? && @positional_parameters && @sub_cmds.include?(@positional_parameters.first)
-      # Remove the subcommand name from positional parameters
-      subcommand_name = @positional_parameters.shift
-      @subcommand = sub_cmds.find { |sub_cmd| sub_cmd.name == subcommand_name }
+    # report "\nBefore processing"
+    @options = evaluate(default_option_hash, @remaining_options, option_parser_proc)
+    # report "After evaluating main command, @options=#{@options}"
+
+    # If this is a subcommand, remove the subcommand name from positional_parameters and
+    # set @subcommand to the SubCmd instance.
+    return unless @sub_cmds.any? && @positional_parameters && @sub_cmds.include?(@positional_parameters.first)
+
+    # Remove the subcommand name from positional parameters
+    subcommand_name = @positional_parameters.shift
+    subcommand = sub_cmds.find { |sub_cmd| sub_cmd.name == subcommand_name }
+    unless subcommand
+      puts "No subcommand parsing defined for '#{subcommand_name}'".red
+      exit 1 # TODO: call help
     end
 
-    report "\nBefore processing"
-    @options = evaluate(default_option_hash, @remaining_options, option_parser_proc)
-    report "After evaluating main command, @options=#{@options}"
-    return unless @subcommand
-
     @options = evaluate(
-      @remaining_options,
+      argv:                @remaining_options,
       default_option_hash: @options,
-      option_parser_proc:  @subcommand.parser_proc
+      option_parser_proc:  subcommand.parser_proc
     )
-    report "After evaluating subcommand #{@subcommand.name}, @options=#{@options}"
+    # report "After evaluating subcommand #{subcommand.name}, @options=#{@options}"
+    return if @remaining_options.empty?
+
+    puts "Extra options provided (#{@remaining_options})"
+    exit 1 # TODO: call help
   end
 
   # Returns the command line arguments that were not matched by the option parser, ready for a subcommand parser.
@@ -73,7 +79,8 @@ class NestedOptionParser
   end
 
   # This method processes the command line arguments and updates the options hash.
-  # The method suppresses the OptionParser::InvalidOption Exception that OptionParser normally raises when an unknown option is encountered.
+  # The method suppresses the OptionParser::InvalidOption Exception that OptionParser normally raises
+  # when an unknown option is encountered.
   # Instead, it collects the unmatched arguments in @remaining_options.
   #
   # @param default_option_hash [Hash] Default options to set before parsing.
@@ -86,11 +93,11 @@ class NestedOptionParser
   # @return [Hash] The options hash after parsing.
   def evaluate(default_option_hash, argv, op_proc)
     options = default_option_hash
-    @remaining_options = OptionParser.new do |parser|
+    OptionParser.new do |parser|
       parser.raise_unknown = false # if @subcommand_parser_procs
       op_proc.call parser
     rescue OptionParser::InvalidOption => e
-      @remaining_options << e.args.first if e.args.any?
+      @remaining_options << e.args.first if e.args.any? # Do not raise an exception, just remember the problem
     end.order!(argv, into: options)
     options
   rescue OptionParser::InvalidOption => e
@@ -98,30 +105,13 @@ class NestedOptionParser
     exit 1
   end
 
+  # Just for debugging
   def report(msg)
     puts <<~END_MSG
       #{msg}:
-        @unmatched_args=#{@unmatched_args}
         @options=#{@options}
         @remaining_options=#{@remaining_options}
         @positional_parameters=#{@positional_parameters}
     END_MSG
   end
 end
-
-# my_option_parser_proc = proc do |parser|
-#   parser.on '-h', '--help'
-#   parser.on '-o', '--out_dir OUT_DIR'
-# end
-
-# NestedOptionParser.new(
-#   {},
-#   my_option_parser_proc,
-#   this_argv: %w[-h -x pos_param1 pos_param2 -y -z]
-# )
-
-# NestedOptionParser.new(
-#   {},
-#   my_option_parser_proc,
-#   this_argv: %w[-a --blah -h -x pos_param1 pos_param2 -y -z]
-# )

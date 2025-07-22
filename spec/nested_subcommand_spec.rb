@@ -1,5 +1,4 @@
 require 'rspec/expectations'
-require 'rspec/match_ignoring_whitespace'
 require 'sod'
 require 'sod/types/pathname'
 
@@ -11,9 +10,9 @@ class NestedOptionParserTest
     let(:nop1) do
       described_class.new(
         argv:               %w[-h -x -y -z --out_dir=/etc/hosts pos_param1 pos_param2],
-        option_parser_proc: lambda do |parser|
+        option_parser_proc: proc do |parser|
           parser.on '-h', '--help'
-          parser.on('-o', '--out_dir=OUT_DIR', Pathname, 'Output directory') { |x| puts x.green }
+          parser.on('-o', '--out_dir=OUT_DIR', Pathname)
         end
       )
     end
