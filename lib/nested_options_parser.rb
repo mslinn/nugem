@@ -93,12 +93,8 @@ class NestedOptionParser
   # @return [Hash] The options hash after parsing.
   def evaluate(default_option_hash, argv, op_proc)
     options = default_option_hash
-    OptionParser.new do |parser|
-      parser.raise_unknown = false # if @subcommand_parser_procs
-      op_proc.call parser
-    rescue OptionParser::InvalidOption => e
-      @remaining_options << e.args.first if e.args.any? # Do not raise an exception, just remember the problem
-    end.order!(argv, into: options)
+    option_parser = OptionParser.new(&op_proc)
+    option_parser.order!(argv, into: options)
     options
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}"
