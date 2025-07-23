@@ -26,8 +26,13 @@ if [ -d demo/ ]; then
   cd ..
 fi
 
+# [DEPRECATED] The `--path` flag is deprecated because it relies on being remembered
+# across bundler invocations, which bundler will no longer do in future versions.
+# Instead please use `bundle config set bin 'binstub'`, and stop using this flag
+bundle config set bin binstub
+
 # See https://www.honeybadger.io/blog/rbenv-rubygems-bundler-path/
 # See https://linuxtut.com/visual-studio-code-i-get-a-syntax-error-when-debugging-when-using-rbenv-6ee58/
 for X in debug jekyll rake rspec-core rubocop; do
-  bundle binstubs "$X" --force --path binstub
+  bundle binstubs "$X" --force #--path binstub
 done
