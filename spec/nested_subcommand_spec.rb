@@ -8,16 +8,15 @@ require_relative '../lib/nugem'
 
 class NestedOptionParserTest
   RSpec.describe NestedOptionParser do
-    let(:nop1) do
-      described_class.new(
-        argv:               %w[-h -x -y -z --out_dir=/etc/hosts pos_param1 pos_param2],
-        option_parser_proc: proc do |parser|
-          parser.raise_unknown = false # Required for subcommand processing to work
-          parser.on '-h', '--help'
-          parser.on '-o', '--out_dir=OUT_DIR', Pathname
-        end
-      )
+    option_parser_proc = proc do |parser|
+      parser.raise_unknown = false # Required for subcommand processing to work
+      parser.on '-h', '--help'
+      parser.on '-o', '--out_dir=OUT_DIR', Pathname
     end
+    nop1 = described_class.new(
+      argv:               %w[-h -x -y -z --out_dir=/etc/hosts pos_param1 pos_param2],
+      option_parser_proc: option_parser_proc
+    )
 
     it 'initializes a NestedOptionParser' do
       expect(nop1.remaining_options).to     eq(%w[-x -y -z])

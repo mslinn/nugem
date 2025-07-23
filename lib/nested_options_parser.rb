@@ -37,9 +37,7 @@ class NestedOptionParser
     default_option_hash: {},
     sub_cmds: []
   )
-    @option_parser_proc = option_parser_proc
     @sub_cmds = sub_cmds
-
     @remaining_options, @positional_parameters = argv.partition { |x| x.start_with? '-' }
 
     # report "\nBefore processing"
@@ -50,9 +48,10 @@ class NestedOptionParser
     )
     # report "After evaluating main command, @options=#{@options}"
 
-    # If this is a subcommand, remove the subcommand name from positional_parameters and
-    # set @subcommand to the SubCmd instance.
-    return unless @sub_cmds.any? && @positional_parameters && @sub_cmds.include?(@positional_parameters.first)
+    # If this is a subcommand, remove the subcommand name from positional_parameters
+    # and set @subcommand to the SubCmd instance.
+    return unless @sub_cmds.any? && @positional_parameters &&
+                  @sub_cmds.include?(@positional_parameters.first)
 
     # Remove the subcommand name from positional parameters
     subcommand_name = @positional_parameters.shift
@@ -65,7 +64,7 @@ class NestedOptionParser
     @options = evaluate(
       arguments:           @remaining_options,
       default_option_hash: @options,
-      option_parser_proc:  subcommand.parser_proc
+      option_parser_proc:  subcommand.option_parser_proc
     )
     # report "After evaluating subcommand #{subcommand.name}, @options=#{@options}"
     return if @remaining_options.empty?
