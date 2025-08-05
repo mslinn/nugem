@@ -1,6 +1,7 @@
 require 'pathname'
 require 'sod'
 require 'sod/types/pathname'
+
 require_relative 'spec_helper'
 
 class BlockProcLambdaTest

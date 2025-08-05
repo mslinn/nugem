@@ -1,8 +1,4 @@
 require 'optparse'
-require 'optparse/time'
-require 'pathname'
-require 'sod'
-require 'sod/types/pathname'
 
 SubCmd = Struct.new(:name, :option_parser_proc)
 
@@ -82,7 +78,7 @@ class NestedOptionParser
     exit 1
   end
 
-  # Returns the command line arguments that were not matched by the option parser, ready for a subcommand parser.
+  # @return the command line arguments that were not matched by the option parser, ready for a subcommand parser.
   # This includes any positional parameters that were not matched by the option parser.
   #
   # @return [Array<String>] The remaining command line arguments after parsing.
@@ -90,7 +86,8 @@ class NestedOptionParser
     @remaining_options + @positional_parameters
   end
 
-  # This method processes the command line arguments and updates the options hash.
+  # Process the command line arguments and update the options hash.
+  #
   # If option_parser_proc raises an `OptionParser::InvalidOption` exception,
   # it is caught and an error message is displayed before the program exits.
   # Otherwise, unmatched arguments are collectded in @remaining_options.
@@ -98,8 +95,10 @@ class NestedOptionParser
   # @param default_option_hash [Hash] Default options to set before parsing.
   # @param arguments [Array<String>] The remaining command line arguments to parse.
   # @param option_parser_proc [Proc] The proc that defines the options for this parser.
+  #
   # @yield [OptionParser, Proc] Yields the OptionParser instance and the option parser proc.
   # @yieldparam parser [OptionParser] The OptionParser instance to configure.
+  #
   # @return [Hash] The options parsed from the command line arguments.
   def evaluate(default_option_hash:, arguments:, option_parser_proc:)
     options = default_option_hash
