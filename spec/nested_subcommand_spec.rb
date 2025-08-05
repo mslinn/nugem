@@ -31,7 +31,6 @@ class NestedOptionParserTest
         sub_cmds:           [sub_cmd]
       )
 
-      # The --out_dir and its path should be removed, but -h, -y, --out_dir should be returned.
       expect(nop.remaining_options).to     eq([]) # should not get -h, -y, --out_dir .
       expect(nop.positional_parameters).to eq(%w[pos_param1 pos_param2])
       expect(nop.options).to               eq({ help: true, out_dir: Pathname('/etc/hosts'), yes: true })
