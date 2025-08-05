@@ -43,14 +43,11 @@ class NestedOptionParser
   )
     @sub_cmds = sub_cmds
     @remaining_options, @positional_parameters = argv.partition { |x| x.start_with? '-' }
-
-    # report "\nBefore processing"
     @options = evaluate(
       default_option_hash: default_option_hash,
       arguments:           @remaining_options,
       option_parser_proc:  option_parser_proc
     )
-    # report "After evaluating main command, @options=#{@options}"
 
     # If this is a subcommand, remove the subcommand name from positional_parameters
     # and set @subcommand to the SubCmd instance.
@@ -69,7 +66,6 @@ class NestedOptionParser
       default_option_hash: @options,
       option_parser_proc:  subcommand.option_parser_proc
     )
-    # report "After evaluating subcommand #{subcommand.name}, @options=#{@options}"
     return if @remaining_options.empty?
 
     puts "Extra options provided (#{@remaining_options})"
@@ -106,15 +102,5 @@ class NestedOptionParser
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}"
     exit 1
-  end
-
-  # Just for debugging
-  def report(msg)
-    puts <<~END_MSG
-      #{msg}:
-        @options=#{@options}
-        @remaining_options=#{@remaining_options}
-        @positional_parameters=#{@positional_parameters}
-    END_MSG
   end
 end
