@@ -6,30 +6,41 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
+      "name": "Run exe/nugem help",
+      "script": "${workspaceFolder}/exe/nugem",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run exe/nugem gem test without options",
+      "script": "${workspaceFolder}/exe/nugem gem test",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run exe/nugem gem test with -o and --yes options",
+      "script": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
       "name": "Debug nugem jekyll test",
       "script": "${workspaceFolder}/exe/nugem jekyll --tag=tag1 --private --out_dir=/tmp/nugem test",
-      "request": "launch",
-      "type": "rdbg",
-      "useBundler": true,
-    },
-    {
-      "debugPort": "0",
-      "env": {
-        "VO_DEBUGGING": "true"
-      },
-      "name": "Run exe/nugem help",
-      "script": "${workspaceFolder}/exe/nugem -h",
-      "request": "launch",
-      "type": "rdbg",
-      "useBundler": true,
-    },
-    {
-      "debugPort": "0",
-      "env": {
-        "VO_DEBUGGING": "true"
-      },
-      "name": "Run exe/nugem gem test",
-      "script": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,

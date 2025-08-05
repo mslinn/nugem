@@ -19,7 +19,7 @@ module Nugem
       The following OPTIONS are available for all gem types:
 
         -e NAME1[,NAME2...], --executables NAME1[,NAME2...] # Include executables with the given names for the gem.
-        -h, --help                                          # Display this help message
+        -h, --help                                          # Display this help message and exit
         -H HOST, --host=HOST                                # Repository host. Default: github
                                                             # Possible values: #{HOSTS.join ', '}
         -L LOGLEVEL, --loglevel LOGLEVEL                    # Possible values: #{LOGLEVELS.join ', '}.
@@ -46,7 +46,7 @@ module Nugem
   end
 
   class Options
-    attr_reader :attribute_name, :value
+    attr_reader :attribute_name
     attr_accessor :errors_are_fatal, :options
 
     include ::HighlineWrappers
@@ -55,7 +55,7 @@ module Nugem
       @attribute_name = 'plain'
       @errors_are_fatal = errors_are_fatal
 
-      @value = {
+      @options = {
         executables: false,
         gem_type:    :plain,
         host:        'github',
@@ -70,10 +70,10 @@ module Nugem
     # Do application-level sanity check stuff
     # Called after user parameters have been gathered and saved as state in this instance
     # Only generate output if loglevel is info or lower
-    def act(options, parse_dry_run: false)
-      dir = options[:out_dir]
-      overwrite = options[:overwrite]
-      show_log_level_info = LOGLEVELS.index(options[:loglevel]) < LOGLEVELS.index('info')
+    def act(parse_dry_run: false)
+      dir = @options[:out_dir]
+      overwrite = @options[:overwrite]
+      show_log_level_info = LOGLEVELS.index(@options[:loglevel]) < LOGLEVELS.index('info')
 
       if parse_dry_run
         puts "Dry run: skipping the removal of #{dir}".yellow if overwrite && show_log_level_info
@@ -82,31 +82,31 @@ module Nugem
         FileUtils.rm_rf(Dir.glob(dir), force: true, secure: true)
         Dir.mkdir dir
       end
-      summarize(options) if show_log_level_info
+      summarize if show_log_level_info
     end
 
-    def summarize(options)
-      executable_msg = if options[:executables]
-                         if options[:executables].length > 1
-                           "Executables called #{options[:executables].join ', '} will be included"
+    def summarize
+      executable_msg = if @options[:executables]
+                         if @options[:executables].length > 1
+                           "Executables called #{@options[:executables].join ', '} will be included"
                          else
-                           "An executable called #{options[:executables].join} will be included"
+                           "An executable called #{@options[:executables].join} will be included"
                          end
                        else
                          'No executables will be included'
                        end
-      yes_msg = if options[:yes]
+      yes_msg = if @options[:yes]
                   "All questions will be automatically be answered with 'yes'"
                 else
                   'User responses will be used for yes/no questions'
                 end
       <<~END_SUMMARY
-        Loglevel #{options[:loglevel]}
-        Output directory: '#{options[:out_dir]}'
+        Loglevel #{@options[:loglevel]}
+        Output directory: '#{@options[:out_dir]}'
         #{executable_msg}
-        Git host: #{options[:host]}
-        A #{options[:private] ? 'private' : 'public'} git repository will be created
-        TODOs #{options[:todos] ? 'will' : 'will not'} be included in the source code
+        Git host: #{@options[:host]}
+        A #{@options[:private] ? 'private' : 'public'} git repository will be created
+        TODOs #{@options[:todos] ? 'will' : 'will not'} be included in the source code
         #{yes_msg}
       END_SUMMARY
     end
@@ -115,7 +115,7 @@ module Nugem
       dir ||= default_value
       if Dir.exist?(dir) && !Dir.empty?(dir)
         puts "Output directory '#{dir}' already exists and is not empty."
-        @options[:overwrite] = if options[:yes]
+        @options[:overwrite] = if @options[:yes]
                                  puts "Overwriting contents of #{dir} because --yes was specified."
                                  true
                                else
@@ -126,9 +126,9 @@ module Nugem
     end
 
     # Gather all the possible parameter values. Other than built-in type checking,
-    # act_and_summarize will do the the application-level sanity check stuff
+    # act and summarize will do the the application-level sanity check stuff
     def parse_options(argv_override: nil)
-      options = @value
+      options = @options
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
@@ -137,8 +137,8 @@ module Nugem
 
         # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
         parser.on('-e', '--executables EXECUTABLES', String,
-                  'Include executables with the given names for the generated gem; separate with commas') do |value|
-          value.split(',')
+                  'Include executables with the given names for the generated gem; separate with commas') do |options|
+          options.split(',')
         end
         parser.on '-H', '--host=HOST',              %w[github bitbucket], 'Repository host'
         parser.on '-L', '--loglevel=LOGLEVEL',      LOGLEVELS,            'Logging level'
