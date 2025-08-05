@@ -8,8 +8,6 @@ module Nugem
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
   def self.help(msg = nil, errors_are_fatal: true)
-    return msg unless errors_are_fatal && msg
-
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
       nugem: Creates scaffolding for a plain gem or a Jekyll plugin.
@@ -42,6 +40,8 @@ module Nugem
         -n TAG1[,TAG2...], --tagns=TAG1[,TAG2...]                               # Specifies the name of Jekyll no-arg tag(s).
     END_HELP
     printf msg.cyan
+    return unless errors_are_fatal
+
     exit(1)
   end
 

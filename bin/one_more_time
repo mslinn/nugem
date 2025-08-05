@@ -2,7 +2,9 @@
 
 # Create a new project for a Jekyll gem called blah and work on it in VS Code
 
-rm -rf generated/blah/
-yes n | VO_DEBUGGING=x exe/nugem jekyll blah
-~/nugem_generated/blah/bin/setup
-code ~/nugem_generated/blah/
+PROJECT_NAME=blah
+PROJECT_ROOT="~/nugem_generated/$PROJECT_NAME"
+rm -rf "$PROJECT_ROOT"
+yes n | VO_DEBUGGING=x exe/nugem jekyll "$PROJECT_NAME"
+"$PROJECT_ROOT/bin/setup"
+code "$PROJECT_ROOT"
