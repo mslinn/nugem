@@ -1,3 +1,4 @@
+require 'colorized_string'
 require 'fileutils'
 require 'rugged'
 
