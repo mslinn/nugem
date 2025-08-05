@@ -2,6 +2,10 @@ require 'fileutils'
 require 'rugged'
 
 module Nugem
+  #
+  # Class methods
+  #
+
   def self.camel_case(str)
     str.tr('-', '_')
       .split('_')
@@ -9,15 +13,19 @@ module Nugem
       .join
   end
 
+  # @return Path to the generated gem
+  def self.dest_root(out_dir, gem_name)
+    File.expand_path "#{out_dir}/#{gem_name}"
+  end
+
+  #
+  # Instance methods
+  #
+
   def count_todos(filename)
     filename_fq = "#{Nugem.dest_root @out_dir, gem_name}/#{filename}"
     content = File.read filename_fq
     content.scan('TODO').length
-  end
-
-  # @return Path to the generated gem
-  def self.dest_root(out_dir, gem_name)
-    File.expand_path "#{out_dir}/#{gem_name}"
   end
 
   def initialize_repository(gem_name)
@@ -29,8 +37,9 @@ module Nugem
       FileUtils.rm_f 'Gemfile.lock'
       # puts set_color("Running 'bundle'", :green)
       # run 'bundle', abort_on_failure: false
-      create_repo = @yes || yes?(set_color("Do you want to create a repository on #{@repository.host.camel_case} named #{gem_name}? (y/N)",
-                                           :green))
+      create_repo = @yes || begin
+        yes? "Do you want to create a repository on #{@repository.host.camel_case} named #{gem_name}? (y/N)".green
+      end
       create_remote_git_repository @repository if create_repo
     end
     puts set_color("The #{gem_name} gem was successfully created.", :green)

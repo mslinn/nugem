@@ -3,6 +3,13 @@ module Nugem
   class Nugem
     attr_reader :gem_name, :options, :dir, :class_name, :module_name, :repository
 
+    DEFAULT_OPTIONS = {
+      out_dir:     "#{Dir.home}/nugem_generated",
+      host:        :github,
+      private:     false,
+      executables: false,
+    }.freeze
+
     # Initializes a new Nugem instance with the given gem name and options.
     #
     # @param gem_name [String] The name of the gem.
@@ -12,7 +19,7 @@ module Nugem
     #
     # @example
     #   nugem = Nugem.new('my_gem', host: 'github', private: false, out_dir: 'output')
-    def initialize(gem_name, options = {})
+    def initialize(gem_name, options = DEFAULT_OPTIONS)
       @gem_name = gem_name
       @options = options
       @dir = Nugem.dest_root(@options[:out_dir], @gem_name)
@@ -27,14 +34,10 @@ module Nugem
     end
 
     def create_scaffold
-      puts set_color("Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@dir}.", :green)
-      exclude_pattern = case @options[:test_framework]
-                        when 'minitest' then /spec.*/
-                        when 'rspec'    then /test.*/
-                        end
-      directory('common/gem_scaffold',        @dir, force: true, mode: :preserve, exclude_pattern:)
+      puts "Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@dir}.".green
+      directory 'common/gem_scaffold',        @dir, force: true, mode: :preserve, exclude_pattern: 'spec/*'
       directory 'common/executable_scaffold', @dir, force: true, mode: :preserve if @options[:executables]
-      template  'common/LICENCE.txt',         "#{@dir}/LICENCE.txt", force: true if @repository.public?
+      template 'common/LICENCE.txt', "#{@dir}/LICENCE.txt", force: true if @repository.public?
     end
 
     def initialize_repository

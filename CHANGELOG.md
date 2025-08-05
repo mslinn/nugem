@@ -40,6 +40,7 @@
 * `plain` command has been tested.
 * `jekyll` and `rails` commands are not ready yet.
 
+
 ## 0.8.2
 
 * Added `.markdownlint.json` to generated projects and this project.

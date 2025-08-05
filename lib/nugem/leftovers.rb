@@ -9,7 +9,7 @@ module Nugem
 
     # Surround gem_name with percent symbols when using the property to name files
     # within the template directory
-    # For example: "generated/%gem_name%"
+    # For example: "~/nugem_generated/%gem_name%"
     attr_accessor :gem_name
   end
 end

@@ -78,7 +78,7 @@ Common options for the `gem` and `jekyll` subcommands are:
   <dt><code>--out_dir</code></dt>
     <dd>
       specifies the directory to write the generated gem to.
-      The default is <code>generated/</code>.
+      The default is <code>~/nugem_generated/</code>.
     </dd>
 
   <dt><code>--private</code></dt>

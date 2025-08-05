@@ -8,8 +8,6 @@ AllCops:
   Exclude:
     - binstub/**/*
     - exe/**/*
-    - generated/**/binstub/*
-    - generated/**/exe/**/*
     - vendor/**/*
     - Gemfile*
     - Rakefile

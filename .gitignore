@@ -6,7 +6,6 @@
 /coverage/
 /doc/
 /exe/
-/generated/
 /pkg/
 /spec/reports/
 /spec/status_persistence.txt

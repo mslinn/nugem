@@ -4,5 +4,5 @@
 
 rm -rf generated/blah/
 yes n | VO_DEBUGGING=x exe/nugem jekyll blah
-generated/blah/bin/setup
-code generated/blah/
+~/nugem_generated/blah/bin/setup
+code ~/nugem_generated/blah/
