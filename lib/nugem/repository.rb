@@ -27,7 +27,7 @@ module Nugem
         END_MSG
       end
 
-      @gem_server_url = @host[:gem_server_url]
+      @gem_server_url = @host[:domain]
 
       @global_config = Rugged::Config.global
       if @global_config.nil?
