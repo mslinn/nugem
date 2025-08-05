@@ -81,22 +81,20 @@ class NestedOptionParser
   end
 
   # This method processes the command line arguments and updates the options hash.
-  # The method suppresses the OptionParser::InvalidOption Exception that OptionParser normally raises
-  # when an unknown option is encountered.
-  # Instead, it collects the unmatched arguments in @remaining_options.
+  # If option_parser_proc raises an `OptionParser::InvalidOption` exception,
+  # it is caught and an error message is displayed before the program exits.
+  # Otherwise, unmatched arguments are collectded in @remaining_options.
   #
   # @param default_option_hash [Hash] Default options to set before parsing.
-  # @param argv [Array<String>] The remaining command line arguments to parse.
+  # @param arguments [Array<String>] The remaining command line arguments to parse.
+  # @param option_parser_proc [Proc] The proc that defines the options for this parser.
   # @yield [OptionParser, Proc] Yields the OptionParser instance and the option parser proc.
   # @yieldparam parser [OptionParser] The OptionParser instance to configure.
-  # @yieldparam option_parser_proc [Proc] The proc that defines the options for this parser.
   # @return [Hash] The options parsed from the command line arguments.
-  #
-  # @return [Hash] The options hash after parsing.
   def evaluate(default_option_hash:, arguments:, option_parser_proc:)
     options = default_option_hash
     option_parser = OptionParser.new(&option_parser_proc)
-    option_parser.default_argv = arguments # Should not be necessary according to the docs
+    option_parser.default_argv = arguments
     option_parser.order! arguments, into: options
     options
   rescue OptionParser::InvalidOption => e
