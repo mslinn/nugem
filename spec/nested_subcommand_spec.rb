@@ -3,6 +3,14 @@ require_relative '../lib/nugem'
 
 class NestedOptionParserTest
   RSpec.describe NestedOptionParser do
+    def help(message = nil)
+      puts message.red if message
+      puts <<~END_HELP
+        This is a multiline help message.
+        It does not exit the program.
+      END_HELP
+    end
+
     option_parser_proc = proc do |parser|
       parser.raise_unknown = false # Required for subcommand processing to work
       parser.on '-h', '--help'
@@ -12,6 +20,7 @@ class NestedOptionParserTest
     it 'initializes a NestedOptionParser' do
       nop = described_class.new(
         argv:               %w[-h --out_dir=/etc/hosts -y pos_param1 pos_param2],
+        help:               method(:help),
         option_parser_proc: option_parser_proc
       )
 
@@ -27,11 +36,12 @@ class NestedOptionParserTest
       end)
       nop = described_class.new(
         argv:               %w[-h --out_dir=/etc/hosts -y subcmd1 pos_param1 pos_param2],
+        help:               method(:help),
         option_parser_proc: option_parser_proc,
         sub_cmds:           [sub_cmd]
       )
 
-      expect(nop.remaining_options).to     eq([]) # should not get -h, -y, --out_dir .
+      expect(nop.remaining_options).to     eq([])
       expect(nop.positional_parameters).to eq(%w[pos_param1 pos_param2])
       expect(nop.options).to               eq({ help: true, out_dir: Pathname('/etc/hosts'), yes: true })
       expect(nop.argv).to                  eq(%w[pos_param1 pos_param2])

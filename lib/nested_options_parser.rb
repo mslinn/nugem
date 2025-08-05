@@ -9,38 +9,48 @@ SubCmd = Struct.new(:name, :option_parser_proc)
 class NestedOptionParser
   attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_options, :sub_cmds
 
-  # Initialize a NestedOptionParser instance.
   # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
-  # options for the subcommand by calling `OptionParser.on`.
+  # options for the subcommand by calling `OptionParser.on` at least once.
   # The subcommand parser procs can be defined in the `subcommand_parser_procs` parameter.
   #
   # @param argv [Array<String>] The command line arguments to parse.
+  # @param default_option_hash [Hash] Default options to be set before parsing.
   # @param option_parser_proc [Proc] A proc that parses the options for a command by calling `OptionParser.on` and
   # similar methods at least once.
-  # @param default_option_hash [Hash] Default options to be set before parsing.
-  # @param sub_name [String] Name of the subcommand (if applicable). The top-level command does not have a sub_name.
-  #   For example, if you have a command `myapp mysubcommand`, then `sub_name` would be `mysubcommand`.
-  # @param subcommand_parser_procs [Array<Proc>] Procs for subcommand parser(s). The array is processed in order.
-  #   Each proc should yield an `OptionParser` instance and a proc that defines the options for that subcommand.
-  #   If no subcommands are defined, this can be an empty array.
+  # @param sub_cmds [Array<SubCmd>] SubCmds for subcommand parser(s). The array is processed in order.
+  #   Each SubCmd option_parser_proc should abe a proc that defines the options for that subcommand.
+  #   If no subcommands are defined, this will be an empty array.
   #
   # @example
-  #   NestedOptionParser.new(
-  #     argv: %w[-h -x pos_param1 pos_param2 -y -z]
-  #     default_option_hash: { help: false },
-  #     option_parser_proc: option_parser_proc: proc do |parser|
-  #       parser.on '-h', '--help'
-  #       parser.on '-o', '--out_dir OUT_DIR'
-  #     end,
-  #     sub_name: 'mysubcommand',
-  #     subcommand_parser_procs: [my_subcommand_parser_proc],
-  #   )
+  # def help(message = nil)
+  #   puts message.red if message
+  #   puts <<~END_HELP
+  #     This is a multiline help message.
+  #     It does not exit the program.
+  #   END_HELP
+  # end
+  #
+  # NestedOptionParser.new(
+  #   argv: %w[-h -x pos_param1 pos_param2 -y -z]
+  #   default_option_hash: { help: false },
+  #   option_parser_proc: proc do |parser|
+  #     parser.on '-h', '--help'
+  #     parser.on '-o', '--out_dir OUT_DIR'
+  #   end,
+  #   help: method(:help),
+  #   subcommand_parser_procs: [SubCmd.new('mysubcommand', proc do |parser|
+  #     parser.on '-h', '--help'
+  #     parser.on '-o', '--out_dir OUT_DIR'
+  #   end]
+  # )
   def initialize(
     option_parser_proc:,
     argv: ARGV,
     default_option_hash: {},
+    help: nil,
     sub_cmds: []
   )
+    @help = help
     @sub_cmds = sub_cmds
     @remaining_options, @positional_parameters = argv.partition { |x| x.start_with? '-' }
     @options = evaluate(
@@ -57,8 +67,8 @@ class NestedOptionParser
     subcommand_name = @positional_parameters.shift
     subcommand = sub_cmds.find { |sub_cmd| sub_cmd.name == subcommand_name }
     unless subcommand
-      puts "No subcommand parsing defined for '#{subcommand_name}'".red
-      exit 1 # TODO: call help
+      @help&.call "No subcommand parsing was defined for '#{subcommand_name}'".red
+      exit 1
     end
 
     @options = evaluate(
@@ -68,8 +78,8 @@ class NestedOptionParser
     )
     return if @remaining_options.empty?
 
-    puts "Extra options provided (#{@remaining_options})"
-    exit 1 # TODO: call help
+    @help&.call "Extra options provided (#{@remaining_options})"
+    exit 1
   end
 
   # Returns the command line arguments that were not matched by the option parser, ready for a subcommand parser.
