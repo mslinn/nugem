@@ -1,14 +1,10 @@
-require 'pathname'
-require 'rspec/expectations'
-require 'sod'
-require 'sod/types/pathname'
-
 require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
 class NestedOptionParserTest
   RSpec.describe NestedOptionParser do
     option_parser_proc = proc do |parser|
+      puts 'Hello from option_parser_proc'
       parser.raise_unknown = false # Required for subcommand processing to work
       parser.on '-h', '--help'
       parser.on '-o', '--out_dir=OUT_DIR', Pathname

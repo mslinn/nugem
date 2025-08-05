@@ -1,4 +1,8 @@
 require 'optparse'
+require 'optparse/time'
+require 'pathname'
+require 'sod'
+require 'sod/types/pathname'
 
 SubCmd = Struct.new(:name, :parser_proc)
 

@@ -6,10 +6,11 @@ require_relative 'spec_helper'
 class BlockProcLambdaTest
   RSpec.describe OptionParser do
     option_parser_proc = proc do |parser|
+      puts 'Hello from option_parser_proc'
       parser.on '-h', '--help'
       parser.on '-o', '--out_dir=OUT_DIR', Pathname
     end
-    option_parser = described_class.new(&option_parser_proc)
+    option_parser = OptionParser.new(&option_parser_proc)
 
     it 'parses path using short form' do
       options = {}

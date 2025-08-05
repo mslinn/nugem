@@ -8,15 +8,22 @@ require_relative 'spec_helper'
 class OptionParserTest
   RSpec.describe OptionParser do
     option_parser = described_class.new do |parser|
-      parser.on('-o', '--out_dir=OUT_DIR', Pathname, 'Output directory')
-      parser.on('-t TIME', '--time=TIME', Time)
-      parser.on('-x', '--xray')
+      puts 'Hello from block passed to OptionParser.new'
+      parser.on '-o', '--out_dir=OUT_DIR', Pathname
+      parser.on '-t TIME', '--time=TIME', Time
+      parser.on '-x', '--xray'
     end
 
     it 'parses path using short form' do
       options = {}
       option_parser.order! %w[-o /etc/hosts], into: options
       expect(options).to eq({ out_dir: Pathname('/etc/hosts') })
+    end
+
+    it 'parses toggle and path using short form' do
+      options = {}
+      option_parser.order! %w[-x -o /etc/hosts], into: options
+      expect(options).to eq({ out_dir: Pathname('/etc/hosts'), xray: true })
     end
 
     it 'parses path using long form' do
