@@ -4,7 +4,7 @@ require 'pathname'
 require 'sod'
 require 'sod/types/pathname'
 
-SubCmd = Struct.new(:name, :parser_proc)
+SubCmd = Struct.new(:name, :option_parser_proc)
 
 class NestedOptionParser
   attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_options, :sub_cmds
@@ -54,10 +54,9 @@ class NestedOptionParser
 
     # If this is a subcommand, remove the subcommand name from positional_parameters
     # and set @subcommand to the SubCmd instance.
-    return unless @sub_cmds.any? && @positional_parameters &&
-                  @sub_cmds.include?(@positional_parameters.first)
+    return unless @sub_cmds.any? && !@positional_parameters.empty?
 
-    # Remove the subcommand name from positional parameters
+    # Remove the first token, which might be the subcommand name, from positional parameters
     subcommand_name = @positional_parameters.shift
     subcommand = sub_cmds.find { |sub_cmd| sub_cmd.name == subcommand_name }
     unless subcommand

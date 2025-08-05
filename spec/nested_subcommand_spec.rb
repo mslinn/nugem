@@ -4,39 +4,38 @@ require_relative '../lib/nugem'
 class NestedOptionParserTest
   RSpec.describe NestedOptionParser do
     option_parser_proc = proc do |parser|
-      puts 'In option_parser_proc'
       parser.raise_unknown = false # Required for subcommand processing to work
       parser.on '-h', '--help'
       parser.on '-o', '--out_dir=OUT_DIR', Pathname
     end
-    nop1 = described_class.new(
-      argv:               %w[-h --out_dir=/etc/hosts -y pos_param1 pos_param2],
-      option_parser_proc: option_parser_proc
-    )
 
-    xit 'initializes a NestedOptionParser' do
-      expect(nop1.remaining_options).to     eq(%w[-x -y -z])
-      expect(nop1.positional_parameters).to eq(%w[pos_param1 pos_param2])
-      expect(nop1.options).to               eq({ help: true, out_dir: Pathname('/etc/hosts') })
-      expect(nop1.argv).to                  eq(%w[-x -y -z pos_param1 pos_param2])
+    it 'initializes a NestedOptionParser' do
+      nop = described_class.new(
+        argv:               %w[-h --out_dir=/etc/hosts -y pos_param1 pos_param2],
+        option_parser_proc: option_parser_proc
+      )
+
+      expect(nop.remaining_options).to     eq(%w[-y])
+      expect(nop.positional_parameters).to eq(%w[pos_param1 pos_param2])
+      expect(nop.options).to               eq({ help: true, out_dir: Pathname('/etc/hosts') })
+      expect(nop.argv).to                  eq(%w[-y pos_param1 pos_param2])
     end
 
     it 'initializes a NestedOptionParser as a subcommand NOP' do
       sub_cmd = SubCmd.new('subcmd1', proc do |parser|
-        puts 'In SubCmd proc'
         parser.on '-y', '--yes'
       end)
-      nop_top = described_class.new(
-        argv:               nop1.argv,
-        option_parser_proc: nop1.option_parser_proc,
+      nop = described_class.new(
+        argv:               %w[-h --out_dir=/etc/hosts -y subcmd1 pos_param1 pos_param2],
+        option_parser_proc: option_parser_proc,
         sub_cmds:           [sub_cmd]
       )
 
       # The --out_dir and its path should be removed, but -h, -y, --out_dir should be returned.
-      expect(nop_top.remaining_options).to     eq([]) # should not get -h, -y, --out_dir .
-      expect(nop_top.positional_parameters).to eq(%w[subcmd1 pos_param1 pos_param2])
-      expect(nop_top.options).to               eq(%w[-h -y --out_dir=.])
-      expect(nop_top.argv).to                  eq(%w[-h -y --out_dir=. pos_param1 pos_param2])
+      expect(nop.remaining_options).to     eq([]) # should not get -h, -y, --out_dir .
+      expect(nop.positional_parameters).to eq(%w[pos_param1 pos_param2])
+      expect(nop.options).to               eq({ help: true, out_dir: Pathname('/etc/hosts'), yes: true })
+      expect(nop.argv).to                  eq(%w[pos_param1 pos_param2])
     end
   end
 end
