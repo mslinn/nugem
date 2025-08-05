@@ -80,7 +80,7 @@ module Nugem
       exit 2
     end
     nugem.parse_options
-    puts nugem.act(parse_dry_run: parse_dry_run).green
+    puts nugem.act.green
   end
 
   def self.todo

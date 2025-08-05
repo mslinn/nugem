@@ -57,6 +57,7 @@ module Nugem
 
       @options = {
         executables: false,
+        dry_run:     false,
         gem_type:    :plain,
         host:        'github',
         loglevel:    LOGLEVELS[3], # Default is 'info'
@@ -70,16 +71,16 @@ module Nugem
     # Do application-level sanity check stuff
     # Called after user parameters have been gathered and saved as state in this instance
     # Only generate output if loglevel is info or lower
-    def act(parse_dry_run: false)
+    def act
       dir = @options[:out_dir]
       overwrite = @options[:overwrite]
       show_log_level_info = LOGLEVELS.index(@options[:loglevel]) < LOGLEVELS.index('info')
 
-      if parse_dry_run
+      if @options[:dry_run]
         puts "Dry run: skipping the removal of #{dir}".yellow if overwrite && show_log_level_info
       else
         puts "Removing #{dir}".yellow if show_log_level_info
-        FileUtils.rm_rf(Dir.glob(dir), force: true, secure: true)
+        FileUtils.rm_rf(Dir.glob(dir), secure: true)
         Dir.mkdir dir
       end
       summarize if show_log_level_info

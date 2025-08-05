@@ -26,7 +26,7 @@ class GemOptionsTest
       actual = options.parse_options(argv_override: argv)
       expect(actual).to eq(debug_options)
 
-      actual_summary = options.act(actual, parse_dry_run: true)
+      actual_summary = options.act
       expected_summary = <<~END_SUMMARY
         Loglevel #{options.value[:loglevel]}
         Output directory: '#{options.value[:out_dir]}'
@@ -60,7 +60,7 @@ class GemOptionsTest
                                      })
       expect(actual).to eq(expected)
 
-      actual_summary = options.act(actual, parse_dry_run: true)
+      actual_summary = options.act
       expected_summary = <<~END_SUMMARY
         Loglevel #{options.value[:loglevel]}
         Output directory: '#{options.value[:out_dir]}'
