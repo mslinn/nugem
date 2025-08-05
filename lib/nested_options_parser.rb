@@ -13,6 +13,9 @@ class NestedOptionParser
   # @param default_option_hash [Hash] Default options to be set before parsing.
   # @param option_parser_proc [Proc] A proc that parses the options for a command by calling `OptionParser.on` and
   # similar methods at least once.
+  # @param help [Proc] A Method that displays help messages.
+  #   It should accept an optional error message parameter.
+  #   If no help proc is provided, it will not display any help messages.
   # @param sub_cmds [Array<SubCmd>] SubCmds for subcommand parser(s). The array is processed in order.
   #   Each SubCmd option_parser_proc should abe a proc that defines the options for that subcommand.
   #   If no subcommands are defined, this will be an empty array.
