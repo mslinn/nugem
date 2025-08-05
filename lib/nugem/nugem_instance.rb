@@ -1,3 +1,5 @@
+require 'fileutils'
+require 'find'
 module Nugem
   # Created by vscode to avoid name conflicts with Nugem::Nugem
   class Nugem
@@ -73,8 +75,7 @@ module Nugem
       FileUtils.cp(source, destination, options)
     end
 
-    # This method is a placeholder for the actual implementation of directory copying.
-    # It should copy files from the source directory to the destination directory,
+    # Copy files from the source directory to the destination directory,
     # applying any specified options such as force, mode, or exclude patterns.
     #
     # @param source [String] The source directory to copy files from.
@@ -84,30 +85,52 @@ module Nugem
     # @return [void]
     # @example
     #   directory('source_dir', 'destination_dir', force: true, mode: :preserve, exclude_pattern: /exclude_this/)
-    # @note This method is not implemented yet and serves as a placeholder.
+    #
     # @see FileUtils.cp for file copying options
     # @see Jekyll::Site for site processing options
-    #
-    # @todo Implement the actual file copying logic.
-    # @todo Handle exceptions and edge cases, such as missing directories or files.
-    # @todo Add tests to ensure the method works as expected.
-    # @todo Consider adding logging for debugging purposes.
-    # @todo Refactor the method to improve readability and maintainability.
-    # @todo Ensure compatibility with different Ruby versions and environments.
-    # @todo Add documentation for the method parameters and return values.
-    # @todo Consider adding support for additional options in the future.
-    #
-    # @example Usage
-    #   directory('source_dir', 'destination_dir', force: true, mode: :preserve, exclude_pattern: /exclude_this/)
-    def directory(source, destination, options = {})
-      # Placeholder for directory copying logic
-      puts "Copying files from #{source} to #{destination} with options: #{options.inspect}"
-      # Actual implementation would go here, using FileUtils or similar
-      # For now, just simulating the action
-      FileUtils.mkdir_p(destination)
-      puts 'Files copied successfully.' # Simulated success message
-    rescue StandardError => e
-      puts "Error copying files: #{e.message}".red
+    def copy_directory_recursively(src, dest, force: true, preserve_mode: true, exclude_pattern: nil)
+      raise ArgumentError, "Source directory '#{src}' does not exist" unless Dir.exist?(src)
+
+      # Normalize paths
+      src = File.expand_path(src)
+      dest = File.expand_path(dest)
+
+      Find.find(src) do |path|
+        # Compute destination path
+        rel_path = path.sub(%r{^#{Regexp.escape(src)}/?}, '')
+        next if rel_path.empty?
+
+        # Skip excluded files/directories
+        if exclude_pattern && rel_path.match?(exclude_pattern)
+          puts "  Skipping excluded path: #{rel_path}"
+          Find.prune if File.directory?(path)
+          next
+        end
+
+        target = File.join(dest, rel_path)
+
+        if File.directory?(path)
+          FileUtils.mkdir_p(target)
+          FileUtils.chmod(File.stat(path).mode, target) if preserve_mode
+        elsif File.file?(path)
+          if !File.exist?(target) || force
+            FileUtils.mkdir_p(File.dirname(target))
+            FileUtils.cp(path, target, preserve: preserve_mode)
+          end
+        elsif File.symlink?(path)
+          link_target = File.readlink(path)
+          FileUtils.ln_s(link_target, target, force: force)
+        end
+      rescue Errno::ENOENT => e
+        puts "Source directory not found: #{e.message}; copy aborted".red
+        break
+      rescue Errno::EACCES => e
+        puts "Permission denied: #{e.message}; file or directory".red
+        # No break here, continue to next file
+      rescue StandardError => e
+        puts "Error copying files: #{e.message}; copy aborted".red
+        break
+      end
     end
   end
 end

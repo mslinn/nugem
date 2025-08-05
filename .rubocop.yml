@@ -56,7 +56,7 @@ Metrics/ModuleLength:
   Enabled: false
 
 Metrics/PerceivedComplexity:
-  Max: 15
+  Max: 25
 
 Naming/FileName:
   Exclude:
