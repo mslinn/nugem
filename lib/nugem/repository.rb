@@ -11,18 +11,51 @@ module Nugem
     ].freeze
 
     def initialize(options)
-      @host = HOSTS.find { |host| host.id == options[:host] }
-      @private = options[:private]
       @name    = options[:name]
+      @private = options[:private]
       @user    = options[:user]
 
-      @global_config = Rugged::Config.global
-      abort 'Git global config not found' if @global_config.nil?
+      specified_host_id = (options[:host] || Hosts.first.id).to_sym
 
-      @user_name  = @global_config['user.name']
+      @host = HOSTS.find { |host| host.id == specified_host_id }
+      if @host.nil?
+        abort <<~END_MSG
+          No host with id #{specified_host_id} is known.
+          Available hosts are: #{HOSTS.map(&:id.to_s).join(', ')}.
+          If no host is specified, Nugem will use GitHub by default.
+          For example, to use GitLab, run the command with --host gitlab.
+        END_MSG
+      end
+
+      @gem_server_url = @host[:gem_server_url]
+
+      @global_config = Rugged::Config.global
+      if @global_config.nil?
+        abort <<~END_MSG
+          Error: No Git user has been configured yet.
+          Please run the following commands to set up your Git user, then retry the command:
+            git config --global user.name "Your Name"
+            git config --global user.email "your.email@example.com"
+        END_MSG
+      end
+
       @user_email = @global_config['user.email']
-      @gem_server_url = options[:gem_server_url]
-      @private = options[:private]
+      if @user_name.nil?
+        abort <<~END_MSG
+          Error: No Git user name has been configured yet.
+          Please run the following to set up your Git user name, then retry the command:
+            git config --global user.name "Your Name"
+        END_MSG
+      end
+
+      @user_name = @global_config['user.name']
+      return unless @user_name.nil?
+
+      abort <<~END_MSG
+        Error: No Git user email has been configured yet.
+        Please run the following to set up your Git user email, then retry the command:
+          git config --global user.email "your.email@example.com"
+      END_MSG
     end
 
     def bitbucket?
