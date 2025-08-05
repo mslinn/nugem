@@ -101,6 +101,7 @@ class NestedOptionParser
   def evaluate(default_option_hash:, arguments:, option_parser_proc:)
     options = default_option_hash
     option_parser = OptionParser.new(&option_parser_proc)
+    option_parser.default_argv = arguments # Should not be necessary according to the docs
     option_parser.order! arguments, into: options
     options
   rescue OptionParser::InvalidOption => e

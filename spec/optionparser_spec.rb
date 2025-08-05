@@ -8,7 +8,6 @@ require_relative 'spec_helper'
 class OptionParserTest
   RSpec.describe OptionParser do
     option_parser = described_class.new do |parser|
-      puts 'Hello from block passed to OptionParser.new'
       parser.on '-o', '--out_dir=OUT_DIR', Pathname
       parser.on '-t TIME', '--time=TIME', Time
       parser.on '-x', '--xray'
