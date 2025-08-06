@@ -24,10 +24,9 @@ module Nugem
     def initialize(gem_name, options = DEFAULT_OPTIONS)
       @gem_name = gem_name
       @options = options
-      @dir = Nugem.dest_root(@options[:out_dir], @gem_name)
-      @class_name = Nugem.camel_case(@gem_name)
+      @class_name = ::Nugem.camel_case(@gem_name)
       @module_name = "#{@class_name}Module"
-      @repository = Nugem::Repository.new(
+      @repository = ::Nugem::Repository.new(
         host:    @options[:host],
         name:    @gem_name,
         private: @options[:private],
@@ -36,16 +35,16 @@ module Nugem
     end
 
     def create_scaffold
-      puts "Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@dir}.".green
-      directory 'common/gem_scaffold',        @dir, force: true, mode: :preserve, exclude_pattern: 'spec/*'
-      directory 'common/executable_scaffold', @dir, force: true, mode: :preserve if @options[:executables]
-      template 'common/LICENCE.txt', "#{@dir}/LICENCE.txt", force: true if @repository.public?
+      puts "Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@options[:out_dir]}.".green
+      directory 'common/gem_scaffold',        @options[:out_dir], force: true, mode: :preserve, exclude_pattern: 'spec/*'
+      directory 'common/executable_scaffold', @options[:out_dir], force: true, mode: :preserve if @options[:executables]
+      template 'common/LICENCE.txt', "#{@options[:out_dir]}/LICENCE.txt", force: true if @repository.public?
     end
 
     def initialize_repository
       puts set_color("Initializing repository for #{@gem_name} at #{@repository.host}.", :green)
       @repository.create if %i[github gitlab bitbucket].include?(@repository.host)
-      @repository.push_to_remote(@dir) if @repository.public?
+      @repository.push_to_remote(@options[:out_dir]) if @repository.public?
     end
 
     def git_repository_user_name(host)

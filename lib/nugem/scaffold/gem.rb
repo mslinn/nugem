@@ -25,8 +25,6 @@ module Nugem
       @private     = options[:private]
       @yes         = options[:yes]
 
-      @dir = Nugem.dest_root @out_dir, gem_name
-
       create_plain_scaffold gem_name
       initialize_repository gem_name
     end
@@ -46,14 +44,14 @@ module Nugem
         private: @private,
         user:    git_repository_user_name(@host)
       )
-      puts set_color("Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@dir}.", :green)
+      puts set_color("Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@options[:out_dir]}.", :green)
       exclude_pattern = case @test_framework
                         when 'minitest' then /spec.*/
                         when 'rspec'    then /test.*/
                         end
-      directory('common/gem_scaffold',        @dir, force: true, mode: :preserve, exclude_pattern:)
-      directory 'common/executable_scaffold', @dir, force: true, mode: :preserve if @executables
-      template  'common/LICENCE.txt',         "#{@dir}/LICENCE.txt", force: true if @repository.public?
+      directory('common/gem_scaffold',        @options[:out_dir], force: true, mode: :preserve, exclude_pattern:)
+      directory 'common/executable_scaffold', @options[:out_dir], force: true, mode: :preserve if @executables
+      template  'common/LICENCE.txt',         "#{@options[:out_dir]}/LICENCE.txt", force: true if @repository.public?
     end
   end
 end

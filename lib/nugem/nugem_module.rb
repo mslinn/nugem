@@ -15,23 +15,18 @@ module Nugem
       .join
   end
 
-  # @return Path to the generated gem
-  def self.dest_root(out_dir, gem_name)
-    File.expand_path "#{out_dir}/#{gem_name}"
-  end
-
   #
   # Instance methods
   #
 
   def count_todos(filename)
-    filename_fq = "#{Nugem.dest_root @out_dir, gem_name}/#{filename}"
+    filename_fq = "#{@options[:out_dir]}/#{filename}"
     content = File.read filename_fq
     content.scan('TODO').length
   end
 
   def initialize_repository(gem_name)
-    Dir.chdir Nugem.dest_root(@out_dir, gem_name) do
+    Dir.chdir @options[:out_dir] do
       # puts set_color("Working in #{Dir.pwd}", :green)
       run 'chmod +x bin/*'
       run 'chmod +x exe/*' if @executables
