@@ -20,8 +20,14 @@ module Nugem
     # @return [Nugem] A new instance of Nugem.
     #
     # @example
-    #   nugem = Nugem.new('my_gem', host: 'github', private: false, out_dir: 'output')
-    def initialize(gem_name, options = DEFAULT_OPTIONS)
+    #   nugem = Nugem.new({
+    #     gem_name: 'my_gem',
+    #     gem_type: 'plain',
+    #     host: 'github',
+    #     private: false,
+    #     out_dir: '~/output'
+    #   })
+    def initialize(options = DEFAULT_OPTIONS)
       @gem_name = gem_name
       @options = options
       @class_name = ::Nugem.camel_case(@gem_name)
