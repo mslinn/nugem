@@ -118,6 +118,7 @@ module Nugem
     File.join gem_path(__FILE__), 'templates'
   end
 
+  # A bogus gem spec is temporarily created to validate the gem name.
   def self.validate_gem_name(name)
     spec = Gem::Specification.new do |s|
       s.authors               = ['Fred Flintstone']
