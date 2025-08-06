@@ -120,12 +120,20 @@ module Nugem
 
   def self.validate_gem_name(name)
     spec = Gem::Specification.new do |s|
-      s.name = name
-      s.version = '1.0.0' # Required for building
-      s.platform = Gem::Platform::RUBY
-      s.authors = ['']
-      s.email = ['']
-      s.summary = ''
+      s.authors               = ['Fred Flintstone']
+      s.email                 = ['fred@flintstone.com']
+      s.files                 = Dir[
+                                  '{exe,lib,spec,templates}/**/*',
+                                  '*.gemspec',
+                                  '*.md'
+                                ]
+      s.homepage              = 'https://www.mslinn.com/ruby/6800-nugem.html'
+      s.license               = 'MIT'
+      s.name                  = name
+      s.platform              = Gem::Platform::RUBY
+      s.required_ruby_version = '>= 3.1.0'
+      s.summary               = 'bogus summary'
+      s.version               = '0.1.0'
     end
 
     begin
