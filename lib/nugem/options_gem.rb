@@ -3,7 +3,7 @@ require 'sod'
 require 'sod/types/pathname'
 
 module Nugem
-  DEFAULT_OUT_DIR = File.join(Dir.home, 'nugem_generated').freeze
+  DEFAULT_OUT_DIR_BASE = File.join(Dir.home, 'nugem_generated').freeze
   HOSTS = %w[github gitlab bitbucket].freeze
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
@@ -46,26 +46,25 @@ module Nugem
   end
 
   class Options
-    attr_reader :attribute_name
     attr_accessor :errors_are_fatal, :options
 
     include ::HighlineWrappers
 
-    def initialize(errors_are_fatal: true)
-      @attribute_name = 'plain'
+    def initialize(default_options, errors_are_fatal: true)
       @errors_are_fatal = errors_are_fatal
-
-      @options = {
-        executables: false,
-        dry_run:     false,
-        gem_type:    :plain,
-        host:        'github',
-        loglevel:    LOGLEVELS[3], # Default is 'info'
-        out_dir:     DEFAULT_OUT_DIR,
-        private:     false,
-        todos:       true,
-        yes:         false,
-      }
+      @options = default_options
+                   .merge({
+                            executables: false,
+                            dry_run:     false,
+                            host:        'github',
+                            loglevel:    LOGLEVELS[3], # Default is 'info'
+                            out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
+                            private:     false,
+                            todos:       true,
+                            yes:         false,
+                          })
+                   .sort
+                   .to_h
     end
 
     # Do application-level sanity check stuff
@@ -156,16 +155,6 @@ module Nugem
       options
     rescue OptionParser::InvalidOption => e
       ::Nugem.help(e.message, errors_are_fatal: errors_are_fatal)
-    end
-
-    def parse_positional_parameters(label = 'gem')
-      ::Nugem.help("The type and name of the #{label} to create was not specfied.", errors_are_fatal: errors_are_fatal) if ARGV.empty?
-      ::Nugem.help('Invalid syntax.', errors_are_fatal: errors_are_fatal) if ARGV.length > 2
-
-      @options[:gem_type] = ARGV[0]
-      @options[:gem_name] = ARGV[1]
-
-      ::Nugem.help("Invalid #{@options[:gem_type]} name.", errors_are_fatal: errors_are_fatal) unless Nugem.validate_gem_name(@options[:gem_name])
     end
   end
 end

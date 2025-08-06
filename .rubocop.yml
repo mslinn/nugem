@@ -58,6 +58,9 @@ Metrics/ModuleLength:
 Metrics/PerceivedComplexity:
   Max: 25
 
+Naming/AccessorMethodName:
+  Enabled: false
+
 Naming/FileName:
   Exclude:
     - CHANGELOG.md

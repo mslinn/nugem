@@ -1,5 +1,6 @@
 require 'colorized_string'
 require 'fileutils'
+require 'rubygems/specification'
 require 'rugged'
 
 module Nugem
@@ -48,6 +49,24 @@ module Nugem
     report_todos gem_name
   end
 
+  # Sets :gem_type and :gem_name values in options from the command line arguments.
+  # Ignores other command line arguments.
+  # @return [Hash] Options parsed from the command line arguments
+  def self.parse_positional_parameters
+    pp = ::Nugem.positional_parameters
+    ::Nugem.help if pp.empty? || pp.length < 2
+    ::Nugem.help("The type and name of the #{@ptions[:gem_type]} to create was not specfied.", errors_are_fatal: errors_are_fatal) if pp.empty?
+    ::Nugem.help('Invalid syntax.', errors_are_fatal: errors_are_fatal) if pp.length > 2
+
+    options = {}
+    options[:gem_type] = pp[0]
+    options[:gem_name] = pp[1]
+
+    ::Nugem.help("Invalid #{options[:gem_type]} name.", errors_are_fatal: errors_are_fatal) unless ::Nugem.validate_gem_name(options[:gem_name])
+
+    options
+  end
+
   def self.positional_parameters
     ARGV.reject { |x| x.start_with? '-' }
   end
@@ -68,20 +87,19 @@ module Nugem
   end
 
   def self.run_me
-    pp = ::Nugem.positional_parameters
-    ::Nugem.help if pp.empty?
-    gem_type = pp.first
-    case gem_type
+    @options = parse_positional_parameters # Only sets the gem_type and gem_name
+    case @options[:gem_type] # Parse all remaining options based on the gem type
     when 'gem'
-      nugem = Options.new
+      @nugem_options = Options.new(@options)
     when 'jekyll'
-      nugem = JekyllOptions.new
+      @nugem_options = JekyllOptions.new(@options)
     else
       puts "Error: unrecognized gem type '#{gem_type}'."
       exit 2
     end
-    nugem.parse_options
-    puts nugem.act.green
+    parsed_options = @nugem_options.parse_options
+    @nugem = Nugem.new parsed_options
+    puts @nugem.options.act.green
   end
 
   def self.todo
@@ -98,5 +116,24 @@ module Nugem
   # @return Path to the templates
   def self.template_directory
     File.join gem_path(__FILE__), 'templates'
+  end
+
+  def self.validate_gem_name(name)
+    spec = Gem::Specification.new do |s|
+      s.name = name
+      s.version = '1.0.0' # Required for building
+      s.platform = Gem::Platform::RUBY
+      s.authors = ['']
+      s.email = ['']
+      s.summary = ''
+    end
+
+    begin
+      spec.validate
+      true
+    rescue Gem::InvalidSpecificationException => e
+      puts "Error: #{e.message} is an invalid gem name.".red
+      false
+    end
   end
 end
