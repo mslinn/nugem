@@ -35,7 +35,7 @@ module Nugem
 
       @host = HOSTS.find { |host| host.id == specified_host_id }
       if @host.nil?
-        abort <<~END_MSG
+        abort <<~END_MSG.red
           No host with id #{specified_host_id} is known.
           Available hosts are: #{HOSTS.map(&:id.to_s).join(', ')}.
           If no host is specified, Nugem will use GitHub by default.
@@ -47,7 +47,7 @@ module Nugem
 
       @global_config = Rugged::Config.global
       if @global_config.nil?
-        abort <<~END_MSG
+        abort <<~END_MSG.red
           Error: No Git user has been configured yet.
           Please run the following commands to set up your Git user, then retry the command:
             git config --global user.name "Your Name"
@@ -57,7 +57,7 @@ module Nugem
 
       @user_email = @global_config['user.email']
       if @user_email.nil?
-        abort <<~END_MSG
+        abort <<~END_MSG.red
           Error: No Git user email has been configured yet.
           Please run the following to set up your Git user email, then retry the command:
             git config --global user.email "your.email@example.com"
@@ -67,7 +67,7 @@ module Nugem
       @user_name = @global_config['user.name']
       return unless @user_name.nil?
 
-      abort <<~END_MSG
+      abort <<~END_MSG.red
         Error: No Git user name has been configured yet.
         Please run the following to set up your Git user name, then retry the command:
           git config --global user.name "Your Name"

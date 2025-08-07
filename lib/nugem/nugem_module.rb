@@ -61,12 +61,12 @@ module Nugem
   def self.run_me
     @options = parse_positional_parameters # Only sets the gem_type and gem_name
     case @options[:gem_type] # Parse all remaining options based on the gem type
-    when 'gem'
+    when 'ruby'
       @nugem_options = Options.new(@options)
     when 'jekyll'
       @nugem_options = JekyllOptions.new(@options)
     else
-      puts "Error: unrecognized gem type '#{@options['gem_type']}'."
+      puts "Error: unrecognized gem type '#{@options[:gem_type]}'.".red
       exit 2
     end
     parsed_options = @nugem_options.parse_options
@@ -126,7 +126,7 @@ module Nugem
     gemspec_todos = todos_count "#{gem_name}.gemspec"
     readme_todos = todos_count 'README.md'
     if readme_todos.zero? && gemspec_todos.zero?
-      puts set_color("There are no TODOs. You can run 'bundle' from within your new gem project now.", :blue)
+      puts "There are no TODOs. You can run 'bundle' from within your new gem project now.".blue
       return
     end
 
@@ -134,6 +134,6 @@ module Nugem
     msg << " the #{gemspec_todos} TODOs in #{gem_name}.gemspec" if gemspec_todos.positive?
     msg << ' and' if gemspec_todos.positive? && readme_todos.positive?
     msg << " the #{readme_todos} TODOs in README.md." if readme_todos.positive?
-    puts set_color(msg, :yellow)
+    puts msg.yellow
   end
 end

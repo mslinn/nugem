@@ -56,7 +56,6 @@ module Nugem
                    .merge({
                             executables: false,
                             dry_run:     false,
-                            gem_type:    'ruby',
                             host:        'github',
                             loglevel:    LOGLEVELS[3], # Default is 'info'
                             out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",

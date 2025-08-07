@@ -2,10 +2,10 @@ require 'optparse'
 
 module Nugem
   class Cli
-    desc 'gem NAME', 'Creates a new gem scaffold.'
+    desc 'ruby NAME', 'Creates a new gem scaffold.'
 
     long_desc <<~END_DESC
-      Creates a new gem scaffold with the given NAME,
+      Creates a new Ruby gem scaffold with the given NAME,
       by default hosted by GitHub and published on RubyGems.
     END_DESC
 

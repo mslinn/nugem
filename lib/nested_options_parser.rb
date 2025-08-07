@@ -112,7 +112,7 @@ class NestedOptionParser
     option_parser.order! arguments, into: options
     options
   rescue OptionParser::InvalidOption => e
-    puts "Error: #{e.message}"
+    puts "Error: #{e.message}".red
     exit 1
   end
 end

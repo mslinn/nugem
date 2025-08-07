@@ -69,9 +69,9 @@ module ERBTemplates
         content
       end
     rescue Errno::ENOENT => e
-      raise "Template file not found: #{@relative_path}. Error: #{e.message}"
+      raise "Template file not found: #{@relative_path}. Error: #{e.message}".red
     rescue StandardError => e
-      raise "Error rendering template #{@relative_path}: #{e.message}"
+      raise "Error rendering template #{@relative_path}: #{e.message}".red
     end
 
     def write(target_path)
@@ -79,9 +79,9 @@ module ERBTemplates
       FileUtils.mkdir_p(File.dirname(destination))
       File.write(destination, render)
     rescue Errno::EACCES => e
-      raise "Permission denied when writing expanded template to #{destination}. Error: #{e.message}"
+      raise "Permission denied when writing expanded template to #{destination}. Error: #{e.message}".red
     rescue StandardError => e
-      raise "Error writing expanded template to #{destination}: #{e.message}"
+      raise "Error writing expanded template to #{destination}: #{e.message}".red
     end
 
     def ==(other)
