@@ -24,7 +24,7 @@ module Nugem
     # @example
     #   nugem = Nugem.new({
     #     gem_name: 'my_gem',
-    #     gem_type: 'plain',
+    #     gem_type: 'ruby',
     #     host: 'github',
     #     private: false,
     #     out_dir: '~/output'

@@ -6,7 +6,7 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run exe/nugem help",
+      "name": "nugem help",
       "script": "${workspaceFolder}/exe/nugem",
       "request": "launch",
       "type": "rdbg",
@@ -17,7 +17,7 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run exe/nugem gem test without options",
+      "name": "nugem gem test without options",
       "script": "${workspaceFolder}/exe/nugem gem test",
       "request": "launch",
       "type": "rdbg",
@@ -28,7 +28,7 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Fail exe/nugem gem with options before the gem type",
+      "name": "Fail nugem gem with options before the gem type",
       "script": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
       "request": "launch",
       "type": "rdbg",
@@ -39,7 +39,7 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run exe/nugem gem test with options",
+      "name": "nugem gem test -o /tmp --yes",
       "script": "${workspaceFolder}/exe/nugem gem test -o /tmp --yes",
       "request": "launch",
       "type": "rdbg",
@@ -50,8 +50,8 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Debug nugem jekyll test",
-      "script": "${workspaceFolder}/exe/nugem jekyll test --out_dir=/tmp/nugem --private --tag=tag1",
+      "name": "nugem jekyll test --private --tag=tag1",
+      "script": "${workspaceFolder}/exe/nugem jekyll test --private --tag=tag1",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
@@ -61,7 +61,7 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run bin/demo gem test",
+      "name": "demo gem test",
       "script": "${workspaceFolder}/bin/demo gem test",
       "request": "launch",
       "type": "rdbg",
@@ -72,7 +72,7 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run bin/demo jekyll",
+      "name": "demo jekyll",
       "script": "${workspaceFolder}/bin/demo jekyll",
       "request": "launch",
       "type": "rdbg",
@@ -83,7 +83,7 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run bin/build_run_demo",
+      "name": "build_run_demo",
       "script": "${workspaceFolder}/bin/build_run_demo",
       "request": "launch",
       "type": "rdbg",

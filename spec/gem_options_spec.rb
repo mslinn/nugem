@@ -29,6 +29,7 @@ class GemOptionsTest
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
         Options:
+         - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'
          - No executables will be included
@@ -64,6 +65,7 @@ class GemOptionsTest
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
         Options:
+         - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'
          - An executable called blah will be included

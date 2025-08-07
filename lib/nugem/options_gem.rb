@@ -10,7 +10,7 @@ module Nugem
   def self.help(msg = nil, errors_are_fatal: true)
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
-      nugem v#{VERSION}: Creates scaffolding for a plain gem or a Jekyll plugin.
+      nugem v#{VERSION}: Creates scaffolding for a ruby gem or a Jekyll plugin.
       (Jekyll plugins are a type of specialized gem.)
 
       nugem [OPTIONS] gem NAME     # Creates the scaffold for implementing a new plain-old Ruby gem called NAME.
@@ -56,6 +56,7 @@ module Nugem
                    .merge({
                             executables: false,
                             dry_run:     false,
+                            gem_type:    'ruby',
                             host:        'github',
                             loglevel:    LOGLEVELS[3], # Default is 'info'
                             out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
@@ -102,6 +103,7 @@ module Nugem
                 end
       <<~END_SUMMARY
         Options:
+         - Gem type: #{@options[:gem_type]}
          - Loglevel #{@options[:loglevel]}
          - Output directory: '#{@options[:out_dir]}'
          - #{executable_msg}
