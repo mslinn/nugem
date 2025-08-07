@@ -1,5 +1,7 @@
 require 'fileutils'
 require 'find'
+require 'rugged'
+
 module Nugem
   # Created by vscode to avoid name conflicts with Nugem::Nugem
   class Nugem
@@ -28,35 +30,35 @@ module Nugem
     #     out_dir: '~/output'
     #   })
     def initialize(options = DEFAULT_OPTIONS)
-      @gem_name = gem_name
       @options = options
-      @class_name = ::Nugem.camel_case(@gem_name)
+      @class_name = ::Nugem.camel_case(options[:gem_name])
       @module_name = "#{@class_name}Module"
+      repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
         host:    @options[:host],
-        name:    @gem_name,
+        name:    @options[:gem_name],
         private: @options[:private],
-        user:    git_repository_user_name(@options[:host])
+        user:    repository_user_name
       )
     end
 
     def create_scaffold
-      puts "Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@options[:out_dir]}.".green
+      puts "Creating a scaffold for a new Ruby gem named #{@options[:gem_name]} in #{@options[:out_dir]}.".green
       directory 'common/gem_scaffold',        @options[:out_dir], force: true, mode: :preserve, exclude_pattern: 'spec/*'
       directory 'common/executable_scaffold', @options[:out_dir], force: true, mode: :preserve if @options[:executables]
       template 'common/LICENCE.txt', "#{@options[:out_dir]}/LICENCE.txt", force: true if @repository.public?
     end
 
     def initialize_repository
-      puts set_color("Initializing repository for #{@gem_name} at #{@repository.host}.", :green)
+      puts set_color("Initializing repository for #{@options[:gem_name]} at #{@repository.host}.", :green)
       @repository.create if %i[github gitlab bitbucket].include?(@repository.host)
       @repository.push_to_remote(@options[:out_dir]) if @repository.public?
     end
 
     def git_repository_user_name(host)
       case host
-      when :bitbucket | :gitlab | :github
-        `git config --get user.name`.strip
+      when 'bitbucket', 'gitlab', 'github'
+        Rugged::Config.global['user.name']
       else
         raise ArgumentError, "Unknown host: #{host}"
       end

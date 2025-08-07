@@ -40,11 +40,11 @@ module Nugem
       end
 
       @user_email = @global_config['user.email']
-      if @user_name.nil?
+      if @user_email.nil?
         abort <<~END_MSG
-          Error: No Git user name has been configured yet.
-          Please run the following to set up your Git user name, then retry the command:
-            git config --global user.name "Your Name"
+          Error: No Git user email has been configured yet.
+          Please run the following to set up your Git user email, then retry the command:
+            git config --global user.email "your.email@example.com"
         END_MSG
       end
 
@@ -52,9 +52,9 @@ module Nugem
       return unless @user_name.nil?
 
       abort <<~END_MSG
-        Error: No Git user email has been configured yet.
-        Please run the following to set up your Git user email, then retry the command:
-          git config --global user.email "your.email@example.com"
+        Error: No Git user name has been configured yet.
+        Please run the following to set up your Git user name, then retry the command:
+          git config --global user.name "Your Name"
       END_MSG
     end
 
