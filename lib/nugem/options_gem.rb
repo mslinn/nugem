@@ -156,6 +156,7 @@ module Nugem
       options
     rescue OptionParser::InvalidOption => e
       ::Nugem.help(e.message, errors_are_fatal: @errors_are_fatal)
+      e.message # Useful for rspec tests
     end
   end
 end
