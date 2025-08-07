@@ -90,7 +90,7 @@ module Nugem
     # TODO: support GitLab
     def create_remote_git_repository
       puts "Creating a remote #{@host} repository".green
-      if @host.github?
+      if github?
         gh_config = github_config
         token = gh_config&.dig('github.com', 'oauth_token')
 
@@ -102,7 +102,7 @@ module Nugem
             -d '{"name":"#{@host.name}", "private":#{@host.private?}}'
         END_CURL
         run(curl_command, capture: true)
-      else # BitBucket
+      elsif bitbucket?
         password = ask('Please enter your Bitbucket password', echo: false)
         fork_policy = @host.public? ? 'allow_forks' : 'no_public_forks'
         run <<~END_BITBUCKET
@@ -111,9 +111,11 @@ module Nugem
             https://api.bitbucket.org/2.0/repositories/#{@host.user}/#{@host.name} \
             -d '{"scm":"git", "fork_policy":"#{fork_policy}", "is_private":"#{repository.private?}"}'
         END_BITBUCKET
+      else
+        abort "Support for #{@host.id} has not been implemented yet."
       end
       run "git remote add origin #{@host.origin}"
-      puts set_color("Pushing initial commit to remote #{@host.host} repository", :green)
+      puts "Pushing initial commit to remote #{@host.host} repository".green
       run 'git push -u origin master'
     end
 
@@ -122,7 +124,7 @@ module Nugem
     end
 
     def github_config
-      gh_hosts_file = Nugem.expand_env('$HOME/.config/gh/hosts.yml')
+      gh_hosts_file = "#{Dir.home}/.config/gh/hosts.yml"
       return nil unless File.exist? gh_hosts_file
 
       YAML.safe_load_file(gh_hosts_file)
@@ -134,20 +136,21 @@ module Nugem
 
     def initialize_repository(gem_name)
       Dir.chdir @options[:out_dir] do
-        # puts set_color("Working in #{Dir.pwd}", :green)
+        puts "Preparing a git repository in #{Dir.pwd}".green
         run 'chmod +x bin/*'
         run 'chmod +x exe/*' if @executables
         create_local_git_repository
         FileUtils.rm_f 'Gemfile.lock'
-        # puts set_color("Running 'bundle'", :green)
+        # puts "Running 'bundle'".green
         # run 'bundle', abort_on_failure: false
         create_repo = @yes || begin
-          yes? "Do you want to create a repository on #{@repository.host.camel_case} named #{gem_name}? (y/N)".green
+          hostcc = @repository.host.camel_case
+          yes? "Do you want to create a repository on #{hostcc} named #{gem_name}? (y/N)".green
         end
         create_remote_git_repository @repository if create_repo
       end
-      puts set_color("The #{gem_name} gem was successfully created.", :green)
-      puts set_color('Remember to run bin/setup in the new gem directory', :green)
+      puts "The #{gem_name} gem was created.".green
+      puts 'Remember to run bin/setup in the new gem directory'.yellow
       todos_report gem_name
     end
 
