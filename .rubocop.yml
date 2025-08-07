@@ -31,7 +31,7 @@ Layout/HashAlignment:
   EnforcedHashRocketStyle: table
 
 Layout/LineLength:
-  Max: 150
+  Max: 120
 
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented_relative_to_receiver

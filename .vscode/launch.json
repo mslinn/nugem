@@ -28,8 +28,8 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run exe/nugem gem test with options before the gem name",
-      "script": "${workspaceFolder}/exe/nugem gem -o /tmp --yes test",
+      "name": "Fail exe/nugem gem with options before the gem type",
+      "script": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
@@ -39,7 +39,7 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run exe/nugem gem test with options after the gem name",
+      "name": "Run exe/nugem gem test with options",
       "script": "${workspaceFolder}/exe/nugem gem test -o /tmp --yes",
       "request": "launch",
       "type": "rdbg",

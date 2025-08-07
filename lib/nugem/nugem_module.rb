@@ -19,16 +19,31 @@ module Nugem
   # Ignores other command line arguments.
   # @return [Hash] Options parsed from the command line arguments
   def self.parse_positional_parameters
+    first_option = ARGV.index { |x| x.start_with? '-' }
+    first_pp = ARGV.index { |x| !x.start_with? '-' }
+    if first_option < first_pp # This comment prevents folding
+      bad_options = ARGV[0..first_option]
+      msg = "Error: Option#{'s' if bad_options.length > 1} '#{bad_options.join(', ')}' must follow the subcommand name."
+      ::Nugem.help msg, errors_are_fatal: true
+    end
+
     pp = ::Nugem.positional_parameters
-    ::Nugem.help if pp.empty? || pp.length < 2
-    ::Nugem.help("The type and name of the #{@ptions[:gem_type]} to create was not specfied.", errors_are_fatal: @errors_are_fatal) if pp.empty?
-    ::Nugem.help('Invalid syntax.', errors_are_fatal: @errors_are_fatal) if pp.length > 2
+    ::Nugem.help 'Error: The gem type must be specified.', errors_are_fatal: true if pp.empty?
+
+    if pp.empty? # This comment prevents folding
+      ::Nugem.help "Error: The type and name of the #{@ptions[:gem_type]} to create was not specfied.",
+                   errors_are_fatal: true
+    end
+
+    ::Nugem.help('Invalid syntax (insufficient positional parameters).', errors_are_fatal: true) if pp.length < 2
 
     options = {}
     options[:gem_type] = pp[0]
     options[:gem_name] = pp[1]
 
-    ::Nugem.help("Invalid #{options[:gem_type]} name.", errors_are_fatal: @errors_are_fatal) unless ::Nugem.validate_gem_name(options[:gem_name])
+    unless ::Nugem.validate_gem_name(options[:gem_name]) # This comment prevents folding
+      ::Nugem.help("Error: '#{options[:gem_name]}' is an invalid gem name.", errors_are_fatal: @errors_are_fatal)
+    end
 
     options
   end
@@ -44,7 +59,6 @@ module Nugem
   end
 
   def self.run_me
-    parsed_options = @nugem_options.parse_options
     @options = parse_positional_parameters # Only sets the gem_type and gem_name
     case @options[:gem_type] # Parse all remaining options based on the gem type
     when 'gem'

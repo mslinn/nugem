@@ -5,6 +5,8 @@ SubCmd = Struct.new(:name, :option_parser_proc)
 class NestedOptionParser
   attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_options, :sub_cmds
 
+  # Please see [`subcommands.md`](subcommands.md) for an example of how to use this class.
+  #
   # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
   # options for the subcommand by calling `OptionParser.on` at least once.
   # The subcommand parser procs can be defined in the `subcommand_parser_procs` parameter.
@@ -30,7 +32,7 @@ class NestedOptionParser
   # end
   #
   # NestedOptionParser.new(
-  #   argv: %w[-h -x pos_param1 pos_param2 -y -z]
+  #   argv: %w[mysubcommand pos_param2 -o /tmp/test -x -y -z]
   #   default_option_hash: { help: false },
   #   option_parser_proc: proc do |parser|
   #     parser.on '-h', '--help'
