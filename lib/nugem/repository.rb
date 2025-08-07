@@ -1,6 +1,8 @@
 # Nugem::Repository contains informations about the git repository and the git user
 module Nugem
   class Repository
+    include HighlineWrappers
+
     attr_reader :gem_server_url, :global_config, :host, :name, :out_dir, :private, :user, :user_name, :user_email
 
     Host = Struct.new(:domain, :camel_case, :id, keyword_init: true)
@@ -9,6 +11,20 @@ module Nugem
       Host.new(domain: 'gitlab.com',    camel_case: 'GitLab',    id: :gitlab),
       Host.new(domain: 'bitbucket.org', camel_case: 'BitBucket', id: :bitbucket),
     ].freeze
+
+    def self.git_repository_user_name(host)
+      global_config = Rugged::Config.global
+      git_config_key = "nugem.#{host}user"
+      user = global_config[git_config_key]
+
+      # TODO: support BitBucket and GitLab
+      gh_config = github_config
+      user ||= gh_config&.dig('github.com', 'user')
+
+      user = ask "What is your #{host} user name?" if user.to_s.empty?
+      global_config[git_config_key] = user if user != global_config[git_config_key]
+      user
+    end
 
     def initialize(options)
       @name    = options[:name]
@@ -62,12 +78,77 @@ module Nugem
       @host.id == :bitbucket
     end
 
+    def create_local_git_repository
+      puts set_color('Creating the local git repository', :green)
+      run 'git init'
+      run 'git add .'
+
+      # See https://github.com/rails/thor/blob/v1.2.2/lib/thor/actions.rb#L236-L278
+      run "git commit -aqm 'Initial commit'", abort_on_failure: false
+    end
+
+    # TODO: support GitLab
+    def create_remote_git_repository
+      puts "Creating a remote #{@host} repository".green
+      if @host.github?
+        gh_config = github_config
+        token = gh_config&.dig('github.com', 'oauth_token')
+
+        token ||= ask('What is your Github personal access token', echo: false)
+        curl_command = <<~END_CURL
+          curl --request POST \
+            --user '#{@host.user}:#{token}' \
+            https://api.github.com/user/repos \
+            -d '{"name":"#{@host.name}", "private":#{@host.private?}}'
+        END_CURL
+        run(curl_command, capture: true)
+      else # BitBucket
+        password = ask('Please enter your Bitbucket password', echo: false)
+        fork_policy = @host.public? ? 'allow_forks' : 'no_public_forks'
+        run <<~END_BITBUCKET
+          curl --request POST \
+            --user #{@host.user}:#{password} \
+            https://api.bitbucket.org/2.0/repositories/#{@host.user}/#{@host.name} \
+            -d '{"scm":"git", "fork_policy":"#{fork_policy}", "is_private":"#{repository.private?}"}'
+        END_BITBUCKET
+      end
+      run "git remote add origin #{@host.origin}"
+      puts set_color("Pushing initial commit to remote #{@host.host} repository", :green)
+      run 'git push -u origin master'
+    end
+
     def github?
       @host.id == :github
     end
 
+    def github_config
+      gh_hosts_file = Nugem.expand_env('$HOME/.config/gh/hosts.yml')
+      return nil unless File.exist? gh_hosts_file
+
+      YAML.safe_load_file(gh_hosts_file)
+    end
+
     def gitlab?
       @host.id == :gitlab
+    end
+
+    def initialize_repository(gem_name)
+      Dir.chdir @options[:out_dir] do
+        # puts set_color("Working in #{Dir.pwd}", :green)
+        run 'chmod +x bin/*'
+        run 'chmod +x exe/*' if @executables
+        create_local_git_repository
+        FileUtils.rm_f 'Gemfile.lock'
+        # puts set_color("Running 'bundle'", :green)
+        # run 'bundle', abort_on_failure: false
+        create_repo = @yes || begin
+          yes? "Do you want to create a repository on #{@repository.host.camel_case} named #{gem_name}? (y/N)".green
+        end
+        create_remote_git_repository @repository if create_repo
+      end
+      puts set_color("The #{gem_name} gem was successfully created.", :green)
+      puts set_color('Remember to run bin/setup in the new gem directory', :green)
+      todos_report gem_name
     end
 
     def origin

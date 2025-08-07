@@ -51,7 +51,7 @@ module Nugem
 
     def initialize_repository
       puts set_color("Initializing repository for #{@options[:gem_name]} at #{@repository.host}.", :green)
-      @repository.create if %i[github gitlab bitbucket].include?(@repository.host)
+      @repository.create_local_git_repository if %i[github gitlab bitbucket].include?(@repository.host)
       @repository.push_to_remote(@options[:out_dir]) if @repository.public?
     end
 

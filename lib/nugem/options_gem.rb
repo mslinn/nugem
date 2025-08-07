@@ -67,10 +67,10 @@ module Nugem
                    .to_h
     end
 
-    # Do application-level sanity check stuff
+    # Do application-level sanity check stuff then act
     # Called after user parameters have been gathered and saved as state in this instance
     # Only generate output if loglevel is info or lower
-    def act
+    def prepare_and_report
       dir = @options[:out_dir]
       overwrite = @options[:overwrite]
       show_log_level_info = LOGLEVELS.index(@options[:loglevel]) <= LOGLEVELS.index('info')
@@ -82,7 +82,7 @@ module Nugem
         FileUtils.rm_rf(Dir.glob(dir), secure: true)
         Dir.mkdir dir
       end
-      show_log_level_info ? summarize : ''
+      puts summarize.green if show_log_level_info
     end
 
     def summarize
@@ -101,13 +101,14 @@ module Nugem
                   'User responses will be used for yes/no questions'
                 end
       <<~END_SUMMARY
-        Loglevel #{@options[:loglevel]}
-        Output directory: '#{@options[:out_dir]}'
-        #{executable_msg}
-        Git host: #{@options[:host]}
-        A #{@options[:private] ? 'private' : 'public'} git repository will be created
-        TODOs #{@options[:todos] ? 'will' : 'will not'} be included in the source code
-        #{yes_msg}
+        Options:
+         - Loglevel #{@options[:loglevel]}
+         - Output directory: '#{@options[:out_dir]}'
+         - #{executable_msg}
+         - Git host: #{@options[:host]}
+         - A #{@options[:private] ? 'private' : 'public'} git repository will be created
+         - TODOs #{@options[:todos] ? 'will' : 'will not'} be included in the source code
+         - #{yes_msg}
       END_SUMMARY
     end
 

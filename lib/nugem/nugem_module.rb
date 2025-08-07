@@ -71,7 +71,7 @@ module Nugem
     end
     parsed_options = @nugem_options.parse_options
     @nugem = Nugem.new parsed_options
-    puts @nugem_options.act.green
+    @nugem_options.prepare_and_report
   end
 
   def self.todo
@@ -116,34 +116,15 @@ module Nugem
   # Instance methods
   #
 
-  def count_todos(filename)
+  def todos_count(filename)
     filename_fq = "#{@options[:out_dir]}/#{filename}"
     content = File.read filename_fq
     content.scan('TODO').length
   end
 
-  def initialize_repository(gem_name)
-    Dir.chdir @options[:out_dir] do
-      # puts set_color("Working in #{Dir.pwd}", :green)
-      run 'chmod +x bin/*'
-      run 'chmod +x exe/*' if @executables
-      create_local_git_repository
-      FileUtils.rm_f 'Gemfile.lock'
-      # puts set_color("Running 'bundle'", :green)
-      # run 'bundle', abort_on_failure: false
-      create_repo = @yes || begin
-        yes? "Do you want to create a repository on #{@repository.host.camel_case} named #{gem_name}? (y/N)".green
-      end
-      create_remote_git_repository @repository if create_repo
-    end
-    puts set_color("The #{gem_name} gem was successfully created.", :green)
-    puts set_color('Remember to run bin/setup in the new gem directory', :green)
-    report_todos gem_name
-  end
-
-  def report_todos(gem_name)
-    gemspec_todos = count_todos "#{gem_name}.gemspec"
-    readme_todos = count_todos 'README.md'
+  def todos_report(gem_name)
+    gemspec_todos = todos_count "#{gem_name}.gemspec"
+    readme_todos = todos_count 'README.md'
     if readme_todos.zero? && gemspec_todos.zero?
       puts set_color("There are no TODOs. You can run 'bundle' from within your new gem project now.", :blue)
       return
