@@ -51,7 +51,7 @@ class GemOptionsTest
         '-y',
         'gem'
       ]
-      nugem_options = described_class.new(errors_are_fatal: false)
+      nugem_options = described_class.new({}, errors_are_fatal: false)
       actual = nugem_options.parse_options(argv_override: argv)
       expected = nugem_options.options.merge({
                                                executables: ['blah'],
@@ -63,13 +63,14 @@ class GemOptionsTest
 
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
-        Loglevel #{nugem_options.options[:loglevel]}
-        Output directory: '#{nugem_options.options[:out_dir]}'
-        An executable called blah will be included
-        Git host: bitbucket
-        A private git repository will be created
-        TODOs will be included in the source code
-        All questions will be automatically be answered with 'yes'
+        Options:
+         - Loglevel #{nugem_options.options[:loglevel]}
+         - Output directory: '#{nugem_options.options[:out_dir]}'
+         - An executable called blah will be included
+         - Git host: bitbucket
+         - A private git repository will be created
+         - TODOs will be included in the source code
+         - All questions will be automatically be answered with 'yes'
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
     end
