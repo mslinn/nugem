@@ -114,8 +114,12 @@ and your gem will be published.
 
 ### `gem` Subcommand
 
+Options for the `gem` subcommand can be specified anywhere after the `gem` parameter.
+
 ```shell
+$ nugem gem [COMMON_OPTIONS] NAME
 $ nugem gem NAME [COMMON_OPTIONS]
+$ nugem gem [COMMON_OPTIONS] NAME [COMMON_OPTIONS]
 ```
 
 `NAME` is the name of the gem to be generated.
@@ -123,27 +127,28 @@ $ nugem gem NAME [COMMON_OPTIONS]
 For more information, type:
 
 ```shell
-$ nugem gem -h
+$ nugem -h
 ```
 
 
 ### `jekyll` Subcommand
 
 The `jekyll` subcommand extends the `gem` subcommand and creates a new Jekyll plugin with the given NAME:
+Options for the `jekyll` subcommand can be specified anywhere after the `jekyll` parameter.
 
 ```shell
 $ nugem jekyll NAME [COMMON_OPTIONS] [JEKYLL_OPTIONS]
+$ nugem jekyll [COMMON_OPTIONS] [JEKYLL_OPTIONS] NAME
+$ nugem jekyll [COMMON_OPTIONS] [JEKYLL_OPTIONS] NAME [COMMON_OPTIONS] [JEKYLL_OPTIONS]
 ```
 
 `NAME` is the name of the Jekyll plugin gem to be generated.
 
-In addition to the common options, the `JEKYLL_OPTIONS` are:
+`JEKYLL_OPTIONS` are:
 
 `--block`, `--blockn`, `--filter`, `--hooks`, `--tag`, and `--tagn`.
 
-(Warning: only `--block` and `--tag` been properly tested.)
-
-Each of these options causes `nugem` to prompt the user for additional input.
+Some of these options might cause `nugem` to prompt the user for additional input.
 
 All of the above options can be specified more than once, except the `--hooks` option.
 For example:
@@ -166,7 +171,7 @@ my_tag2 usage: {% my_tag2 %}
 For more information, type:
 
 ```shell
-$ nugem jekyll -h
+$ nugem -h
 ```
 
 

@@ -28,8 +28,19 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Run exe/nugem gem test with -o and --yes options",
-      "script": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
+      "name": "Run exe/nugem gem test with options before the gem name",
+      "script": "${workspaceFolder}/exe/nugem gem -o /tmp --yes test",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Run exe/nugem gem test with options after the gem name",
+      "script": "${workspaceFolder}/exe/nugem gem test -o /tmp --yes",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
@@ -40,7 +51,7 @@
         "VO_DEBUGGING": "true"
       },
       "name": "Debug nugem jekyll test",
-      "script": "${workspaceFolder}/exe/nugem jekyll --tag=tag1 --private --out_dir=/tmp/nugem test",
+      "script": "${workspaceFolder}/exe/nugem jekyll test --out_dir=/tmp/nugem --private --tag=tag1",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
