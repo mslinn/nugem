@@ -73,7 +73,7 @@ module Nugem
     def act
       dir = @options[:out_dir]
       overwrite = @options[:overwrite]
-      show_log_level_info = LOGLEVELS.index(@options[:loglevel]) < LOGLEVELS.index('info')
+      show_log_level_info = LOGLEVELS.index(@options[:loglevel]) <= LOGLEVELS.index('info')
 
       if @options[:dry_run]
         puts "Dry run: skipping the removal of #{dir}".yellow if overwrite && show_log_level_info
