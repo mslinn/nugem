@@ -18,7 +18,7 @@ This gem generates a new working Visual Studio Code project with the following f
 - Creates a test infrastructure based on `rspec`.
 - Your gem can be publicly released to `rubygems.org`.
 - Optionally create the gem as:
-  - A plain old gem.
+  - A plain old Ruby gem.
   - A Jekyll plugin (tag or block tag).
 
 The following features might be implemented in a future release:
