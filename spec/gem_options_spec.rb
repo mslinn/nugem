@@ -20,21 +20,22 @@ class GemOptionsTest
 
     it 'tests gem with loglevel debug and summarize' do
       argv = ['-L', 'debug', 'gem']
-      options = described_class.new(errors_are_fatal: false)
-      debug_options = options.value.merge({ loglevel: 'debug' })
+      nugem_options = described_class.new({}, errors_are_fatal: false)
+      debug_options = nugem_options.options.merge({ loglevel: 'debug' })
 
-      actual = options.parse_options(argv_override: argv)
+      actual = nugem_options.parse_options(argv_override: argv)
       expect(actual).to eq(debug_options)
 
-      actual_summary = options.act
+      actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
-        Loglevel #{options.value[:loglevel]}
-        Output directory: '#{options.value[:out_dir]}'
-        No executables will be included
-        Git host: github
-        A public git repository will be created
-        TODOs will be included in the source code
-        User responses will be used for yes/no questions
+        Options:
+         - Loglevel #{nugem_options.options[:loglevel]}
+         - Output directory: '#{nugem_options.options[:out_dir]}'
+         - No executables will be included
+         - Git host: github
+         - A public git repository will be created
+         - TODOs will be included in the source code
+         - User responses will be used for yes/no questions
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
     end
@@ -50,20 +51,20 @@ class GemOptionsTest
         '-y',
         'gem'
       ]
-      options = described_class.new(errors_are_fatal: false)
-      actual = options.parse_options(argv_override: argv)
-      expected = options.value.merge({
-                                       executables: ['blah'],
-                                       loglevel:    'debug',
-                                       out_dir:     TEST_OUT_DIR,
-                                       private:     true,
-                                     })
+      nugem_options = described_class.new(errors_are_fatal: false)
+      actual = nugem_options.parse_options(argv_override: argv)
+      expected = nugem_options.options.merge({
+                                               executables: ['blah'],
+                                               loglevel:    'debug',
+                                               out_dir:     TEST_OUT_DIR,
+                                               private:     true,
+                                             })
       expect(actual).to eq(expected)
 
-      actual_summary = options.act
+      actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
-        Loglevel #{options.value[:loglevel]}
-        Output directory: '#{options.value[:out_dir]}'
+        Loglevel #{nugem_options.options[:loglevel]}
+        Output directory: '#{nugem_options.options[:out_dir]}'
         An executable called blah will be included
         Git host: bitbucket
         A private git repository will be created
@@ -75,19 +76,19 @@ class GemOptionsTest
 
     it 'tests gem for loglevel debug and 2 executables' do
       argv = ['-L', 'debug', '-e', 'ex1,ex2', 'gem']
-      options = described_class.new(errors_are_fatal: false)
-      expected = options.value.merge({
-                                       executables: %w[ex1 ex2],
-                                       loglevel:    'debug',
-                                     })
-      actual = options.parse_options(argv_override: argv)
+      nugem_options = described_class.new(errors_are_fatal: false)
+      expected = nugem_options.options.merge({
+                                               executables: %w[ex1 ex2],
+                                               loglevel:    'debug',
+                                             })
+      actual = nugem_options.parse_options(argv_override: argv)
       expect(actual).to eq(expected)
     end
 
     it 'handles invalid options' do
       argv = ['-L', 'debug', '-x', 'gem']
-      options = described_class.new(errors_are_fatal: false)
-      actual = options.parse_options(argv_override: argv)
+      nugem_options = described_class.new(errors_are_fatal: false)
+      actual = nugem_options.parse_options(argv_override: argv)
       expect(actual).to eq('invalid option: -x')
     end
   end

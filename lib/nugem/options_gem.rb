@@ -82,7 +82,7 @@ module Nugem
         FileUtils.rm_rf(Dir.glob(dir), secure: true)
         Dir.mkdir dir
       end
-      puts summarize.green if show_log_level_info
+      show_log_level_info ? summarize : ''
     end
 
     def summarize

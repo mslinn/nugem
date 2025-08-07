@@ -71,7 +71,7 @@ module Nugem
     end
     parsed_options = @nugem_options.parse_options
     @nugem = Nugem.new parsed_options
-    @nugem_options.prepare_and_report
+    puts @nugem_options.prepare_and_report.green
   end
 
   def self.todo
