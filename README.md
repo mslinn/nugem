@@ -21,7 +21,7 @@ This gem generates a new working Visual Studio Code project with the following f
   - A plain old gem.
   - A Jekyll plugin (tag or block tag).
 
-The following features are still in development, so they probably do not work yet:
+The following features might be implemented in a future release:
 
 - Automatically creates git repositories on BitBucket or GitLab.
   Your gem can include [executables](https://guides.rubygems.org/make-your-own-gem/#adding-an-executable).
