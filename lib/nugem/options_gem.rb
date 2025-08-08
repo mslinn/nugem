@@ -17,6 +17,7 @@ module Nugem
       nugem [OPTIONS] jekyll NAME  # Creates the scaffold for a new Jekyll plugin called NAME.
 
       The following OPTIONS are available for all gem types:
+        -f, --force                       # Delete output directory if it exists before generating output
         -h, --help                        # Display this help message and exit
         -H HOST, --host=HOST              # Repository host. Default: github
                                           # Possible values: #{HOSTS.join ', '}
@@ -25,7 +26,6 @@ module Nugem
         -o OUT_DIR, --out-dir=OUT_DIR     # Output directory for the gem. Default: ~/nugem_generated/NAME
         -N, --no-todos                    # Suppress TODO: messages in generated code. Default: false
         -p, --private                     # Publish the gem to a private repository. Default: false
-        -y, --yes                         # Answer yes to all questions. Default: false
       Each of these OPTIONs can be invoked multiple times:
         -e NAME1, --executables=NAME1     # Include an executable with the given name for the gem
 
@@ -54,14 +54,15 @@ module Nugem
       @errors_are_fatal = errors_are_fatal
       @options = default_options
                    .merge({
-                            executables: false,
-                            dry_run:     false,
-                            host:        'github',
-                            loglevel:    LOGLEVELS[3], # Default is 'info'
-                            out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
-                            private:     false,
-                            todos:       true,
-                            yes:         false,
+                            executable: [],
+                            dry_run:    false,
+                            force:      false,
+                            host:       'github',
+                            loglevel:   LOGLEVELS[3], # Default is 'info'
+                            out_dir:    "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
+                            overwrite:  false,
+                            private:    false,
+                            todos:      true,
                           })
                    .sort
                    .to_h
@@ -95,21 +96,21 @@ module Nugem
                        else
                          'No executables will be included'
                        end
-      yes_msg = if @options[:yes]
-                  "All questions will be automatically be answered with 'yes'"
-                else
-                  'User responses will be used for yes/no questions'
-                end
+      force_msg = if @options[:force]
+                    'Any pre-existing content in the output directory will be deleted before generating new output.'
+                  else
+                    'Pre-existing content in the output directory will abort the program.'
+                  end
       <<~END_SUMMARY
         Options:
          - Gem type: #{@options[:gem_type]}
          - Loglevel #{@options[:loglevel]}
          - Output directory: '#{@options[:out_dir]}'
+         - #{force_msg}
          - #{executable_msg}
          - Git host: #{@options[:host]}
          - A #{@options[:private] ? 'private' : 'public'} git repository will be created
          - TODOs #{@options[:todos] ? 'will' : 'will not'} be included in the source code
-         - #{yes_msg}
       END_SUMMARY
     end
 
@@ -117,18 +118,17 @@ module Nugem
       dir ||= default_value
       if Dir.exist?(dir) && !Dir.empty?(dir)
         puts "Output directory '#{dir}' already exists and is not empty."
-        @options[:overwrite] = if @options[:yes]
-                                 puts "Overwriting contents of #{dir} because --yes was specified."
-                                 true
-                               else
-                                 ask "Do you want to overwrite the contents of #{dir}? (y/n)"
-                               end
+        if @options[:overwrite]
+          puts "Overwriting contents of #{dir} because --force was specified."
+        else
+          @options[:overwrite] = ask "Do you want to overwrite the contents of #{dir}? (y/n)"
+        end
       end
       dir
     end
 
-    # Gather all the possible parameter values. Other than built-in type checking,
-    # act and summarize will do the the application-level sanity check stuff
+    # Gather all the possible parameter values and performs type checking.
+    # Subsequent methods must perform application-level sanity checks.
     def parse_options(argv_override: nil)
       options = @options
       # @return hash containing options
@@ -142,6 +142,7 @@ module Nugem
                   'Include executables with the given names for the generated gem; separate with commas') do |options|
           options.split(',')
         end
+        parser.on '-f', '--force',                  TrueClass,            'Overwrite output directory'
         parser.on '-H', '--host=HOST',              %w[github bitbucket], 'Repository host'
         parser.on '-L', '--loglevel=LOGLEVEL',      LOGLEVELS,            'Logging level'
         parser.on('-o ', '--out_dir=OUT_DIR',       Pathname,             'Output directory for the gem') do |path|
@@ -149,7 +150,6 @@ module Nugem
         end
         parser.on '-p', '--private',                TrueClass,             'Publish the gem to a private repository'
         parser.on '-N', '--no-todos',               TrueClass,             'Generate TODO: messages in generated code'
-        parser.on '-y', '--yes',                    TrueClass,             'Answer yes to all questions'
         parser.on_tail('-h', '--help',                                     'Show this message') do
           ::Nugem.help(errors_are_fatal: @errors_are_fatal)
         end

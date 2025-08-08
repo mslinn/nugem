@@ -143,7 +143,7 @@ module Nugem
         FileUtils.rm_f 'Gemfile.lock'
         # puts "Running 'bundle'".green
         # run 'bundle', abort_on_failure: false
-        create_repo = @yes || begin
+        create_repo = begin
           hostcc = @repository.host.camel_case
           yes? "Do you want to create a repository on #{hostcc} named #{gem_name}? (y/N)".green
         end

@@ -19,12 +19,12 @@ class GemOptionsTest
     end
 
     it 'tests gem with loglevel debug and summarize' do
-      argv = ['-L', 'debug', 'ruby']
-      nugem_options = described_class.new({}, errors_are_fatal: false)
-      debug_options = nugem_options.options.merge({ loglevel: 'debug' })
+      argv = %w[ruby -L debug]
+      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
+      expected = nugem_options.options.merge({ loglevel: 'debug' })
 
       actual = nugem_options.parse_options(argv_override: argv)
-      expect(actual).to eq(debug_options)
+      expect(actual).to eq(expected)
 
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
@@ -32,11 +32,11 @@ class GemOptionsTest
          - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'
+         - Pre-existing content in the output directory will abort the program.
          - No executables will be included
          - Git host: github
          - A public git repository will be created
          - TODOs will be included in the source code
-         - User responses will be used for yes/no questions
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
     end
@@ -52,13 +52,13 @@ class GemOptionsTest
         '-p',
         '-y'
       ]
-      nugem_options = described_class.new({}, errors_are_fatal: false)
+      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       actual = nugem_options.parse_options(argv_override: argv)
       expected = nugem_options.options.merge({
-                                               executables: ['blah'],
-                                               loglevel:    'debug',
-                                               out_dir:     TEST_OUT_DIR,
-                                               private:     true,
+                                               executable: ['blah'],
+                                               loglevel:   'debug',
+                                               out_dir:    TEST_OUT_DIR,
+                                               private:    true,
                                              })
       expect(actual).to eq(expected)
 
@@ -68,18 +68,18 @@ class GemOptionsTest
          - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'
+         - Pre-existing content in the output directory will abort the program.
          - An executable called blah will be included
          - Git host: bitbucket
          - A private git repository will be created
          - TODOs will be included in the source code
-         - All questions will be automatically be answered with 'yes'
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
     end
 
     it 'tests gem for loglevel debug and 2 executables' do
-      argv = ['ruby', '-L', 'debug', '-e', 'ex1,ex2']
-      nugem_options = described_class.new({}, errors_are_fatal: false)
+      argv = %w[ruby -e ex1 -e ex2 -L debug]
+      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       expected = nugem_options.options.merge({
                                                executables: %w[ex1 ex2],
                                                loglevel:    'debug',
@@ -89,8 +89,8 @@ class GemOptionsTest
     end
 
     it 'handles invalid options' do
-      argv = ['-L', 'debug', '-x', 'ruby']
-      nugem_options = described_class.new({}, errors_are_fatal: false)
+      argv = %w[ruby -L debug -x]
+      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       actual = nugem_options.parse_options(argv_override: argv)
       expect(actual).to eq('invalid option: -x')
     end
