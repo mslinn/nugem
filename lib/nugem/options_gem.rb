@@ -17,27 +17,27 @@ module Nugem
       nugem [OPTIONS] jekyll NAME  # Creates the scaffold for a new Jekyll plugin called NAME.
 
       The following OPTIONS are available for all gem types:
-
-        -e NAME1[,NAME2...], --executables=NAME1[,NAME2...] # Include executables with the given names for the gem.
-        -h, --help                                          # Display this help message and exit
-        -H HOST, --host=HOST                                # Repository host. Default: github
-                                                            # Possible values: #{HOSTS.join ', '}
-        -L LOGLEVEL, --loglevel=LOGLEVEL                    # Possible values: #{LOGLEVELS.join ', '}.
-                                                            # Default: info
-        -o OUT_DIR, --out-dir=OUT_DIR                       # Output directory for the gem. Default: ~/nugem_generated
-        -N, --no-todos                                      # Suppress TODO: messages in generated code. Default: false
-        -p, --private                                       # Publish the gem to a private repository. Default: false
-        -y, --yes                                           # Answer yes to all questions. Default: false
+        -h, --help                        # Display this help message and exit
+        -H HOST, --host=HOST              # Repository host. Default: github
+                                          # Possible values: #{HOSTS.join ', '}
+        -L LOGLEVEL, --loglevel=LOGLEVEL  # Possible values: #{LOGLEVELS.join ', '}.
+                                          # Default: info
+        -o OUT_DIR, --out-dir=OUT_DIR     # Output directory for the gem. Default: ~/nugem_generated
+        -N, --no-todos                    # Suppress TODO: messages in generated code. Default: false
+        -p, --private                     # Publish the gem to a private repository. Default: false
+        -y, --yes                         # Answer yes to all questions. Default: false
+      Each of these OPTIONs can be invoked multiple times:
+        -e NAME1, --executables=NAME1     # Include an executable with the given names for the gem
 
       The following options are only available for Jekyll plugins.
-      Each of these OPTIONs can be invoked multiple times, except -K / --hooks:
-        -B BLOCK1[,BLOCK2...], --blocks=BLOCK1[,BLOCK2...]                      # Specifies the name of Jekyll block tag(s).
-        -N BLOCK1[,BLOCK2...], --blockns=BLOCK1[,BLOCK2...]                     # Specifies the name of Jekyll no-arg block tag(s).
-        -f FILTER1[,FILTER2...], --filters=FILTER1[,FILTER2...]                 # Specifies the name of Jekyll/Liquid filter module(s).
-        -g GENERATOR1[,GENERATOR2...], --generators=GENERATOR1[,GENERATOR2...]  # Specifies Jekyll generator(s).
-        -K HOOKS, --hooks=HOOKS                                                 # Specifies Jekyll hooks.
-        -t TAG1[,TAG2...], --tags=TAG1[,TAG2...]                                # Specifies the name of Jekyll tag(s).
-        -n TAG1[,TAG2...], --tagns=TAG1[,TAG2...]                               # Specifies the name of Jekyll no-arg tag(s).
+        -K HOOKS, --hooks=HOOKS                 # Specifies Jekyll hooks.
+      Each of these OPTIONs can be invoked multiple times:
+        -B BLOCK1, --blocks=BLOCK1              # Specifies the name of Jekyll block tag(s).
+        -N BLOCK1, --blockns=BLOCK1             # Specifies the name of Jekyll no-arg block tag(s).
+        -f FILTER1, --filters=FILTER1           # Specifies the name of Jekyll/Liquid filter module(s).
+        -g GENERATOR1, --generators=GENERATOR1  # Specifies Jekyll generator(s).
+        -t TAG1, --tags=TAG1                    # Specifies the name of Jekyll tag(s).
+        -n TAG1, --tagns=TAG1                   # Specifies the name of Jekyll no-arg tag(s).
     END_HELP
     printf msg.cyan
     return unless errors_are_fatal
