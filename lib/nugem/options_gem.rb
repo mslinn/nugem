@@ -10,10 +10,10 @@ module Nugem
   def self.help(msg = nil, errors_are_fatal: true)
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
-      nugem v#{VERSION}: Creates scaffolding for a ruby gem or a Jekyll plugin.
-      (Jekyll plugins are a type of specialized gem.)
+      nugem v#{VERSION}: Creates scaffolding for a Ruby gem or a Jekyll plugin.
+      (Jekyll plugins are a specialized type of Ruby gem.)
 
-      nugem [OPTIONS] gem NAME     # Creates the scaffold for implementing a new plain-old Ruby gem called NAME.
+      nugem [OPTIONS] ruby NAME    # Creates the scaffold for a new Ruby gem called NAME.
       nugem [OPTIONS] jekyll NAME  # Creates the scaffold for a new Jekyll plugin called NAME.
 
       The following OPTIONS are available for all gem types:
@@ -22,22 +22,22 @@ module Nugem
                                           # Possible values: #{HOSTS.join ', '}
         -L LOGLEVEL, --loglevel=LOGLEVEL  # Possible values: #{LOGLEVELS.join ', '}.
                                           # Default: info
-        -o OUT_DIR, --out-dir=OUT_DIR     # Output directory for the gem. Default: ~/nugem_generated
+        -o OUT_DIR, --out-dir=OUT_DIR     # Output directory for the gem. Default: ~/nugem_generated/NAME
         -N, --no-todos                    # Suppress TODO: messages in generated code. Default: false
         -p, --private                     # Publish the gem to a private repository. Default: false
         -y, --yes                         # Answer yes to all questions. Default: false
       Each of these OPTIONs can be invoked multiple times:
-        -e NAME1, --executables=NAME1     # Include an executable with the given names for the gem
+        -e NAME1, --executables=NAME1     # Include an executable with the given name for the gem
 
       The following options are only available for Jekyll plugins.
         -K HOOKS, --hooks=HOOKS                 # Specifies Jekyll hooks.
       Each of these OPTIONs can be invoked multiple times:
-        -B BLOCK1, --blocks=BLOCK1              # Specifies the name of Jekyll block tag(s).
-        -N BLOCK1, --blockns=BLOCK1             # Specifies the name of Jekyll no-arg block tag(s).
-        -f FILTER1, --filters=FILTER1           # Specifies the name of Jekyll/Liquid filter module(s).
-        -g GENERATOR1, --generators=GENERATOR1  # Specifies Jekyll generator(s).
-        -t TAG1, --tags=TAG1                    # Specifies the name of Jekyll tag(s).
-        -n TAG1, --tagns=TAG1                   # Specifies the name of Jekyll no-arg tag(s).
+        -B BLOCK1, --block=BLOCK1              # Specifies the name of a Jekyll block tag.
+        -N BLOCK1, --blockn=BLOCK1             # Specifies the name of a Jekyll no-arg block tag.
+        -f FILTER1, --filter=FILTER1           # Specifies the name of a Jekyll/Liquid filter module.
+        -g GENERATOR1, --generator=GENERATOR1  # Specifies a Jekyll generator.
+        -t TAG1, --tag=TAG1                    # Specifies the name of a Jekyll tag.
+        -n TAG1, --tagn=TAG1                   # Specifies the name of a Jekyll no-arg tag.
     END_HELP
     printf msg.cyan
     return unless errors_are_fatal

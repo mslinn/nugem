@@ -19,7 +19,7 @@ module Nugem
       # puts set_color("gem_name=#{gem_name}", :yellow)
       super if gem_name.empty?
 
-      @executables = options[:executables]
+      @executables = options[:executables] # TODO: multiple invocations
       @host        = options[:host] # FIXME: conflicts with @host in create_gem_scaffold()
       @out_dir     = options[:out_dir]
       @private     = options[:private]
