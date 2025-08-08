@@ -77,7 +77,7 @@ class GemOptionsTest
     end
 
     it 'tests gem for loglevel debug and 2 executables' do
-      argv = %w[-e ex1 -e ex2 -L debug ruby test]
+      argv = %w[-e ex1 -e ex2 --loglevel=debug ruby test]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       expected = nugem_options.options.merge({
                                                executable: %w[ex1 ex2],
