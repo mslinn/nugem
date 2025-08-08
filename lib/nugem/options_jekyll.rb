@@ -6,14 +6,15 @@ module Nugem
 
     # @param argv_override should not contain positional parameters, just options
     def parse_options(argv_override, dry_run: false)
-      options = super.parse_options(argv_override, dry_run:).merge({
-                                                                     block:     [],
-                                                                     blockn:    [],
-                                                                     filter:    [],
-                                                                     generator: [],
-                                                                     tag:       [],
-                                                                     tagn:      [],
-                                                                   })
+      options = super # calls a method of the same name in the super class and passes above arguments
+      options.merge!({
+                       block:     [],
+                       blockn:    [],
+                       filter:    [],
+                       generator: [],
+                       tag:       [],
+                       tagn:      [],
+                     })
       OptionParser.new do |parser|
         # All of the following can have multiple occurances on a command line, except hooks
         parser.on('-B', '--block=BLOCK') do |value|        # Specifies the name of a Jekyll block tag.

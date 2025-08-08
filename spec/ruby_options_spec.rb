@@ -18,10 +18,10 @@ class RubyOptionsTest
       FileUtils.rm_rf TEST_OUT_DIR, secure: true
     end
 
-    it 'tests gem with loglevel debug and summarize' do
-      hash = { force: true, gem_type: 'ruby', out_dir: '/tmp/nugem' }
+    it 'tests ruby gem with loglevel debug and summarize' do
+      hash = { force: true, gem_type: 'ruby', out_dir: TEST_OUT_DIR }
       nugem_options = described_class.new(hash, errors_are_fatal: false)
-      actual = nugem_options.parse_options %w[-f -o /tmp/nugem -L debug ruby test], dry_run: true
+      actual = nugem_options.parse_options ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test'], dry_run: true
       expected = nugem_options.options.merge({ loglevel: 'debug' })
       expect(actual).to eq(expected)
 
@@ -76,7 +76,7 @@ class RubyOptionsTest
       expect(actual_summary).to eq(expected_summary)
     end
 
-    it 'tests gem for loglevel debug and 2 executables' do
+    it 'tests ruby gem for loglevel debug and 2 executables' do
       argv = %w[-e ex1 -e ex2 --loglevel=debug ruby test]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       expected = nugem_options.options.merge({
