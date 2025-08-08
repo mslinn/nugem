@@ -45,7 +45,7 @@ module Nugem
     def create_scaffold
       puts "Creating a scaffold for a new Ruby gem named #{@options[:gem_name]} in #{@options[:out_dir]}.".green
       directory 'common/gem_scaffold',        @options[:out_dir], force: true, mode: :preserve, exclude_pattern: 'spec/*'
-      directory 'common/executable_scaffold', @options[:out_dir], force: true, mode: :preserve if @options[:executables]
+      directory 'common/executable_scaffold', @options[:out_dir], force: true, mode: :preserve if @options[:executable]
       template 'common/LICENCE.txt', "#{@options[:out_dir]}/LICENCE.txt", force: true if @repository.public?
     end
 

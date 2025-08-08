@@ -19,11 +19,10 @@ class GemOptionsTest
     end
 
     it 'tests gem with loglevel debug and summarize' do
-      argv = %w[ruby test -o /dir -L debug]
-      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
+      hash = { force: true, gem_type: 'ruby', out_dir: '/tmp/nugem' }
+      nugem_options = described_class.new(hash, errors_are_fatal: false)
+      actual = nugem_options.parse_options %w[-f -o /tmp/nugem -L debug ruby test], dry_run: true
       expected = nugem_options.options.merge({ loglevel: 'debug' })
-
-      actual = nugem_options.parse_options argv
       expect(actual).to eq(expected)
 
       actual_summary = nugem_options.prepare_and_report
@@ -32,7 +31,7 @@ class GemOptionsTest
          - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'
-         - Pre-existing content in the output directory will abort the program.
+         - Any pre-existing content in the output directory will be deleted before generating new output.
          - No executables will be included
          - Git host: github
          - A public git repository will be created
@@ -43,17 +42,17 @@ class GemOptionsTest
 
     it 'tests ruby gem with loglevel debug and executable blah' do
       argv = [
-        'ruby', 'test',
         '-e', 'blah',
+        '-f',
         '-H', 'bitbucket',
         '-L', 'debug',
         '-o', TEST_OUT_DIR,
         '-N',
         '-p',
-        '-y'
+        'ruby', 'test'
       ]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
-      actual = nugem_options.parse_options(argv_override: argv)
+      actual = nugem_options.parse_options(argv, dry_run: true)
       expected = nugem_options.options.merge({
                                                executable: ['blah'],
                                                loglevel:   'debug',
@@ -68,7 +67,7 @@ class GemOptionsTest
          - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'
-         - Pre-existing content in the output directory will abort the program.
+         - Any pre-existing content in the output directory will be deleted before generating new output.
          - An executable called blah will be included
          - Git host: bitbucket
          - A private git repository will be created
@@ -78,20 +77,20 @@ class GemOptionsTest
     end
 
     it 'tests gem for loglevel debug and 2 executables' do
-      argv = %w[ruby test -e ex1 -e ex2 -L debug]
+      argv = %w[-e ex1 -e ex2 -L debug ruby test]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       expected = nugem_options.options.merge({
-                                               executables: %w[ex1 ex2],
-                                               loglevel:    'debug',
+                                               executable: %w[ex1 ex2],
+                                               loglevel:   'debug',
                                              })
-      actual = nugem_options.parse_options(argv_override: argv)
+      actual = nugem_options.parse_options(argv, dry_run: true)
       expect(actual).to eq(expected)
     end
 
     it 'handles invalid options' do
-      argv = %w[ruby test -L debug -x]
+      argv = %w[-L debug -x ruby test]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
-      actual = nugem_options.parse_options(argv_override: argv)
+      actual = nugem_options.parse_options(argv, dry_run: true)
       expect(actual).to eq('invalid option: -x')
     end
   end

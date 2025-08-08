@@ -68,6 +68,21 @@ module Nugem
                    .to_h
     end
 
+    def create_dir(dir, default_value, dry_run: false)
+      dir ||= default_value
+      if Dir.exist?(dir) && !Dir.empty?(dir)
+        puts "Output directory '#{dir}' already exists and is not empty."
+        return dir if dry_run
+
+        if @options[:overwrite]
+          puts "Overwriting contents of #{dir} because --force was specified."
+        else
+          @options[:overwrite] = ask "Do you want to overwrite the contents of #{dir}? (y/n)"
+        end
+      end
+      dir
+    end
+
     # Do application-level sanity check stuff then act
     # Called after user parameters have been gathered and saved as state in this instance
     # Only generate output if loglevel is info or lower
@@ -87,14 +102,12 @@ module Nugem
     end
 
     def summarize
-      executable_msg = if @options[:executables]
-                         if @options[:executables].length > 1
-                           "Executables called #{@options[:executables].join ', '} will be included"
-                         else
-                           "An executable called #{@options[:executables].join} will be included"
-                         end
-                       else
+      executable_msg = if @options[:executable].empty?
                          'No executables will be included'
+                       elsif @options[:executable].length > 1
+                         "Executables called #{@options[:executable].join ', '} will be included"
+                       else
+                         "An executable called #{@options[:executable].join} will be included"
                        end
       force_msg = if @options[:force]
                     'Any pre-existing content in the output directory will be deleted before generating new output.'
@@ -114,31 +127,17 @@ module Nugem
       END_SUMMARY
     end
 
-    def parse_dir(dir, default_value)
-      dir ||= default_value
-      if Dir.exist?(dir) && !Dir.empty?(dir)
-        puts "Output directory '#{dir}' already exists and is not empty."
-        if @options[:overwrite]
-          puts "Overwriting contents of #{dir} because --force was specified."
-        else
-          @options[:overwrite] = ask "Do you want to overwrite the contents of #{dir}? (y/n)"
-        end
-      end
-      dir
-    end
-
     # Gather all the possible parameter values and performs type checking.
     # Subsequent methods must perform application-level sanity checks.
-    def parse_options(argv_override)
+    def parse_options(argv_override, dry_run: false)
       options = @options
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       OptionParser.new do |parser|
         # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
-        parser.on('-e', '--executables EXECUTABLES', String,
-                  'Include executables with the given names for the generated gem; separate with commas') do |options|
-          options.split(',')
+        parser.on '-e', '--executable EXECUTABLE' do |value|
+          options[:executable] << value
         end
         parser.on '-f', '--force',                      TrueClass,            'Overwrite output directory'
         parser.on '-H HOST', '--host=HOST',             %w[github bitbucket], 'Repository host'
@@ -146,7 +145,7 @@ module Nugem
         #   puts "level=#{level}".yellow
         # end
         parser.on('-o ', '--out_dir=OUT_DIR', Pathname, 'Output directory for the gem') do |path|
-          options[:out_dir] = parse_dir path.to_s, options[:out_dir]
+          options[:out_dir] = create_dir path.to_s, options[:out_dir], dry_run:
         end
         parser.on '-p', '--private',                    TrueClass,            'Publish the gem to a private repository'
         parser.on '-N', '--no-todos',                   TrueClass,            'Generate TODO: messages in generated code'
