@@ -30,12 +30,12 @@ module Nugem
         -e NAME1, --executables=NAME1     # Include an executable with the given name for the gem
 
       The following options are only available for Jekyll plugins.
-        -K HOOKS, --hooks=HOOKS                 # Specifies Jekyll hooks.
+        -K HOOKS, --hooks=HOOKS                # Generate Jekyll hooks.
       Each of these OPTIONs can be invoked multiple times:
         -B BLOCK1, --block=BLOCK1              # Specifies the name of a Jekyll block tag.
         -N BLOCK1, --blockn=BLOCK1             # Specifies the name of a Jekyll no-arg block tag.
         -f FILTER1, --filter=FILTER1           # Specifies the name of a Jekyll/Liquid filter module.
-        -g GENERATOR1, --generator=GENERATOR1  # Specifies a Jekyll generator.
+        -g GENERATOR1, --generator=GENERATOR1  # Specifies the name of a Jekyll generator.
         -t TAG1, --tag=TAG1                    # Specifies the name of a Jekyll tag.
         -n TAG1, --tagn=TAG1                   # Specifies the name of a Jekyll no-arg tag.
     END_HELP

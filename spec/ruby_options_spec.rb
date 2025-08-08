@@ -6,7 +6,7 @@ require 'tmpdir'
 require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
-class GemOptionsTest
+class RubyOptionsTest
   TEST_OUT_DIR = File.join(Dir.tmpdir, 'nugem_test').freeze
 
   RSpec.describe ::Nugem::Options do
