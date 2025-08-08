@@ -19,14 +19,14 @@ This gem generates a new working Visual Studio Code project with the following f
 - Your gem can be publicly released to `rubygems.org`.
 - Optionally create the gem as:
   - A plain old Ruby gem.
-  - A Jekyll plugin (tag or block tag).
+  - A Jekyll plugin (block and inline tags).
 
 The following features might be implemented in a future release:
 
 - Automatically creates git repositories on BitBucket or GitLab.
   Your gem can include [executables](https://guides.rubygems.org/make-your-own-gem/#adding-an-executable).
 - Optionally create the gem as:
-  - Jekyll plugins (block tags, inline tags, filters, generators, or hooks).
+  - Jekyll plugins (filters, generators, or hooks).
 
 
 ## Installation
@@ -55,7 +55,7 @@ See [`subcommands.md`](subcommands.md) for details on `nugem` subcommands and op
 
 ### Common Options
 
-The `gem` and `jekyll` subcommands have common options.
+The `ruby` and `jekyll` subcommands have common options.
 
 The default option values assume that:
 
@@ -63,42 +63,46 @@ The default option values assume that:
 - The gem project will be hosted on a public GitHub git repository
 - The gem will be released to `rubygems.org`
 
-Common options for the `gem` and `jekyll` subcommands are:
+Common options for the `ruby` and `jekyll` subcommands are:
 
 <dl>
   <dt><code>-e</code> <code>--executable</code></dt>
-    <dd>add an executable based on Thor.</dd>
+    <dd>add an executable based on OptionParser.</dd>
 
   <dt><code>-H</code> <code>--host</code></dt>
     <dd>
       specifies the git host; possible values are <code>bitbucket</code>,
-      <code>github</code> and <code>geminabox</code>.
+      <code>github</code> and <code>gitlab</code>.
     </dd>
 
-  <dt><code>--out_dir</code></dt>
+  <dt><code>-o</code> <code>--out_dir</code></dt>
     <dd>
       specifies the directory to write the generated gem to.
-      The default is <code>~/nugem_generated/</code>.
+      The default is <code>~/nugem_generated/NAME</code>.
     </dd>
 
   <dt><code>--private</code></dt>
-    <dd>the remote repository is made private,
-        and on release the gem will be pushed to a private Geminabox server.
+    <dd>
+    the remote repository is made private.
     </dd>
 
-  <dt><code>--verbosity</code></dt>
-    <dd>specifies verbosity.</dd>
+  <dt><code>--loglevel</code></dt>
+    <dd>
+      specifies log level (one of <code>trace</code>, <code>debug</code>,
+      <code>verbose</code>, <code>info</code>, <code>warning</code>, <code>error</code>,
+      <code>fatal</code>, <code>panic</code>, <code>quiet</code>).
+    </dd>
 
   <dt><code>--no-todos</code></dt>
-    <dd>do not generate `TODO:` strings in generated code.</dd>
+    <dd>do not generate <code>TODO:</code> strings in generated code.</dd>
 </dl>
 
 
 ### Common Behavior
 
-The `gem` and `jekyll` subcommands have common behavior.
+The `ruby` and `jekyll` subcommands have common behavior.
 
-Gem scaffolds are created by default within the `~/nugem_generated/` directory.
+Gem scaffolds are created by default within the `~/nugem_generated/NAME` directory.
 
 If your user name is not already stored in your git global config,
 you will be asked for your GitHub or BitBucket user name.
@@ -112,14 +116,13 @@ Commit the changes to git and invoke `rake release`,
 and your gem will be published.
 
 
-### `gem` Subcommand
+### `ruby` Subcommand
 
-Options for the `gem` subcommand can be specified anywhere after the `gem` parameter.
+Options for the `ruby` subcommand can be specified anywhere after the `ruby` parameter.
 
 ```shell
-$ nugem gem [COMMON_OPTIONS] NAME
-$ nugem gem NAME [COMMON_OPTIONS]
-$ nugem gem [COMMON_OPTIONS] NAME [COMMON_OPTIONS]
+$ nugem ruby [COMMON_OPTIONS] NAME
+$ nugem ruby [COMMON_OPTIONS] NAME [COMMON_OPTIONS]
 ```
 
 `NAME` is the name of the gem to be generated.
@@ -133,13 +136,12 @@ $ nugem -h
 
 ### `jekyll` Subcommand
 
-The `jekyll` subcommand extends the `gem` subcommand and creates a new Jekyll plugin with the given NAME:
+The `jekyll` subcommand extends the `ruby` subcommand and creates a new Jekyll plugin with the given NAME:
 Options for the `jekyll` subcommand can be specified anywhere after the `jekyll` parameter.
 
 ```shell
-$ nugem jekyll NAME [COMMON_OPTIONS] [JEKYLL_OPTIONS]
-$ nugem jekyll [COMMON_OPTIONS] [JEKYLL_OPTIONS] NAME
-$ nugem jekyll [COMMON_OPTIONS] [JEKYLL_OPTIONS] NAME [COMMON_OPTIONS] [JEKYLL_OPTIONS]
+$ nugem jekyll NAME [COMMON_OPTIONS | JEKYLL_OPTIONS]
+$ nugem jekyll [COMMON_OPTIONS | JEKYLL_OPTIONS] NAME [COMMON_OPTIONS | JEKYLL_OPTIONS]
 ```
 
 `NAME` is the name of the Jekyll plugin gem to be generated.

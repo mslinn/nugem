@@ -19,8 +19,8 @@ module Nugem
   # Ignores other command line arguments.
   # @return [Hash] Options parsed from the command line arguments
   def self.parse_positional_parameters
-    first_option = ARGV.index { |x| x.start_with? '-' }
-    first_pp = ARGV.index { |x| !x.start_with? '-' }
+    first_option = ARGV.index { |x|  x.start_with? '-' }
+    first_pp     = ARGV.index { |x| !x.start_with? '-' }
     if first_option < first_pp # This comment prevents folding
       bad_options = ARGV[0..first_option]
       msg = "Error: Option#{'s' if bad_options.length > 1} '#{bad_options.join(', ')}' must follow the subcommand name."
@@ -48,6 +48,7 @@ module Nugem
     options
   end
 
+  # FIXME: Incorrect - assumes no option values
   def self.positional_parameters
     ARGV.reject { |x| x.start_with? '-' }
   end
@@ -69,7 +70,7 @@ module Nugem
       puts "Error: unrecognized gem type '#{@options[:gem_type]}'.".red
       exit 2
     end
-    parsed_options = @nugem_options.parse_options
+    parsed_options = @nugem_options.parse_options({})
     @nugem = Nugem.new parsed_options
     puts @nugem_options.prepare_and_report.green
   end
