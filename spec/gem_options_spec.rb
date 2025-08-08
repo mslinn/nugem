@@ -19,11 +19,11 @@ class GemOptionsTest
     end
 
     it 'tests gem with loglevel debug and summarize' do
-      argv = %w[ruby -L debug]
+      argv = %w[ruby test -o /dir -L debug]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       expected = nugem_options.options.merge({ loglevel: 'debug' })
 
-      actual = nugem_options.parse_options(argv_override: argv)
+      actual = nugem_options.parse_options argv
       expect(actual).to eq(expected)
 
       actual_summary = nugem_options.prepare_and_report
@@ -43,7 +43,7 @@ class GemOptionsTest
 
     it 'tests ruby gem with loglevel debug and executable blah' do
       argv = [
-        'ruby',
+        'ruby', 'test',
         '-e', 'blah',
         '-H', 'bitbucket',
         '-L', 'debug',
@@ -78,7 +78,7 @@ class GemOptionsTest
     end
 
     it 'tests gem for loglevel debug and 2 executables' do
-      argv = %w[ruby -e ex1 -e ex2 -L debug]
+      argv = %w[ruby test -e ex1 -e ex2 -L debug]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       expected = nugem_options.options.merge({
                                                executables: %w[ex1 ex2],
@@ -89,7 +89,7 @@ class GemOptionsTest
     end
 
     it 'handles invalid options' do
-      argv = %w[ruby -L debug -x]
+      argv = %w[ruby test -L debug -x]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       actual = nugem_options.parse_options(argv_override: argv)
       expect(actual).to eq('invalid option: -x')

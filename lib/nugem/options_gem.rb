@@ -129,31 +129,31 @@ module Nugem
 
     # Gather all the possible parameter values and performs type checking.
     # Subsequent methods must perform application-level sanity checks.
-    def parse_options(argv_override: nil)
+    def parse_options(argv_override)
       options = @options
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       OptionParser.new do |parser|
-        parser.default_argv = argv_override if argv_override
-
         # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
         parser.on('-e', '--executables EXECUTABLES', String,
                   'Include executables with the given names for the generated gem; separate with commas') do |options|
           options.split(',')
         end
-        parser.on '-f', '--force',                  TrueClass,            'Overwrite output directory'
-        parser.on '-H', '--host=HOST',              %w[github bitbucket], 'Repository host'
-        parser.on '-L', '--loglevel=LOGLEVEL',      LOGLEVELS,            'Logging level'
-        parser.on('-o ', '--out_dir=OUT_DIR',       Pathname,             'Output directory for the gem') do |path|
+        parser.on '-f', '--force',                      TrueClass,            'Overwrite output directory'
+        parser.on '-H HOST', '--host=HOST',             %w[github bitbucket], 'Repository host'
+        parser.on '-L LOGLEVEL', '--loglevel=LOGLEVEL', LOGLEVELS,            'Logging level' # do |level|
+        #   puts "level=#{level}".yellow
+        # end
+        parser.on('-o ', '--out_dir=OUT_DIR', Pathname, 'Output directory for the gem') do |path|
           options[:out_dir] = parse_dir path.to_s, options[:out_dir]
         end
-        parser.on '-p', '--private',                TrueClass,             'Publish the gem to a private repository'
-        parser.on '-N', '--no-todos',               TrueClass,             'Generate TODO: messages in generated code'
-        parser.on_tail('-h', '--help',                                     'Show this message') do
+        parser.on '-p', '--private',                    TrueClass,            'Publish the gem to a private repository'
+        parser.on '-N', '--no-todos',                   TrueClass,            'Generate TODO: messages in generated code'
+        parser.on_tail('-h', '--help',                                        'Show this message') do
           ::Nugem.help(errors_are_fatal: @errors_are_fatal)
         end
-      end.order! into: options
+      end.order! argv_override, into: options
       options
     rescue OptionParser::InvalidOption => e
       ::Nugem.help(e.message, errors_are_fatal: @errors_are_fatal)
