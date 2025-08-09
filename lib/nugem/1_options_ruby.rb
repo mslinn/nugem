@@ -151,7 +151,7 @@ module Nugem
       e.message # Useful for rspec tests
     end
 
-    # Do application-level sanity check stuff then act
+    # Do application-level sanity check stuff then summarize if log level sufficient
     # Called after user parameters have been gathered and saved as state in this instance
     # Only generate output if loglevel is info or lower
     def prepare_and_report

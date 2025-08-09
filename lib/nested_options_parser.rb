@@ -2,6 +2,14 @@ require 'optparse'
 
 SubCmd = Struct.new(:name, :option_parser_proc)
 
+NestedOptionParserControl = Struct.new(
+  :option_parser_proc,
+  :argv,
+  :default_option_hash,
+  :help,
+  :sub_cmds
+)
+
 class NestedOptionParser
   attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_options, :sub_cmds
 
