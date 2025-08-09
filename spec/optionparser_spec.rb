@@ -10,12 +10,20 @@ class OptionParserTest
   options = {}
   RSpec.describe OptionParser do
     option_parser = described_class.new do |parser|
+      parser.on '-n', '--notodos', TrueClass
       parser.on '-o', '--out_dir=OUT_DIR', Pathname
       parser.on '-t TIME', '--time=TIME', Time
       parser.on '-w WORD', '--word=WORD' do |word|
         options[:word] << word # Add each occurrence of -w or --word to the :word array
       end
       parser.on '-x', '--xray'
+    end
+
+    it 'parses --notodos option' do
+      options = { word: [] }
+      option_parser.order! %w[-n], into: options
+      expected = { notodos: true, word: [] }
+      expect(options).to eq(expected)
     end
 
     it 'parses multiple instances of the same option' do

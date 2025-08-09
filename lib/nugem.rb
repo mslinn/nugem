@@ -1,6 +1,7 @@
 require 'colorize'
 require_relative 'highline_wrappers'
 
+# Loads files in alphabetical order
 def require_subdirectory(dir)
   Dir[File.join(dir, '*.rb')].each do |file|
     require_relative file unless file == __FILE__

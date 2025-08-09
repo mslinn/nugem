@@ -123,7 +123,7 @@ module Nugem
          - #{executable_msg}
          - Git host: #{@options[:host]}
          - A #{@options[:private] ? 'private' : 'public'} git repository will be created
-         - TODOs #{@options[:todos] ? 'will' : 'will not'} be included in the source code
+         - TODOs #{@options[:notodos] ? 'will not' : 'will'} be included in the source code
       END_SUMMARY
     end
 
@@ -148,7 +148,7 @@ module Nugem
           options[:out_dir] = create_dir path.to_s, options[:out_dir], dry_run:
         end
         parser.on '-p', '--private',                    TrueClass,            'Publish the gem to a private repository'
-        parser.on '-N', '--no-todos',                   TrueClass,            'Generate TODO: messages in generated code'
+        parser.on '-n', '--notodos',                    TrueClass,            'Suppress TODO messages in generated code'
         parser.on_tail('-h', '--help',                                        'Show this message') do
           ::Nugem.help(errors_are_fatal: @errors_are_fatal)
         end

@@ -40,14 +40,14 @@ class RubyOptionsTest
       expect(actual_summary).to eq(expected_summary)
     end
 
-    it 'tests ruby gem with loglevel debug and executable blah' do
+    it 'tests ruby gem with bitbucket, debug, executable, force, no todos, out_dir and private' do
       argv = [
         '-e', 'blah',
         '-f',
         '-H', 'bitbucket',
         '-L', 'debug',
         '-o', TEST_OUT_DIR,
-        '-N',
+        '-n',
         '-p',
         'ruby', 'test'
       ]
@@ -71,7 +71,7 @@ class RubyOptionsTest
          - An executable called blah will be included
          - Git host: bitbucket
          - A private git repository will be created
-         - TODOs will be included in the source code
+         - TODOs will not be included in the source code
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
     end
