@@ -22,7 +22,9 @@ class JekyllOptionsTest
       # Very similar to first test in RubyOptionsTest
       hash = { force: true, gem_type: 'jekyll', out_dir: TEST_OUT_DIR }
       nugem_options = described_class.new(hash, errors_are_fatal: false)
-      actual = nugem_options.parse_options ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test'], dry_run: true
+      actual = nugem_options.parse_options ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test'],
+                                           allow_unknown_options: true,
+                                           dry_run:               true
       expected = nugem_options.options.merge({ loglevel: 'debug' })
       expect(actual).to eq(expected)
 
@@ -56,7 +58,7 @@ class JekyllOptionsTest
         'ruby', 'test'
       ]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
-      actual = nugem_options.parse_options(argv, dry_run: true)
+      actual = nugem_options.parse_options(argv, allow_unknown_options: true, dry_run: true)
       expected = nugem_options.options.merge({
                                                blockn:    ['block_n_1'],
                                                block:     %w[block_1 block_2],

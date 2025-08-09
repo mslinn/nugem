@@ -50,12 +50,12 @@ module Nugem
 
     include ::HighlineWrappers
 
-    def initialize(default_options, errors_are_fatal: true)
+    def initialize(default_options, dry_run: false, errors_are_fatal: true)
       @errors_are_fatal = errors_are_fatal
       @options = default_options
-                   .merge({
+                   .merge({ # Ruby gem options
                             executable: [],
-                            dry_run:    false,
+                            dry_run:    dry_run,
                             force:      false,
                             host:       'github',
                             loglevel:   LOGLEVELS[3], # Default is 'info'
@@ -64,15 +64,65 @@ module Nugem
                             private:    false,
                             todos:      true,
                           })
+                   .merge({ # Jekyll plugin options
+                            block:     [],
+                            blockn:    [],
+                            filter:    [],
+                            generator: [],
+                            tag:       [],
+                            tagn:      [],
+                          })
                    .sort
                    .to_h
+      @option_parser_proc = proc do |parser|
+        # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
+        parser.on '-e', '--executable EXECUTABLE' do |value|
+          options[:executable] << value
+        end
+        parser.on '-f', '--force',                      TrueClass,            'Overwrite output directory'
+        parser.on '-H HOST', '--host=HOST',             %w[github bitbucket], 'Repository host'
+        parser.on '-L LOGLEVEL', '--loglevel=LOGLEVEL', LOGLEVELS,            'Logging level' # do |level|
+        #   puts "level=#{level}".yellow
+        # end
+        parser.on('-o ', '--out_dir=OUT_DIR', Pathname, 'Output directory for the gem') do |path|
+          options[:out_dir] = create_dir path.to_s, options[:out_dir]
+        end
+        parser.on '-p', '--private',                    TrueClass,
+                  'Publish the gem to a private repository'
+        parser.on '-n', '--notodos',                    TrueClass,
+                  'Suppress TODO messages in generated code'
+      end
+
+      subcommand_parser_proc = SubCmd.new('jekyll', proc do |parser|
+        # All of the following can have multiple occurances on a command line, except hooks
+        parser.on '-B', '--blockn=BLOCKN' do |value|       # Specifies the name of a Jekyll no-arg block tag.
+          options[:blockn] << value
+        end
+        parser.on('-b', '--block=BLOCK') do |value|        # Specifies the name of a Jekyll block tag.
+          options[:block] << value
+        end
+        parser.on '-F', '--filter=FILTER' do |value|       # Specifies the name of a Jekyll/Liquid filter module.
+          options[:filter] << value
+        end
+        parser.on '-g', '--generator=GENERATOR' do |value| # Specifies a Jekyll generator.
+          options[:generator] << value
+        end
+        parser.on '-K', '--hooks=HOOKS'                    # Generate Jekyll hooks.
+        parser.on '-T', '--tagn=TAGN' do |value|           # Specifies the name of a Jekyll no-arg tag.
+          options[:tagn] << value
+        end
+        parser.on '-t', '--tag=TAG' do |value|             # Specifies the name of a Jekyll tag.
+          options[:tag] << value
+        end
+      end)
+      @subcommand_parser_procs = [subcommand_parser_proc]
     end
 
-    def create_dir(dir, default_value, dry_run: false)
+    def create_dir(dir, default_value)
       dir ||= default_value
       if Dir.exist?(dir) && !Dir.empty?(dir)
         puts "Output directory '#{dir}' already exists and is not empty."
-        return dir if dry_run
+        return dir if @options[:dry_run]
 
         if @options[:overwrite]
           puts "Overwriting contents of #{dir} because --force was specified."
@@ -81,6 +131,24 @@ module Nugem
         end
       end
       dir
+    end
+
+    # Gather all the possible parameter values and performs type checking.
+    # Subsequent methods must perform application-level sanity checks.
+    def parse_options(argv_override)
+      # @return hash containing options
+      # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
+      # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
+      NestedOptionParser.new(
+        argv:                    argv_override,
+        default_option_hash:     @options,
+        option_parser_proc:      @option_parser_proc,
+        help:                    ::Nugem.help(errors_are_fatal: @errors_are_fatal),
+        subcommand_parser_procs: @subcommand_parser_procs
+      )
+    rescue OptionParser::InvalidOption => e
+      ::Nugem.help(e.message, errors_are_fatal: @errors_are_fatal)
+      e.message # Useful for rspec tests
     end
 
     # Do application-level sanity check stuff then act
@@ -125,38 +193,6 @@ module Nugem
          - A #{@options[:private] ? 'private' : 'public'} git repository will be created
          - TODOs #{@options[:notodos] ? 'will not' : 'will'} be included in the source code
       END_SUMMARY
-    end
-
-    # Gather all the possible parameter values and performs type checking.
-    # Subsequent methods must perform application-level sanity checks.
-    def parse_options(argv_override, dry_run: false)
-      options = @options
-      # @return hash containing options
-      # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
-      # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
-      OptionParser.new do |parser|
-        # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
-        parser.on '-e', '--executable EXECUTABLE' do |value|
-          options[:executable] << value
-        end
-        parser.on '-f', '--force',                      TrueClass,            'Overwrite output directory'
-        parser.on '-H HOST', '--host=HOST',             %w[github bitbucket], 'Repository host'
-        parser.on '-L LOGLEVEL', '--loglevel=LOGLEVEL', LOGLEVELS,            'Logging level' # do |level|
-        #   puts "level=#{level}".yellow
-        # end
-        parser.on('-o ', '--out_dir=OUT_DIR', Pathname, 'Output directory for the gem') do |path|
-          options[:out_dir] = create_dir path.to_s, options[:out_dir], dry_run:
-        end
-        parser.on '-p', '--private',                    TrueClass,            'Publish the gem to a private repository'
-        parser.on '-n', '--notodos',                    TrueClass,            'Suppress TODO messages in generated code'
-        parser.on_tail('-h', '--help',                                        'Show this message') do
-          ::Nugem.help(errors_are_fatal: @errors_are_fatal)
-        end
-      end.order! argv_override, into: options
-      options
-    rescue OptionParser::InvalidOption => e
-      ::Nugem.help(e.message, errors_are_fatal: @errors_are_fatal)
-      e.message # Useful for rspec tests
     end
   end
 end

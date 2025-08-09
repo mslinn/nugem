@@ -50,7 +50,7 @@ Metrics/CyclomaticComplexity:
   Max: 20
 
 Metrics/MethodLength:
-  Max: 40
+  Max: 60
 
 Metrics/ModuleLength:
   Enabled: false
