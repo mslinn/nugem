@@ -40,5 +40,50 @@ class JekyllOptionsTest
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
     end
+
+    it 'tests jekyll plugin with 2 blockns, 2 blocks, 1 filter, 1 generator, hooks, 2 tagns, and 1 tag' do
+      argv = [
+        '-B', 'block_n_2',
+        '--blockn=block_n_1',
+        '--block=block_1',
+        '-b', 'block_2',
+        '--filter=filter_1',
+        '-g', 'generator_1',
+        '-K',
+        '-T', 'tagn_1',
+        '--tagn=tagn_2',
+        '-t', 'tag_1',
+        'ruby', 'test'
+      ]
+      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
+      actual = nugem_options.parse_options(argv, dry_run: true)
+      expected = nugem_options.options.merge({
+                                               blockn:    ['block_n_1'],
+                                               block:     %w[block_1 block_2],
+                                               filter:    ['filter_1'],
+                                               generator: ['generator_1'],
+                                               hooks:     true,
+                                               loglevel:  'info',
+                                               out_dir:   TEST_OUT_DIR,
+                                               private:   false,
+                                               tag:       ['tag_1'],
+                                               tagn:      %w[tagn_1 tagn_2],
+                                             })
+      expect(actual).to eq(expected)
+
+      actual_summary = nugem_options.prepare_and_report
+      expected_summary = <<~END_SUMMARY
+        Options:
+         - Gem type: ruby
+         - Loglevel #{nugem_options.options[:loglevel]}
+         - Output directory: '#{nugem_options.options[:out_dir]}'
+         - Any pre-existing content in the output directory will be deleted before generating new output.
+         - An executable called blah will be included
+         - Git host: bitbucket
+         - A private git repository will be created
+         - TODOs will not be included in the source code
+      END_SUMMARY
+      expect(actual_summary).to eq(expected_summary)
+    end
   end
 end

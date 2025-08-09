@@ -17,20 +17,20 @@ module Nugem
                      })
       OptionParser.new do |parser|
         # All of the following can have multiple occurances on a command line, except hooks
-        parser.on('-B', '--block=BLOCK') do |value|        # Specifies the name of a Jekyll block tag.
+        parser.on '-B', '--blockn=BLOCKN' do |value|       # Specifies the name of a Jekyll no-arg block tag.
+          options[:blockn] << value
+        end
+        parser.on('-b', '--block=BLOCK') do |value|        # Specifies the name of a Jekyll block tag.
           options[:block] << value
         end
-        parser.on '-f', '--filter=FILTER' do |value|       # Specifies the name of a Jekyll/Liquid filter module.
+        parser.on '-F', '--filter=FILTER' do |value|       # Specifies the name of a Jekyll/Liquid filter module.
           options[:filter] << value
         end
         parser.on '-g', '--generator=GENERATOR' do |value| # Specifies a Jekyll generator.
           options[:generator] << value
         end
         parser.on '-K', '--hooks=HOOKS'                    # Generate Jekyll hooks.
-        parser.on '-N', '--blockn=BLOCK' do |value|        # Specifies the name of a Jekyll no-arg block tag.
-          options[:blockn] << value
-        end
-        parser.on '-n', '--tagn=TAG' do |value|            # Specifies the name of a Jekyll no-arg tag.
+        parser.on '-T', '--tagn=TAGN' do |value|           # Specifies the name of a Jekyll no-arg tag.
           options[:tagn] << value
         end
         parser.on '-t', '--tag=TAG' do |value|             # Specifies the name of a Jekyll tag.
