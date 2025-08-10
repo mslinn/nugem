@@ -22,11 +22,14 @@ class NestedOptionParserTest
     end
 
     it 'initializes a NestedOptionParser' do
-      nop = described_class.new(
-        argv:               %w[-h --out_dir=/etc/hosts -y pos_param1 pos_param2],
-        help:               method(:help),
-        option_parser_proc: option_parser_proc
+      nested_option_parser_control = NestedOptionParserControl.new(
+        argv:                    %w[-h --out_dir=/etc/hosts -y pos_param1 pos_param2],
+        default_option_hash:     {},
+        help:                    method(:help),
+        option_parser_proc:      option_parser_proc,
+        subcommand_parser_procs: []
       )
+      nop = described_class.new nested_option_parser_control
 
       expect(nop.remaining_options).to     eq(%w[-y])
       expect(nop.positional_parameters).to eq(%w[pos_param1 pos_param2])
@@ -38,12 +41,14 @@ class NestedOptionParserTest
       sub_cmd = SubCmd.new('subcmd1', proc do |parser|
         parser.on '-y', '--yes'
       end)
-      nop = described_class.new(
-        argv:               %w[-h --out_dir=/etc/hosts -y subcmd1 pos_param1 pos_param2],
-        help:               method(:help),
-        option_parser_proc: option_parser_proc,
-        sub_cmds:           [sub_cmd]
+      nested_option_parser_control = NestedOptionParserControl.new(
+        argv:                    %w[-h --out_dir=/etc/hosts -y subcmd1 pos_param1 pos_param2],
+        default_option_hash:     {},
+        help:                    method(:help),
+        option_parser_proc:      option_parser_proc,
+        subcommand_parser_procs: [sub_cmd]
       )
+      nop = described_class.new nested_option_parser_control
 
       expect(nop.remaining_options).to     eq([])
       expect(nop.positional_parameters).to eq(%w[pos_param1 pos_param2])

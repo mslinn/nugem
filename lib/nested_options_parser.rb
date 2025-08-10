@@ -8,7 +8,17 @@ NestedOptionParserControl = Struct.new(
   :default_option_hash,
   :help,
   :sub_cmds
-)
+) do
+  def initialize(
+    option_parser_proc,
+    argv = [],
+    default_option_hash = {},
+    help = nil,
+    sub_cmds = []
+  )
+    super
+  end
+end
 
 class NestedOptionParser
   attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_options, :sub_cmds
@@ -52,20 +62,15 @@ class NestedOptionParser
   #     parser.on '-o', '--out_dir OUT_DIR'
   #   end]
   # )
-  def initialize(
-    option_parser_proc:,
-    argv: ARGV,
-    default_option_hash: {},
-    help: nil,
-    sub_cmds: []
-  )
-    @help = help
-    @sub_cmds = sub_cmds
-    @remaining_options, @positional_parameters = argv.partition { |x| x.start_with? '-' }
+  def initialize(nested_option_parser_control)
+    @help = nested_option_parser_control.help
+    @sub_cmds = nested_option_parser_control.sub_cmds
+    @remaining_options, @positional_parameters =
+      nested_option_parser_control.argv.partition { |x| x.start_with? '-' }
     @options = evaluate(
-      default_option_hash: default_option_hash,
+      default_option_hash: nested_option_parser_control.default_option_hash,
       arguments:           @remaining_options,
-      option_parser_proc:  option_parser_proc
+      option_parser_proc:  nested_option_parser_control.option_parser_proc
     )
 
     # If this is a subcommand, remove the subcommand name from positional_parameters
@@ -74,9 +79,11 @@ class NestedOptionParser
 
     # Remove the first token, which might be the subcommand name, from positional parameters
     subcommand_name = @positional_parameters.shift
-    subcommand = sub_cmds.find { |sub_cmd| sub_cmd.name == subcommand_name }
+    subcommand = nested_option_parser_control.sub_cmds.find do |sub_cmd|
+      sub_cmd.name == subcommand_name
+    end
     unless subcommand
-      @help&.call "No subcommand parsing was defined for '#{subcommand_name}'".red
+      @help&.call "No subcommand parsing was defined for '#{subcommand_name}'".red if help
       exit 1
     end
 

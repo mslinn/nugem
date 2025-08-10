@@ -46,7 +46,7 @@ module Nugem
   end
 
   class Options
-    attr_accessor :errors_are_fatal, :options
+    attr_accessor :errors_are_fatal, :options, :option_parser_proc
 
     include ::HighlineWrappers
 
@@ -139,13 +139,14 @@ module Nugem
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
-      NestedOptionParser.new(
+      nested_option_parser_control = NestedOptionParserControl.new(
+        @option_parser_proc,
         argv:                    argv_override,
         default_option_hash:     @options,
-        option_parser_proc:      @option_parser_proc,
         help:                    ::Nugem.help(errors_are_fatal: @errors_are_fatal),
         subcommand_parser_procs: @subcommand_parser_procs
       )
+      NestedOptionParser.new nested_option_parser_control
     rescue OptionParser::InvalidOption => e
       ::Nugem.help(e.message, errors_are_fatal: @errors_are_fatal)
       e.message # Useful for rspec tests

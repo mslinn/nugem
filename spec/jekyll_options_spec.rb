@@ -21,10 +21,9 @@ class JekyllOptionsTest
     it 'tests jekyll plugin with loglevel debug and summarize' do
       # Very similar to first test in RubyOptionsTest
       hash = { force: true, gem_type: 'jekyll', out_dir: TEST_OUT_DIR }
-      nugem_options = described_class.new(hash, errors_are_fatal: false)
-      actual = nugem_options.parse_options ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test'],
-                                           allow_unknown_options: true,
-                                           dry_run:               true
+      nugem_options = described_class.new(hash, dry_run: true, errors_are_fatal: false)
+      actual = nugem_options.parse_options ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test']
+
       expected = nugem_options.options.merge({ loglevel: 'debug' })
       expect(actual).to eq(expected)
 
@@ -44,6 +43,7 @@ class JekyllOptionsTest
     end
 
     it 'tests jekyll plugin with 2 blockns, 2 blocks, 1 filter, 1 generator, hooks, 2 tagns, and 1 tag' do
+      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       argv = [
         '-B', 'block_n_2',
         '--blockn=block_n_1',
@@ -57,8 +57,14 @@ class JekyllOptionsTest
         '-t', 'tag_1',
         'ruby', 'test'
       ]
-      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
-      actual = nugem_options.parse_options(argv, allow_unknown_options: true, dry_run: true)
+      nested_option_parser_control = NestedOptionParserControl.new(
+        argv:                    argv,
+        default_option_hash:     {},
+        help:                    nil,
+        option_parser_proc:      nugem_options.option_parser_proc,
+        subcommand_parser_procs: []
+      )
+      actual = nugem_options.parse_options nested_option_parser_control
       expected = nugem_options.options.merge({
                                                blockn:    ['block_n_1'],
                                                block:     %w[block_1 block_2],
