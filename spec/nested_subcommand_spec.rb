@@ -6,15 +6,15 @@ require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
 class NestedOptionParserTest
-  RSpec.describe NestedOptionParser do
-    def help(message = nil)
-      puts message.red if message
-      puts <<~END_HELP
-        This is a multiline help message.
-        It does not exit the program.
-      END_HELP
-    end
+  HELP = proc do |message = nil|
+    puts message.red if message
+    puts <<~END_HELP
+      This is a multiline help message.
+      It does not exit the program.
+    END_HELP
+  end
 
+  RSpec.describe NestedOptionParser do
     option_parser_proc = proc do |parser|
       parser.raise_unknown = false # Required for subcommand processing to work
       parser.on '-h', '--help'
@@ -23,10 +23,10 @@ class NestedOptionParserTest
 
     it 'initializes a NestedOptionParser' do
       nested_option_parser_control = NestedOptionParserControl.new(
+        option_parser_proc,
+        help:                    HELP,
         argv:                    %w[-h --out_dir=/etc/hosts -y pos_param1 pos_param2],
         default_option_hash:     {},
-        help:                    method(:help),
-        option_parser_proc:      option_parser_proc,
         subcommand_parser_procs: []
       )
       nop = described_class.new nested_option_parser_control
@@ -42,10 +42,10 @@ class NestedOptionParserTest
         parser.on '-y', '--yes'
       end)
       nested_option_parser_control = NestedOptionParserControl.new(
+        option_parser_proc,
+        help:                    HELP,
         argv:                    %w[-h --out_dir=/etc/hosts -y subcmd1 pos_param1 pos_param2],
         default_option_hash:     {},
-        help:                    method(:help),
-        option_parser_proc:      option_parser_proc,
         subcommand_parser_procs: [sub_cmd]
       )
       nop = described_class.new nested_option_parser_control

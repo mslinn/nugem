@@ -9,16 +9,16 @@ require_relative '../lib/nugem'
 class JekyllOptionsTest
   TEST_OUT_DIR = File.join(Dir.tmpdir, 'nugem_test').freeze
 
-  RSpec.describe ::Nugem::JekyllOptions do
-    after(:context) do # rubocop:disable RSpec/BeforeAfterAll
+  RSpec.describe Nugem::JekyllOptions do
+    after do
       FileUtils.rm_rf TEST_OUT_DIR, secure: true
     end
 
-    before(:context) do # rubocop:disable RSpec/BeforeAfterAll
+    before do
       FileUtils.rm_rf TEST_OUT_DIR, secure: true
     end
 
-    it 'tests jekyll plugin with loglevel debug and summarize' do
+    it 'tests jekyll plugin without help but with loglevel debug and summarize' do
       # Very similar to first test in RubyOptionsTest
       hash = { force: true, gem_type: 'jekyll', out_dir: TEST_OUT_DIR }
       nugem_options = described_class.new(hash, dry_run: true, errors_are_fatal: false)
@@ -30,19 +30,19 @@ class JekyllOptionsTest
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
         Options:
-         - Gem type: jekyll
-         - Loglevel #{nugem_options.options[:loglevel]}
-         - Output directory: '#{nugem_options.options[:out_dir]}'
-         - Any pre-existing content in the output directory will be deleted before generating new output.
-         - No executables will be included
-         - Git host: github
-         - A public git repository will be created
-         - TODOs will be included in the source code
+          - Gem type: jekyll
+          - Loglevel #{nugem_options.options[:loglevel]}
+          - Output directory: '#{nugem_options.options[:out_dir]}'
+          - Any pre-existing content in the output directory will be deleted before generating new output.
+          - No executables will be included
+          - Git host: github
+          - A public git repository will be created
+          - TODOs will be included in the source code
       END_SUMMARY
       expect(actual_summary).to eq(expected_summary)
     end
 
-    it 'tests jekyll plugin with 2 blockns, 2 blocks, 1 filter, 1 generator, hooks, 2 tagns, and 1 tag' do
+    it 'tests jekyll plugin without help but with 2 blockns, 2 blocks, 1 filter, 1 generator, hooks, 2 tagns, and 1 tag' do
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       argv = [
         '-B', 'block_n_2',
@@ -58,10 +58,10 @@ class JekyllOptionsTest
         'ruby', 'test'
       ]
       nested_option_parser_control = NestedOptionParserControl.new(
+        nugem_options.option_parser_proc,
         argv:                    argv,
         default_option_hash:     {},
         help:                    nil,
-        option_parser_proc:      nugem_options.option_parser_proc,
         subcommand_parser_procs: []
       )
       actual = nugem_options.parse_options nested_option_parser_control
@@ -78,7 +78,6 @@ class JekyllOptionsTest
                                                tagn:      %w[tagn_1 tagn_2],
                                              })
       expect(actual).to eq(expected)
-
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
         Options:

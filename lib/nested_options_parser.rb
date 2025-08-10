@@ -1,22 +1,20 @@
 require 'optparse'
 
-SubCmd = Struct.new(:name, :option_parser_proc)
+SubCmd = Struct.new(:name, :option_parser_proc, :help_args)
 
-NestedOptionParserControl = Struct.new(
-  :option_parser_proc,
-  :argv,
-  :default_option_hash,
-  :help,
-  :sub_cmds
-) do
+class NestedOptionParserControl
   def initialize(
     option_parser_proc,
+    help = nil,
     argv = [],
     default_option_hash = {},
-    help = nil,
     sub_cmds = []
   )
-    super
+    @argv = argv
+    @default_option_hash = default_option_hash
+    @help = help
+    @option_parser_proc = option_parser_proc
+    @sub_cmds = sub_cmds
   end
 end
 
