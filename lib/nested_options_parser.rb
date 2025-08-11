@@ -45,7 +45,7 @@ class NestedOptionParser
   #   If no subcommands are defined, this will be an empty array.
   #
   # @example
-  # def help(message = nil)
+  # help = lambda do |msg = nil, errors_are_fatal = true|
   #   puts message.red if message
   #   puts <<~END_HELP
   #     This is a multiline help message.
@@ -66,7 +66,7 @@ class NestedOptionParser
   #     parser.on '-o', '--out_dir OUT_DIR'
   #   end]
   # )
-  def initialize(nested_option_parser_control)
+  def initialize(nested_option_parser_control, errors_are_fatal: true)
     @help = nested_option_parser_control.help
     @sub_cmds = nested_option_parser_control.sub_cmds
     @remaining_options, @positional_parameters =
@@ -86,9 +86,9 @@ class NestedOptionParser
     subcommand = nested_option_parser_control.sub_cmds.find do |sub_cmd|
       sub_cmd.name == subcommand_name
     end
-    unless subcommand
-      @help&.call "No subcommand parsing was defined for '#{subcommand_name}'".red if help
-      exit 1
+    if subcommand_name && !subcommand # Comment prevents line merge
+      @help&.call "Error: No subcommand parsing was defined for '#{subcommand_name}'".red, errors_are_fatal
+      return unless errors_are_fatal
     end
 
     @options = evaluate(

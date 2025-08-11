@@ -148,7 +148,7 @@ module Nugem
         @options,
         @subcommand_parser_procs
       )
-      NestedOptionParser.new nested_option_parser_control
+      NestedOptionParser.new nested_option_parser_control, errors_are_fatal: @errors_are_fatal
     rescue OptionParser::InvalidOption => e
       ::Nugem.help.call(e.message, errors_are_fatal: @errors_are_fatal)
       e.message # Useful for rspec tests
