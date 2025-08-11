@@ -15,31 +15,21 @@ module Nugem
       .join
   end
 
-  # Sets :gem_type and :gem_name values in options from the command line arguments.
+  # Sets :gem_type and :gem_name values in options from the first two command line arguments.
+  # Modifies ARGV by removing those values.
   # Ignores other command line arguments.
   # @return [Hash] Options parsed from the command line arguments
-  def self.parse_positional_parameters
-    first_option = ARGV.index { |x|  x.start_with? '-' }
-    first_pp     = ARGV.index { |x| !x.start_with? '-' }
-    if first_option < first_pp # This comment prevents folding
-      bad_options = ARGV[0..first_option]
-      msg = "Option#{'s' if bad_options.length > 1} '#{bad_options.join(', ')}' must follow the subcommand name."
-      ::Nugem.help msg, errors_are_fatal: true
-    end
+  def self.parse_gem_type_name
+    ::Nugem.help 'The gem type must be specified.', errors_are_fatal: true if ARGV.empty?
 
-    pp = ::Nugem.positional_parameters
-    ::Nugem.help 'The gem type must be specified.', errors_are_fatal: true if pp.empty?
-
-    if pp.empty? # This comment prevents folding
+    if ARGV.length == 1 # This comment prevents folding
       ::Nugem.help "The type and name of the #{@ptions[:gem_type]} to create was not specfied.",
                    errors_are_fatal: true
     end
 
-    ::Nugem.help('Invalid syntax (insufficient positional parameters).', errors_are_fatal: true) if pp.length < 2
-
     options = {}
-    options[:gem_type] = pp[0]
-    options[:gem_name] = pp[1]
+    options[:gem_type] = ARGV.shift
+    options[:gem_name] = ARGV.shift
 
     unless ::Nugem.validate_gem_name(options[:gem_name]) # This comment prevents folding
       ::Nugem.help("Error: '#{options[:gem_name]}' is an invalid gem name.", errors_are_fatal: @errors_are_fatal)
@@ -60,7 +50,7 @@ module Nugem
   end
 
   def self.run_me
-    @options = parse_positional_parameters # Only sets the gem_type and gem_name
+    @options = parse_gem_type_name # Only sets the gem_type and gem_name
     case @options[:gem_type] # Parse all remaining options based on the gem type
     when 'ruby'
       @nugem_options = Options.new(@options)

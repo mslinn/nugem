@@ -21,7 +21,7 @@ class RubyOptionsTest
     it 'tests ruby gem with loglevel debug and summarize' do
       hash = { force: true, gem_type: 'ruby', out_dir: TEST_OUT_DIR }
       nugem_options = described_class.new(hash, errors_are_fatal: false)
-      actual = nugem_options.nested_option_parser_from ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test'],
+      actual = nugem_options.nested_option_parser_from ['ruby', 'test', '-f', '-o', TEST_OUT_DIR, '-L', 'debug'],
                                                        allow_unknown_options: false,
                                                        dry_run:               true
       expected = nugem_options.options.merge({ loglevel: 'debug' })
@@ -44,14 +44,14 @@ class RubyOptionsTest
 
     it 'tests ruby gem with bitbucket, debug, executable, force, no todos, out_dir and private' do
       argv = [
+        'ruby', 'test',
         '-e', 'blah',
         '-f',
         '-H', 'bitbucket',
         '-L', 'debug',
         '-o', TEST_OUT_DIR,
         '-n',
-        '-p',
-        'ruby', 'test'
+        '-p'
       ]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       actual = nugem_options.nested_option_parser_from(argv, allow_unknown_options: false, dry_run: true)
@@ -79,7 +79,7 @@ class RubyOptionsTest
     end
 
     it 'tests ruby gem for loglevel debug and 2 executables' do
-      argv = %w[-e ex1 -e ex2 --loglevel=debug ruby test]
+      argv = %w[ruby test -e ex1 -e ex2 --loglevel=debug]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       expected = nugem_options.options.merge({
                                                executable: %w[ex1 ex2],
@@ -90,7 +90,7 @@ class RubyOptionsTest
     end
 
     it 'handles invalid options' do
-      argv = %w[-L debug -x ruby test]
+      argv = %w[ruby test -L debug -x]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       actual = nugem_options.nested_option_parser_from(argv, allow_unknown_options: false, dry_run: true)
       expect(actual).to eq('invalid option: -x')

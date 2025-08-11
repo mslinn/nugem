@@ -67,26 +67,21 @@ class NestedOptionParser
   #   end]
   # )
   def initialize(nested_option_parser_control, errors_are_fatal: true)
-    @help = nested_option_parser_control.help
-    @sub_cmds = nested_option_parser_control.sub_cmds
-    @remaining_options, @positional_parameters =
-      nested_option_parser_control.argv.partition { |x| x.start_with? '-' }
+    @help           = nested_option_parser_control.help
+    subcommand_name = nested_option_parser_control.argv&.shift
+    @sub_cmds       = nested_option_parser_control.sub_cmds
     @options = evaluate(
       default_option_hash: nested_option_parser_control.default_option_hash,
-      arguments:           @remaining_options,
+      arguments:           nested_option_parser_control.argv,
       option_parser_proc:  nested_option_parser_control.option_parser_proc
     )
 
-    # If this is a subcommand, remove the subcommand name from positional_parameters
-    # and set @subcommand to the SubCmd instance.
-    return unless @sub_cmds.any? && !@positional_parameters.empty?
+    return if subcommand_name.to_s.strip.empty?
 
-    # Remove the first token, which might be the subcommand name, from positional parameters
-    subcommand_name = @positional_parameters.shift
     subcommand = nested_option_parser_control.sub_cmds.find do |sub_cmd|
       sub_cmd.name == subcommand_name
     end
-    if subcommand_name && !subcommand # Comment prevents line merge
+    if subcommand_name && !subcommand
       @help&.call "Error: No subcommand parsing was defined for '#{subcommand_name}'".red, errors_are_fatal
       return unless errors_are_fatal
     end

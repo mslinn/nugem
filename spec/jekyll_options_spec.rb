@@ -22,7 +22,7 @@ class JekyllOptionsTest
       # Very similar to first test in RubyOptionsTest
       hash = { force: true, gem_type: 'jekyll', out_dir: TEST_OUT_DIR }
       nugem_options = described_class.new(hash, dry_run: true, errors_are_fatal: false)
-      nop = nugem_options.nested_option_parser_from ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test']
+      nop = nugem_options.nested_option_parser_from ['jekyll', 'test', '-f', '-o', TEST_OUT_DIR, '-L', 'debug']
 
       expected = nugem_options.options.merge({ loglevel: 'debug' })
       expect(nop.options).to eq(expected)
@@ -42,9 +42,10 @@ class JekyllOptionsTest
       expect(actual_summary).to eq(expected_summary)
     end
 
-    it 'tests jekyll plugin without help but with 2 blockns, 2 blocks, 1 filter, 1 generator, hooks, 2 tagns, and 1 tag' do
-      nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
+    it 'tests jekyll plugin without help, with 2 blockns, 2 blocks, 1 filter, 1 generator, hooks, 2 tagns, and 1 tag' do
+      nugem_options = described_class.new({ gem_type: 'jekyll' }, errors_are_fatal: false)
       argv = [
+        'jekyll', 'test',
         '-B', 'block_n_2',
         '--blockn=block_n_1',
         '--block=block_1',
@@ -54,17 +55,8 @@ class JekyllOptionsTest
         '-K',
         '-T', 'tagn_1',
         '--tagn=tagn_2',
-        '-t', 'tag_1',
-        'ruby', 'test'
+        '-t', 'tag_1'
       ]
-      # nested_option_parser_control = NestedOptionParserControl.new(
-      #   nugem_options.option_parser_proc,
-      #   nil,
-      #   argv,
-      #   {},
-      #   []
-      # )
-      # nested_option_parser_control
       nop = nugem_options.nested_option_parser_from argv
       expected = nugem_options.options.merge({
                                                blockn:    ['block_n_1'],
