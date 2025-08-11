@@ -59,10 +59,10 @@ class JekyllOptionsTest
       ]
       nested_option_parser_control = NestedOptionParserControl.new(
         nugem_options.option_parser_proc,
-        argv:                    argv,
-        default_option_hash:     {},
-        help:                    nil,
-        subcommand_parser_procs: []
+        nil,
+        argv,
+        {},
+        []
       )
       actual = nugem_options.parse_options nested_option_parser_control
       expected = nugem_options.options.merge({

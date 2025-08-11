@@ -2,18 +2,24 @@ require 'optparse'
 
 SubCmd = Struct.new(:name, :option_parser_proc, :help_args)
 
+# Parameter block to control NestedOptionParser
+# References to other data structures can only be stored in positional parameters,
+# not keyword arguments or arguments with default values,
+# which is why option_parser_proc and help are listed first
 class NestedOptionParserControl
+  attr_reader :argv, :default_option_hash, :help, :option_parser_proc, :sub_cmds
+
   def initialize(
     option_parser_proc,
-    help = nil,
+    help,
     argv = [],
     default_option_hash = {},
     sub_cmds = []
   )
+    @option_parser_proc = option_parser_proc
+    @help = help
     @argv = argv
     @default_option_hash = default_option_hash
-    @help = help
-    @option_parser_proc = option_parser_proc
     @sub_cmds = sub_cmds
   end
 end

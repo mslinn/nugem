@@ -7,7 +7,9 @@ module Nugem
   HOSTS = %w[github gitlab bitbucket].freeze
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
-  HELP = lambda do |msg = nil, errors_are_fatal = true|
+  class << self; attr_accessor :help_lambda; end
+
+  ::Nugem.help_lambda = lambda do |msg = nil, errors_are_fatal = true|
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
       nugem v#{VERSION}: Creates scaffolding for a Ruby gem or a Jekyll plugin.
@@ -141,10 +143,10 @@ module Nugem
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       nested_option_parser_control = NestedOptionParserControl.new(
         @option_parser_proc,
-        argv:                    argv_override,
-        default_option_hash:     @options,
-        help:                    HELP,
-        subcommand_parser_procs: @subcommand_parser_procs
+        ::Nugem.help_lambda,
+        argv_override,
+        @options,
+        @subcommand_parser_procs
       )
       NestedOptionParser.new nested_option_parser_control
     rescue OptionParser::InvalidOption => e
