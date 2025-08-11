@@ -22,10 +22,10 @@ class JekyllOptionsTest
       # Very similar to first test in RubyOptionsTest
       hash = { force: true, gem_type: 'jekyll', out_dir: TEST_OUT_DIR }
       nugem_options = described_class.new(hash, dry_run: true, errors_are_fatal: false)
-      actual = nugem_options.parse_options ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test']
+      nop = nugem_options.nested_option_parser_from ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test']
 
       expected = nugem_options.options.merge({ loglevel: 'debug' })
-      expect(actual).to eq(expected)
+      expect(nop.options).to eq(expected)
 
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
@@ -57,14 +57,15 @@ class JekyllOptionsTest
         '-t', 'tag_1',
         'ruby', 'test'
       ]
-      nested_option_parser_control = NestedOptionParserControl.new(
-        nugem_options.option_parser_proc,
-        nil,
-        argv,
-        {},
-        []
-      )
-      actual = nugem_options.parse_options nested_option_parser_control
+      # nested_option_parser_control = NestedOptionParserControl.new(
+      #   nugem_options.option_parser_proc,
+      #   nil,
+      #   argv,
+      #   {},
+      #   []
+      # )
+      # nested_option_parser_control
+      nop = nugem_options.nested_option_parser_from argv
       expected = nugem_options.options.merge({
                                                blockn:    ['block_n_1'],
                                                block:     %w[block_1 block_2],
@@ -77,7 +78,7 @@ class JekyllOptionsTest
                                                tag:       ['tag_1'],
                                                tagn:      %w[tagn_1 tagn_2],
                                              })
-      expect(actual).to eq(expected)
+      expect(nop.options).to eq(expected)
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
         Options:

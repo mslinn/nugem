@@ -21,9 +21,9 @@ class RubyOptionsTest
     it 'tests ruby gem with loglevel debug and summarize' do
       hash = { force: true, gem_type: 'ruby', out_dir: TEST_OUT_DIR }
       nugem_options = described_class.new(hash, errors_are_fatal: false)
-      actual = nugem_options.parse_options ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test'],
-                                           allow_unknown_options: false,
-                                           dry_run:               true
+      actual = nugem_options.nested_option_parser_from ['-f', '-o', TEST_OUT_DIR, '-L', 'debug', 'ruby', 'test'],
+                                                       allow_unknown_options: false,
+                                                       dry_run:               true
       expected = nugem_options.options.merge({ loglevel: 'debug' })
       expect(actual).to eq(expected)
 
@@ -54,7 +54,7 @@ class RubyOptionsTest
         'ruby', 'test'
       ]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
-      actual = nugem_options.parse_options(argv, allow_unknown_options: false, dry_run: true)
+      actual = nugem_options.nested_option_parser_from(argv, allow_unknown_options: false, dry_run: true)
       expected = nugem_options.options.merge({
                                                executable: ['blah'],
                                                loglevel:   'debug',
@@ -85,14 +85,14 @@ class RubyOptionsTest
                                                executable: %w[ex1 ex2],
                                                loglevel:   'debug',
                                              })
-      actual = nugem_options.parse_options(argv, allow_unknown_options: false, dry_run: true)
+      actual = nugem_options.nested_option_parser_from(argv, allow_unknown_options: false, dry_run: true)
       expect(actual).to eq(expected)
     end
 
     it 'handles invalid options' do
       argv = %w[-L debug -x ruby test]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
-      actual = nugem_options.parse_options(argv, allow_unknown_options: false, dry_run: true)
+      actual = nugem_options.nested_option_parser_from(argv, allow_unknown_options: false, dry_run: true)
       expect(actual).to eq('invalid option: -x')
     end
   end

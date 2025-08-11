@@ -96,10 +96,16 @@ class NestedOptionParser
       default_option_hash: @options,
       option_parser_proc:  subcommand.option_parser_proc
     )
-    return if @remaining_options.empty?
+    return if @remaining_options.strip.empty?
 
-    @help&.call "Extra options provided (#{@remaining_options})"
-    exit 1
+    if help
+      msg = <<~END_MSG.red
+        Error: The following unrecognized options were found on the command line:\n#{@remaining_options}
+      END_MSG
+      help.call msg.red, errors_are_fatal
+    elsif errors_are_fatal
+      exit 1
+    end
   end
 
   # @return the command line arguments that were not matched by the option parser, ready for a subcommand parser.

@@ -81,12 +81,12 @@ module Nugem
         parser.on '-e', '--executable EXECUTABLE' do |value|
           options[:executable] << value
         end
-        parser.on '-f', '--force',                      TrueClass,            'Overwrite output directory'
-        parser.on '-H HOST', '--host=HOST',             %w[github bitbucket], 'Repository host'
-        parser.on '-L LOGLEVEL', '--loglevel=LOGLEVEL', LOGLEVELS,            'Logging level' # do |level|
+        parser.on '-f', '--force',             TrueClass,            'Overwrite output directory'
+        parser.on '-H', '--host=HOST',         %w[github bitbucket], 'Repository host'
+        parser.on '-L', '--loglevel=LOGLEVEL', LOGLEVELS,            'Log level' # do |level|
         #   puts "level=#{level}".yellow
         # end
-        parser.on('-o ', '--out_dir=OUT_DIR', Pathname, 'Output directory for the gem') do |path|
+        parser.on('-o', '--out_dir=OUT_DIR',   Pathname, 'Output directory for the gem') do |path|
           options[:out_dir] = create_dir path.to_s, options[:out_dir]
         end
         parser.on '-p', '--private',                    TrueClass,
@@ -137,7 +137,7 @@ module Nugem
 
     # Gather all the possible parameter values and performs type checking.
     # Subsequent methods must perform application-level sanity checks.
-    def parse_options(argv_override)
+    def nested_option_parser_from(argv_override)
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
