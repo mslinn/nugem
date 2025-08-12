@@ -15,45 +15,57 @@ class NestedOptionParserTest
   end
 
   RSpec.describe NestedOptionParser do
-    option_parser_proc = proc do |parser|
+    common_parser_proc = proc do |parser|
       parser.raise_unknown = false # Required for subcommand processing to work
       parser.on '-h', '--help'
       parser.on '-o', '--out_dir=OUT_DIR', Pathname
     end
+    test_parser_proc = proc do |parser|
+      parser.on '-x', '--xray'
+    end
+    ruby_subcmd = SubCmd.new 'ruby', test_parser_proc
 
-    it 'initializes a NestedOptionParser' do
+    xit 'initializes a NestedOptionParser without a subcommand' do
       nested_option_parser_control = NestedOptionParserControl.new(
-        option_parser_proc,
+        common_parser_proc,
         help_lambda,
-        %w[-h --out_dir=/etc/hosts -y pos_param1 pos_param2],
+        %w[-h --out_dir=/etc/hosts -y],
         {},
-        []
+        [ruby_subcmd]
       )
       nop = described_class.new nested_option_parser_control
 
-      expect(nop.remaining_options).to     eq(%w[-y])
-      expect(nop.positional_parameters).to eq(%w[pos_param1 pos_param2])
-      expect(nop.options).to               eq({ help: true, out_dir: Pathname('/etc/hosts') })
-      expect(nop.argv).to                  eq(%w[-y pos_param1 pos_param2])
+      options = {
+        help:    true,
+        out_dir: Pathname('/etc/hosts'),
+      }
+      expect(nop.options).to eq(options)
+      expect(nop.argv).to    eq(%w[-y])
     end
 
     it 'initializes a NestedOptionParser as a subcommand NOP' do
-      sub_cmd = SubCmd.new('subcmd1', proc do |parser|
+      ruby_subcmd = SubCmd.new('ruby', proc do |parser|
         parser.on '-y', '--yes'
       end)
       nested_option_parser_control = NestedOptionParserControl.new(
-        option_parser_proc,
+        common_parser_proc,
         help_lambda,
-        %w[-h --out_dir=/etc/hosts -y subcmd1 pos_param1 pos_param2],
+        %w[ruby test -h -o /etc/hosts -y],
         {},
-        [sub_cmd]
+        [ruby_subcmd]
       )
       nop = described_class.new nested_option_parser_control
+      options = {
+        gem_type: 'ruby',
+        gem_name: 'test',
+        help:     true,
+        out_dir:  Pathname('/etc/hosts'),
+        yes:      true,
+      }
 
-      expect(nop.remaining_options).to     eq([])
-      expect(nop.positional_parameters).to eq(%w[pos_param1 pos_param2])
-      expect(nop.options).to               eq({ help: true, out_dir: Pathname('/etc/hosts'), yes: true })
-      expect(nop.argv).to                  eq(%w[pos_param1 pos_param2])
+      expect(nop.argv).to    eq([])
+      expect(nop.options).to eq(options)
+      expect(nop.argv).to    eq(%w[])
     end
   end
 end

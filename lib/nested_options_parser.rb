@@ -1,6 +1,6 @@
 require 'optparse'
 
-SubCmd = Struct.new(:name, :option_parser_proc, :help_args)
+SubCmd = Struct.new(:name, :option_parser_proc)
 
 # Parameter block to control NestedOptionParser
 # References to other data structures can only be stored in positional parameters,
@@ -25,8 +25,9 @@ class NestedOptionParserControl
 end
 
 class NestedOptionParser
-  attr_reader :option_parser_proc, :options, :positional_parameters, :remaining_options, :sub_cmds
+  attr_reader :option_parser_proc, :options, :positional_parameters, :sub_cmds
 
+  # If parsing succeeds, @options will have all options parsed from the command line
   # Please see [`subcommands.md`](subcommands.md) for an example of how to use this class.
   #
   # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
@@ -67,35 +68,47 @@ class NestedOptionParser
   #   end]
   # )
   def initialize(nested_option_parser_control, errors_are_fatal: true)
-    @help           = nested_option_parser_control.help
-    subcommand_name = nested_option_parser_control.argv&.shift
-    @sub_cmds       = nested_option_parser_control.sub_cmds
+    @nested_option_parser_control = nested_option_parser_control
+    @help = nested_option_parser_control.help
+    subcommand_name = nil
+
+    # nested_option_parser_control.argv might contain positional parameters now
+    unless nested_option_parser_control.argv&.first&.start_with?('-')
+      subcommand_name = nested_option_parser_control.argv&.shift
+      subcommand = nested_option_parser_control.sub_cmds.find do |sub_cmd|
+        sub_cmd.name == subcommand_name
+      end
+      if subcommand.nil? && !subcommand_name.empty?
+        msg = "Error: No parsing was defined for subcommand '#{subcommand_name}'"
+        @help&.call msg.red, errors_are_fatal
+        return
+      end
+    end
+
+    # TODO: pass a block, proc or lambda to parse positional parameters
+    nested_option_parser_control.default_option_hash['gem_type'] = subcommand_name
+    if nested_option_parser_control.argv&.first&.start_with?('-')
+      help.call 'No subcommand name was provided'.red, errors_are_fatal
+    else
+      nested_option_parser_control.default_option_hash['gem_name'] = nested_option_parser_control.argv&.shift
+    end
+
+    # Parse common options; there must be no positional parameters in argv now
     @options = evaluate(
       default_option_hash: nested_option_parser_control.default_option_hash,
-      arguments:           nested_option_parser_control.argv,
       option_parser_proc:  nested_option_parser_control.option_parser_proc
     )
-
     return if subcommand_name.to_s.strip.empty?
 
-    subcommand = nested_option_parser_control.sub_cmds.find do |sub_cmd|
-      sub_cmd.name == subcommand_name
-    end
-    if subcommand_name && !subcommand
-      @help&.call "Error: No subcommand parsing was defined for '#{subcommand_name}'".red, errors_are_fatal
-      return unless errors_are_fatal
-    end
-
     @options = evaluate(
-      arguments:           @remaining_options,
       default_option_hash: @options,
       option_parser_proc:  subcommand.option_parser_proc
     )
-    return if @remaining_options.strip.empty?
+    return if nested_option_parser_control.argv.strip.empty?
 
     if help
       msg = <<~END_MSG.red
-        Error: The following unrecognized options were found on the command line:\n#{@remaining_options}
+        Error: The following unrecognized options were found on the command line:\n#{@argv}
       END_MSG
       help.call msg.red, errors_are_fatal
     elsif errors_are_fatal
@@ -103,19 +116,15 @@ class NestedOptionParser
     end
   end
 
-  # @return the command line arguments that were not matched by the option parser, ready for a subcommand parser.
-  # This includes any positional parameters that were not matched by the option parser.
-  #
-  # @return [Array<String>] The remaining command line arguments after parsing.
   def argv
-    @remaining_options + @positional_parameters
+    nested_option_parser_control.argv
   end
 
   # Process the command line arguments and update the options hash.
   #
   # If option_parser_proc raises an `OptionParser::InvalidOption` exception,
   # it is caught and an error message is displayed before the program exits.
-  # Otherwise, unmatched arguments are collectded in @remaining_options.
+  # Otherwise, unmatched arguments are collectded in @argv.
   #
   # @param default_option_hash [Hash] Default options to set before parsing.
   # @param arguments [Array<String>] The remaining command line arguments to parse.
@@ -125,10 +134,10 @@ class NestedOptionParser
   # @yieldparam parser [OptionParser] The OptionParser instance to configure.
   #
   # @return [Hash] The options parsed from the command line arguments.
-  def evaluate(default_option_hash:, arguments:, option_parser_proc:)
+  def evaluate(default_option_hash:, option_parser_proc:)
     options = default_option_hash
     option_parser = OptionParser.new(&option_parser_proc)
-    option_parser.default_argv = arguments
+    option_parser.default_argv = @nested_option_parser_control.argv
     option_parser.order! arguments, into: options
     options
   rescue OptionParser::InvalidOption => e
