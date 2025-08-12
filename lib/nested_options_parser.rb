@@ -57,13 +57,14 @@ class NestedOptionParser
   # end
   #
   # NestedOptionParser.new(
-  #   argv: %w[mysubcommand pos_param2 -o /tmp/test -x -y -z]
-  #   default_option_hash: { help: false },
   #   option_parser_proc: proc do |parser|
   #     parser.on '-h', '--help'
   #     parser.on '-o', '--out_dir OUT_DIR'
   #   end,
   #   help: method(:help),
+  #   positional_parameter_proc: ::Nugem.positional_parameter_proc,
+  #   argv: %w[mysubcommand pos_param2 -o /tmp/test -x -y -z]
+  #   default_option_hash: { out_dir: '/home/mslinn/nugem_generated/blah', help: false },
   #   subcommand_parser_procs: [SubCmd.new('mysubcommand', proc do |parser|
   #     parser.on '-h', '--help'
   #     parser.on '-o', '--out_dir OUT_DIR'
@@ -86,9 +87,13 @@ class NestedOptionParser
       end
     end
 
-    nested_option_parser_control.positional_parameter_proc.call nested_option_parser_control
+    # nested_option_parser_control.default_option_hash =
+    # TODO Verify that nested_option_parser_control.argv and default_option_hash are updated
+    nested_option_parser_control.positional_parameter_proc.call(nested_option_parser_control)
 
-    # Parse common options; there must be no positional parameters in argv now
+    # TODO: Verify there are no positional parameters at the start of argv now
+
+    # Parse common options
     @options = evaluate(
       default_option_hash: nested_option_parser_control.default_option_hash,
       option_parser_proc:  nested_option_parser_control.option_parser_proc

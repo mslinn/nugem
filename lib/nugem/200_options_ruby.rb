@@ -47,18 +47,23 @@ module Nugem
     exit(1)
   end
 
-  # This defines how positional parameters are extracated from
+  # This defines how positional parameters are extracted from
   # the copy of the command line used by module Nugem
-  # @param nop NestedOptionParser instance
+  # @param nop [NestedOptionParser] nop.argv should be modified
+  # @return default_option_hash (Hash)
   ::Nugem.positional_parameter_proc = proc do |nop|
-    abort 'Error: nothing was passed to positional_parameter_proc' unless nop
-
-    nop.default_option_hash['gem_type'] = subcommand_name
     if nop.argv&.first&.start_with?('-')
-      help.call 'No subcommand name was provided'.red, errors_are_fatal
+      @help.call 'No subcommand type was provided on the command line', true
     else
-      nop.default_option_hash['gem_name'] = nop.argv&.shift
+      gem_type = nop.argv.shift
+      nop.default_option_hash['gem_type'] = gem_type
+      if nop.argv&.first&.start_with?('-')
+        @help.call "No #{gem_type} name was provided on the command line", true
+      else
+        nop.default_option_hash['gem_name'] = @argv&.shift
+      end
     end
+    nop.default_option_hash
   end
 
   class Options
