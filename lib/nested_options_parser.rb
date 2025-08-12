@@ -12,15 +12,17 @@ class NestedOptionParserControl
   def initialize(
     option_parser_proc,
     help,
+    positional_parameter_proc,
     argv = [],
     default_option_hash = {},
     sub_cmds = []
   )
-    @option_parser_proc = option_parser_proc
-    @help = help
-    @argv = argv
-    @default_option_hash = default_option_hash
-    @sub_cmds = sub_cmds
+    @option_parser_proc        = option_parser_proc
+    @help                      = help
+    @positional_parameter_proc = positional_parameter_proc
+    @argv                      = argv
+    @default_option_hash       = default_option_hash
+    @sub_cmds                  = sub_cmds
   end
 end
 
@@ -84,14 +86,7 @@ class NestedOptionParser
       end
     end
 
-    # TODO: pass a block, proc or lambda to parse positional parameters
-    # TODO raise error instead of exiting
-    nested_option_parser_control.default_option_hash['gem_type'] = subcommand_name
-    if nested_option_parser_control.argv&.first&.start_with?('-')
-      help.call 'No subcommand name was provided'.red, errors_are_fatal
-    else
-      nested_option_parser_control.default_option_hash['gem_name'] = nested_option_parser_control.argv&.shift
-    end
+    nested_option_parser_control.positional_parameter_proc.call nested_option_parser_control
 
     # Parse common options; there must be no positional parameters in argv now
     @options = evaluate(

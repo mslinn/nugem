@@ -6,7 +6,7 @@ require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
 class NestedOptionParserTest
-  help_lambda = proc do |message = nil|
+  help_proc = proc do |message = nil|
     puts message.red if message
     puts <<~END_HELP
       This is a multiline help message.
@@ -28,7 +28,8 @@ class NestedOptionParserTest
     it 'initializes a NestedOptionParser without a subcommand' do
       nested_option_parser_control = NestedOptionParserControl.new(
         common_parser_proc,
-        help_lambda,
+        help_proc,
+        ::Nugem.positional_parameter_proc,
         %w[ruby test --out_dir=/etc/hosts -y],
         {},
         [ruby_subcmd]
@@ -50,7 +51,8 @@ class NestedOptionParserTest
       end)
       nested_option_parser_control = NestedOptionParserControl.new(
         common_parser_proc,
-        help_lambda,
+        help_proc,
+        ::Nugem.positional_parameter_proc,
         %w[ruby test -o /etc/hosts -y],
         {},
         [ruby_subcmd]

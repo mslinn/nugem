@@ -7,9 +7,9 @@ module Nugem
   HOSTS = %w[github gitlab bitbucket].freeze
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
-  class << self; attr_accessor :help_lambda; end
+  class << self; attr_accessor :help_proc, :positional_parameter_proc; end
 
-  ::Nugem.help_lambda = lambda do |msg = nil, errors_are_fatal = true|
+  ::Nugem.help_proc = lambda do |msg = nil, errors_are_fatal = true|
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
       nugem v#{VERSION}: Creates scaffolding for a Ruby gem or a Jekyll plugin.
@@ -45,6 +45,20 @@ module Nugem
     return unless errors_are_fatal
 
     exit(1)
+  end
+
+  # This defines how positional parameters are extracated from
+  # the copy of the command line used by module Nugem
+  # @param nop NestedOptionParser instance
+  ::Nugem.positional_parameter_proc = proc do |nop|
+    abort 'Error: nothing was passed to positional_parameter_proc' unless nop
+
+    nop.default_option_hash['gem_type'] = subcommand_name
+    if nop.argv&.first&.start_with?('-')
+      help.call 'No subcommand name was provided'.red, errors_are_fatal
+    else
+      nop.default_option_hash['gem_name'] = nop.argv&.shift
+    end
   end
 
   class Options
@@ -143,7 +157,7 @@ module Nugem
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       nested_option_parser_control = NestedOptionParserControl.new(
         @option_parser_proc,
-        ::Nugem.help_lambda,
+        ::Nugem.help_proc,
         argv_override,
         @options,
         @subcommand_parser_procs
