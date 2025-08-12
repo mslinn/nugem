@@ -85,7 +85,7 @@ class NestedOptionParser
     end
 
     # TODO: pass a block, proc or lambda to parse positional parameters
-    # TODO throw error instead of exiting
+    # TODO raise error instead of exiting
     nested_option_parser_control.default_option_hash['gem_type'] = subcommand_name
     if nested_option_parser_control.argv&.first&.start_with?('-')
       help.call 'No subcommand name was provided'.red, errors_are_fatal
