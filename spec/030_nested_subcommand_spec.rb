@@ -25,18 +25,19 @@ class NestedOptionParserTest
     end
     ruby_subcmd = SubCmd.new 'ruby', test_parser_proc
 
-    xit 'initializes a NestedOptionParser without a subcommand' do
+    it 'initializes a NestedOptionParser without a subcommand' do
       nested_option_parser_control = NestedOptionParserControl.new(
         common_parser_proc,
         help_lambda,
-        %w[-h --out_dir=/etc/hosts -y],
+        %w[ruby test --out_dir=/etc/hosts -y],
         {},
         [ruby_subcmd]
       )
       nop = described_class.new nested_option_parser_control
 
       options = {
-        help:    true,
+        'gem_type' => 'ruby',
+        'gem_name' => 'test',
         out_dir: Pathname('/etc/hosts'),
       }
       expect(nop.options).to eq(options)
@@ -50,15 +51,14 @@ class NestedOptionParserTest
       nested_option_parser_control = NestedOptionParserControl.new(
         common_parser_proc,
         help_lambda,
-        %w[ruby test -h -o /etc/hosts -y],
+        %w[ruby test -o /etc/hosts -y],
         {},
         [ruby_subcmd]
       )
       nop = described_class.new nested_option_parser_control
       options = {
-        gem_type: 'ruby',
-        gem_name: 'test',
-        help:     true,
+        'gem_type' => 'ruby',
+        'gem_name' => 'test',
         out_dir:  Pathname('/etc/hosts'),
         yes:      true,
       }

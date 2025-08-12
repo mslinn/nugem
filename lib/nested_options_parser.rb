@@ -70,7 +70,6 @@ class NestedOptionParser
   def initialize(nested_option_parser_control, errors_are_fatal: true)
     @nested_option_parser_control = nested_option_parser_control
     @help = nested_option_parser_control.help
-    subcommand_name = nil
 
     # nested_option_parser_control.argv might contain positional parameters now
     unless nested_option_parser_control.argv&.first&.start_with?('-')
@@ -104,20 +103,20 @@ class NestedOptionParser
       default_option_hash: @options,
       option_parser_proc:  subcommand.option_parser_proc
     )
-    return if nested_option_parser_control.argv.strip.empty?
+    return if nested_option_parser_control.argv.to_s.strip.empty?
 
-    if help
-      msg = <<~END_MSG.red
+    if nested_option_parser_control.help
+      msg = <<~END_MSG
         Error: The following unrecognized options were found on the command line:\n#{@argv}
       END_MSG
-      help.call msg.red, errors_are_fatal
+      nested_option_parser_control.help.call msg, errors_are_fatal
     elsif errors_are_fatal
       exit 1
     end
   end
 
   def argv
-    nested_option_parser_control.argv
+    @nested_option_parser_control.argv
   end
 
   # Process the command line arguments and update the options hash.
@@ -137,8 +136,8 @@ class NestedOptionParser
   def evaluate(default_option_hash:, option_parser_proc:)
     options = default_option_hash
     option_parser = OptionParser.new(&option_parser_proc)
-    option_parser.default_argv = @nested_option_parser_control.argv
-    option_parser.order! arguments, into: options
+    # option_parser.default_argv = @nested_option_parser_control.argv
+    option_parser.order! @nested_option_parser_control.argv, into: options
     options
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}".red
