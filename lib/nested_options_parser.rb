@@ -48,28 +48,29 @@ class NestedOptionParser
   #   If no subcommands are defined, this will be an empty array.
   #
   # @example
-  # help = lambda do |msg = nil, errors_are_fatal = true|
-  #   puts message.red if message
-  #   puts <<~END_HELP
-  #     This is a multiline help message.
-  #     It does not exit the program.
-  #   END_HELP
-  # end
+  #   help = lambda do |msg = nil, errors_are_fatal = true|
+  #     puts message.red if message
+  #     puts <<~END_HELP
+  #       This is a multiline help message.
+  #       It does not exit the program.
+  #     END_HELP
+  #   end
   #
-  # NestedOptionParser.new(
-  #   option_parser_proc: proc do |parser|
-  #     parser.on '-h', '--help'
-  #     parser.on '-o', '--out_dir OUT_DIR'
-  #   end,
-  #   help: method(:help),
-  #   positional_parameter_proc: ::Nugem.positional_parameter_proc,
-  #   argv: %w[mysubcommand pos_param2 -o /tmp/test -x -y -z]
-  #   default_option_hash: { out_dir: '/home/mslinn/nugem_generated/blah', help: false },
-  #   subcommand_parser_procs: [SubCmd.new('mysubcommand', proc do |parser|
-  #     parser.on '-h', '--help'
-  #     parser.on '-o', '--out_dir OUT_DIR'
-  #   end]
-  # )
+  #   nested_option_parser_control = NestedOptionParserControl.new(
+  #     option_parser_proc: proc do |parser|
+  #       parser.on '-h', '--help'
+  #       parser.on '-o', '--out_dir OUT_DIR'
+  #     end,
+  #     help: method(:help),
+  #     positional_parameter_proc: ::Nugem.positional_parameter_proc,
+  #     argv: %w[mysubcommand pos_param2 -o /tmp/test -x -y -z]
+  #     default_option_hash: { out_dir: '/home/mslinn/nugem_generated/blah', help: false },
+  #     subcommand_parser_procs: [SubCmd.new('mysubcommand', proc do |parser|
+  #       parser.on '-h', '--help'
+  #       parser.on '-o', '--out_dir OUT_DIR'
+  #     end]
+  #
+  #   NestedOptionParser.new nested_option_parser_control
   def initialize(nested_option_parser_control, errors_are_fatal: true)
     @nested_option_parser_control = nested_option_parser_control
     @help = nested_option_parser_control.help
