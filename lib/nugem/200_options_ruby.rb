@@ -58,7 +58,11 @@ module Nugem
       gem_type = nop.argv.shift
       nop.default_option_hash['gem_type'] = gem_type
       if nop.argv&.first&.start_with?('-')
-        @help.call "No #{gem_type} name was provided on the command line", true
+        if @help
+          @help.call "No #{gem_type} name was provided on the command line", true
+        else
+          puts "Nugem.positional_parameter_proc error: No #{gem_type} name was provided on the command line".red
+        end
       else
         nop.default_option_hash['gem_name'] = @argv&.shift
       end

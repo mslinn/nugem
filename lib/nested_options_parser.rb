@@ -7,7 +7,7 @@ SubCmd = Struct.new(:name, :option_parser_proc)
 # not keyword arguments or arguments with default values,
 # which is why option_parser_proc and help are listed first
 class NestedOptionParserControl
-  attr_reader :argv, :default_option_hash, :help, :option_parser_proc, :sub_cmds
+  attr_reader :argv, :default_option_hash, :help, :option_parser_proc, :positional_parameter_proc, :sub_cmds
 
   def initialize(
     option_parser_proc,
@@ -58,6 +58,7 @@ class NestedOptionParser
   #
   #   nested_option_parser_control = NestedOptionParserControl.new(
   #     option_parser_proc: proc do |parser|
+  #       parser.raise_unknown = false # Required for subcommand processing to work
   #       parser.on '-h', '--help'
   #       parser.on '-o', '--out_dir OUT_DIR'
   #     end,
@@ -90,7 +91,7 @@ class NestedOptionParser
 
     # nested_option_parser_control.default_option_hash =
     # TODO Verify that nested_option_parser_control.argv and default_option_hash are updated
-    nested_option_parser_control.positional_parameter_proc.call(nested_option_parser_control)
+    nested_option_parser_control.positional_parameter_proc&.call(nested_option_parser_control)
 
     # TODO: Verify there are no positional parameters at the start of argv now
 
