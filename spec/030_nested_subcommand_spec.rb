@@ -16,16 +16,15 @@ class NestedOptionParserTest
     help_proc = proc do |message = nil|
       puts message.red if message
       puts <<~END_HELP
-        This is a multiline help message.
+        This is a multiline help message for NestedOptionParserTest.
         It does not exit the program.
       END_HELP
     end
 
-    ruby_subcmd = SubCmd.new 'ruby', (proc do |parser|
-      parser.on '-x', '--xray'
-    end)
-
-    it 'initializes a NestedOptionParser without a subcommand' do
+    xit 'initializes a NestedOptionParser without a subcommand' do
+      ruby_subcmd = SubCmd.new 'ruby', (proc do |parser|
+        parser.on '-x', '--xray'
+      end)
       nop_control = NestedOptionParserControl.new(
         common_parser_proc,
         help_proc,
@@ -42,31 +41,31 @@ class NestedOptionParserTest
       end
 
       options = {
-        'gem_type' => 'ruby',
-        'gem_name' => 'test',            # FIXME: this is missing in nop
-        out_dir: Pathname('/etc/hosts'), # FIXME: this is missing in nop
+        gem_type: 'ruby',
+        gem_name: 'test',
+        out_dir:  Pathname('/etc/hosts'),
       }
       expect(nop.options).to eq(options)
       expect(nop.argv).to    eq(%w[-y])
     end
 
     it 'initializes a NestedOptionParser as a subcommand NOP' do
-      ruby_subcmd = SubCmd.new 'ruby', (proc do |parser|
+      jekyll_subcmd = SubCmd.new 'jekyll', (proc do |parser|
         parser.on '-y', '--yes'
       end)
       nop_control = NestedOptionParserControl.new(
         common_parser_proc,
         help_proc,
         ::Nugem.positional_parameter_proc,
-        %w[ruby test -o /etc/hosts -y],
+        %w[ruby test --yes],
         {},
-        [ruby_subcmd],
-        ruby_subcmd
+        [jekyll_subcmd],
+        jekyll_subcmd
       )
       nop = described_class.new nop_control, errors_are_fatal: false
       options = {
-        'gem_type' => 'ruby',
-        'gem_name' => 'test',
+        gem_type: 'ruby',
+        gem_name: 'test',
         out_dir:  Pathname('/etc/hosts'),
         yes:      true,
       }

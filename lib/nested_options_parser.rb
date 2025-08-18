@@ -40,6 +40,14 @@ class NestedOptionParserControl
     @sub_cmds                  = sub_cmds
     @subcommand                = subcommand
   end
+
+  def complain(msg, errors_are_fatal)
+    if nop_control.help
+      nop_control.help.call msg, errors_are_fatal
+    elsif errors_are_fatal
+      exit 1
+    end
+  end
 end
 
 class NestedOptionParser
@@ -82,27 +90,41 @@ class NestedOptionParser
 
     # Remaining positional parameters are arguments for the subcommand, if specified
     # nop_control.default_option_hash =
-    # TODO Verify that nop_control.argv and default_option_hash are updated
     nop_control.positional_parameter_proc&.call(nop_control, errors_are_fatal: errors_are_fatal)
-
-    # TODO: Verify there are no positional parameters at the start of argv now
 
     # Parse common options
     @options = evaluate(
       default_option_hash: nop_control.default_option_hash,
       option_parser_proc:  nop_control.option_parser_proc
     )
-    return if nop_control.subcommand&.name.to_s.strip.empty?
+    parse_subcommand(nop_control) unless nop_control.argv.empty?
+    return if nop_control.argv.empty?
+
+    msg = <<~END_MSG
+      The following unrecognized options were found on the command line:\n  #{nop_control.argv.join ' '}
+    END_MSG
+    nop_control.complain(msg, errors_are_fatal)
+  end
+
+  def parse_subcommand(nop_control)
+    unless nop_control.subcommand
+      msg = <<~END_MSG
+        No subcommand parsing was defined for the following arguments:\n  #{nop_control.argv.join ' '}
+      END_MSG
+      nop_control.complain(msg, errors_are_fatal)
+      return
+    end
 
     @options = evaluate(
       default_option_hash: @options,
       option_parser_proc:  nop_control.option_parser_proc
     )
-    return if nop_control.argv.to_s.strip.empty?
+  end
 
+  def complain(nop_control, errors_are_fatal)
     if nop_control.help
       msg = <<~END_MSG
-        Error: The following unrecognized options were found on the command line:\n#{@argv}
+        The following unrecognized options were found on the command line:\n  #{nop_control.argv.join ' '}
       END_MSG
       nop_control.help.call msg, errors_are_fatal
     elsif errors_are_fatal
