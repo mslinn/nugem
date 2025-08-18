@@ -1,6 +1,6 @@
 require 'optparse'
 
-SubCmd = Struct.new(:name, :option_parser_proc)
+SubCmd = Struct.new(:name, :option_parser_proc) unless defined?(SubCmd)
 
 # Parameter block to control NestedOptionParser
 # References to other data structures can only be stored in positional parameters,
@@ -84,7 +84,7 @@ class NestedOptionParser
       end
       if subcommand.nil? && !subcommand_name.empty?
         msg = "Error: No parsing was defined for subcommand '#{subcommand_name}'"
-        @help&.call msg.red, errors_are_fatal
+        @help&.call msg.red, errors_are_fatal: errors_are_fatal
         return
       end
     end

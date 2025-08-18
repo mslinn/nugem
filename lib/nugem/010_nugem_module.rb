@@ -38,11 +38,6 @@ module Nugem
     options
   end
 
-  # FIXME: Incorrect - assumes no option values
-  def self.positional_parameters
-    ARGV.reject { |x| x.start_with? '-' }
-  end
-
   # TODO: consolidate with template_directory
   # @return Path to the templates
   def self.source_root

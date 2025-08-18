@@ -51,9 +51,10 @@ module Nugem
   # the copy of the command line used by module Nugem
   # @param nop [NestedOptionParser] nop.argv should be modified
   # @return default_option_hash (Hash)
-  ::Nugem.positional_parameter_proc = proc do |nop|
+  ::Nugem.positional_parameter_proc = proc do |nop, errors_are_fatal = true|
     if nop.argv&.first&.start_with?('-')
-      @help.call 'No subcommand type was provided on the command line', true
+      ::Nugem.help_proc.call 'No subcommand type was provided on the command line',
+                             errors_are_fatal: errors_are_fatal
     else
       gem_type = nop.argv.shift
       nop.default_option_hash['gem_type'] = gem_type
@@ -63,6 +64,8 @@ module Nugem
         else
           puts "Nugem.positional_parameter_proc error: No #{gem_type} name was provided on the command line".red
         end
+        # ::Nugem.help_proc.call "No #{gem_type} name was provided on the command line",
+        #                        errors_are_fatal: errors_are_fatal
       else
         nop.default_option_hash['gem_name'] = @argv&.shift
       end
