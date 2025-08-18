@@ -7,9 +7,12 @@ module Nugem
   HOSTS = %w[github gitlab bitbucket].freeze
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
-  class << self; attr_accessor :help_proc, :positional_parameter_proc; end
+  class << self
+    attr_accessor :help_proc, :jekyll_plugin_options, :jekyll_subcommand_parser_proc, :option_parser_proc,
+                  :positional_parameter_proc
+  end
 
-  ::Nugem.help_proc = lambda do |msg = nil, errors_are_fatal = true|
+  self.help_proc = lambda do |msg = nil, errors_are_fatal = true|
     printf "Error: #{msg}\n\n".yellow if msg
     msg = <<~END_HELP
       nugem v#{VERSION}: Creates scaffolding for a Ruby gem or a Jekyll plugin.
@@ -47,11 +50,62 @@ module Nugem
     exit(1)
   end
 
+  self.jekyll_plugin_options = {
+    block:     [],
+    blockn:    [],
+    filter:    [],
+    generator: [],
+    tag:       [],
+    tagn:      [],
+  }
+
+  # All of these options can have multiple occurances on a command line, except -K/--hooks
+  self.jekyll_subcommand_parser_proc = SubCmd.new 'jekyll', (proc do |parser|
+    parser.on '-B', '--blockn=BLOCKN' do |value|       # Specifies the name of a Jekyll no-arg block tag.
+      options[:blockn] << value
+    end
+    parser.on('-b', '--block=BLOCK') do |value|        # Specifies the name of a Jekyll block tag.
+      options[:block] << value
+    end
+    parser.on '-F', '--filter=FILTER' do |value|       # Specifies the name of a Jekyll/Liquid filter module.
+      options[:filter] << value
+    end
+    parser.on '-g', '--generator=GENERATOR' do |value| # Specifies a Jekyll generator.
+      options[:generator] << value
+    end
+    parser.on '-K', '--hooks=HOOKS'                    # Generate Jekyll hooks.
+    parser.on '-T', '--tagn=TAGN' do |value|           # Specifies the name of a Jekyll no-arg tag.
+      options[:tagn] << value
+    end
+    parser.on '-t', '--tag=TAG' do |value|             # Specifies the name of a Jekyll tag.
+      options[:tag] << value
+    end
+  end)
+
+  self.option_parser_proc = proc do |parser|
+    # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
+    parser.on '-e', '--executable EXECUTABLE' do |value|
+      options[:executable] << value
+    end
+    parser.on '-f', '--force',             TrueClass,            'Overwrite output directory'
+    parser.on '-H', '--host=HOST',         %w[github bitbucket], 'Repository host'
+    parser.on '-L', '--loglevel=LOGLEVEL', LOGLEVELS,            'Log level' # do |level|
+    #   puts "level=#{level}".yellow
+    # end
+    parser.on('-o', '--out_dir=OUT_DIR',   Pathname, 'Output directory for the gem') do |path|
+      options[:out_dir] = create_dir path.to_s, options[:out_dir]
+    end
+    parser.on '-p', '--private',                    TrueClass,
+              'Publish the gem to a private repository'
+    parser.on '-n', '--notodos',                    TrueClass,
+              'Suppress TODO messages in generated code'
+  end
+
   # This defines how positional parameters are extracted from
   # the copy of the command line used by module Nugem
   # @param nop [NestedOptionParser] nop.argv should be modified
   # @return default_option_hash (Hash)
-  ::Nugem.positional_parameter_proc = proc do |nop, errors_are_fatal = true|
+  self.positional_parameter_proc = proc do |nop, errors_are_fatal = true|
     if nop.argv&.first&.start_with?('-')
       ::Nugem.help_proc.call 'No subcommand type was provided on the command line',
                              errors_are_fatal: errors_are_fatal
@@ -70,76 +124,32 @@ module Nugem
   end
 
   class Options
-    attr_accessor :errors_are_fatal, :options, :option_parser_proc
+    attr_accessor :errors_are_fatal, :options, :subcommand_parser_procs
 
     include ::HighlineWrappers
 
     def initialize(default_options, dry_run: false, errors_are_fatal: true)
+      @positional_parameter_proc = ::Nugem.positional_parameter_proc
       @errors_are_fatal = errors_are_fatal
+
+      ruby_gem_options = {
+        executable: [],
+        dry_run:    dry_run,
+        force:      false,
+        host:       'github',
+        loglevel:   LOGLEVELS[3], # Default is 'info'
+        out_dir:    "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
+        overwrite:  false,
+        private:    false,
+        todos:      true,
+      }
       @options = default_options
-                   .merge({ # Ruby gem options
-                            executable: [],
-                            dry_run:    dry_run,
-                            force:      false,
-                            host:       'github',
-                            loglevel:   LOGLEVELS[3], # Default is 'info'
-                            out_dir:    "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
-                            overwrite:  false,
-                            private:    false,
-                            todos:      true,
-                          })
-                   .merge({ # Jekyll plugin options
-                            block:     [],
-                            blockn:    [],
-                            filter:    [],
-                            generator: [],
-                            tag:       [],
-                            tagn:      [],
-                          })
+                   .merge(ruby_gem_options)
+                   .merge(::Nugem.jekyll_plugin_options)
                    .sort
                    .to_h
-      @option_parser_proc = proc do |parser|
-        # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
-        parser.on '-e', '--executable EXECUTABLE' do |value|
-          options[:executable] << value
-        end
-        parser.on '-f', '--force',             TrueClass,            'Overwrite output directory'
-        parser.on '-H', '--host=HOST',         %w[github bitbucket], 'Repository host'
-        parser.on '-L', '--loglevel=LOGLEVEL', LOGLEVELS,            'Log level' # do |level|
-        #   puts "level=#{level}".yellow
-        # end
-        parser.on('-o', '--out_dir=OUT_DIR',   Pathname, 'Output directory for the gem') do |path|
-          options[:out_dir] = create_dir path.to_s, options[:out_dir]
-        end
-        parser.on '-p', '--private',                    TrueClass,
-                  'Publish the gem to a private repository'
-        parser.on '-n', '--notodos',                    TrueClass,
-                  'Suppress TODO messages in generated code'
-      end
 
-      subcommand_parser_proc = SubCmd.new('jekyll', proc do |parser|
-        # All of the following can have multiple occurances on a command line, except hooks
-        parser.on '-B', '--blockn=BLOCKN' do |value|       # Specifies the name of a Jekyll no-arg block tag.
-          options[:blockn] << value
-        end
-        parser.on('-b', '--block=BLOCK') do |value|        # Specifies the name of a Jekyll block tag.
-          options[:block] << value
-        end
-        parser.on '-F', '--filter=FILTER' do |value|       # Specifies the name of a Jekyll/Liquid filter module.
-          options[:filter] << value
-        end
-        parser.on '-g', '--generator=GENERATOR' do |value| # Specifies a Jekyll generator.
-          options[:generator] << value
-        end
-        parser.on '-K', '--hooks=HOOKS'                    # Generate Jekyll hooks.
-        parser.on '-T', '--tagn=TAGN' do |value|           # Specifies the name of a Jekyll no-arg tag.
-          options[:tagn] << value
-        end
-        parser.on '-t', '--tag=TAG' do |value|             # Specifies the name of a Jekyll tag.
-          options[:tag] << value
-        end
-      end)
-      @subcommand_parser_procs = [subcommand_parser_proc]
+      @subcommand_parser_procs = [::Nugem.jekyll_subcommand_parser_proc]
     end
 
     def create_dir(dir, default_value)
@@ -159,20 +169,21 @@ module Nugem
 
     # Gather all the possible parameter values and performs type checking.
     # Subsequent methods must perform application-level sanity checks.
-    def nested_option_parser_from(argv_override)
-      # @return hash containing options
+    # @return hash containing options
+    def nested_option_parser_from(argv)
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       nop_control = NestedOptionParserControl.new(
-        @option_parser_proc,
+        ::Nugem.option_parser_proc,
         ::Nugem.help_proc,
-        argv_override,
+        ::Nugem.positional_parameter_proc,
+        argv,
         @options,
         @subcommand_parser_procs
       )
       NestedOptionParser.new nop_control, errors_are_fatal: @errors_are_fatal
     rescue OptionParser::InvalidOption => e
-      ::Nugem.help.call(e.message, errors_are_fatal: @errors_are_fatal)
+      ::Nugem.help_proc&.call(e.message, errors_are_fatal: @errors_are_fatal)
       e.message # Useful for rspec tests
     end
 

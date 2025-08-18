@@ -32,17 +32,18 @@ class NestedOptionParserTest
         ::Nugem.positional_parameter_proc,
         %w[ruby test --out_dir=/etc/hosts -y],
         {},
-        [ruby_subcmd]
+        [ruby_subcmd],
+        ruby_subcmd
       )
       nop = begin
-        described_class.new nop_control
+        described_class.new(nop_control, errors_are_fatal: false)
       rescue StandardError => e
         puts e.message
       end
 
       options = {
         'gem_type' => 'ruby',
-        'gem_name' => 'test',
+        'gem_name' => 'test', # FIXME: this is missing in nop
         out_dir: Pathname('/etc/hosts'),
       }
       expect(nop.options).to eq(options)
@@ -59,9 +60,10 @@ class NestedOptionParserTest
         ::Nugem.positional_parameter_proc,
         %w[ruby test -o /etc/hosts -y],
         {},
-        [ruby_subcmd]
+        [ruby_subcmd],
+        ruby_subcmd
       )
-      nop = described_class.new nop_control
+      nop = described_class.new nop_control, errors_are_fatal: false
       options = {
         'gem_type' => 'ruby',
         'gem_name' => 'test',

@@ -25,7 +25,7 @@ class NestedOptionParserControl
   # @param subcommand [SubCmd] subcommand identified on command line
   def initialize(
     option_parser_proc,
-    help,
+    help_proc,
     positional_parameter_proc,
     argv = [],
     default_option_hash = {},
@@ -33,7 +33,7 @@ class NestedOptionParserControl
     subcommand = nil
   )
     @option_parser_proc        = option_parser_proc
-    @help                      = help
+    @help                      = help_proc
     @positional_parameter_proc = positional_parameter_proc
     @argv                      = argv
     @default_option_hash       = default_option_hash
@@ -42,50 +42,48 @@ class NestedOptionParserControl
   end
 end
 
-# If parsing succeeds, @options will have all options parsed from the command line
-# Please see [`subcommands.md`](subcommands.md) for an example of how to use this class.
-#
-# To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
-# options for the subcommand by calling `OptionParser.on` at least once.
-# The subcommand parser procs can be defined in the `subcommand_parser_procs` parameter.
-#
-# @example
-#   help = lambda do |msg = nil, errors_are_fatal = true|
-#     puts message.red if message
-#     puts <<~END_HELP
-#       This is a multiline help message.
-#       It does not exit the program.
-#     END_HELP
-#   end
-#
-#   nop_control = NestedOptionParserControl.new(
-#     option_parser_proc: proc do |parser|
-#       parser.raise_unknown = false # Required for subcommand processing to work
-#       parser.on '-h', '--help'
-#       parser.on '-o', '--out_dir OUT_DIR'
-#     end,
-#     help: method(:help),
-#     positional_parameter_proc: ::Nugem.positional_parameter_proc,
-#     argv: %w[mysubcommand pos_param2 -o /tmp/test -x -y -z]
-#     default_option_hash: { out_dir: '/home/mslinn/nugem_generated/blah', help: false },
-#     subcommand_parser_procs: [SubCmd.new('mysubcommand', proc do |parser|
-#       parser.on '-h', '--help'
-#       parser.on '-o', '--out_dir OUT_DIR'
-#     end]
-#
-#   NestedOptionParser.new nop_control
 class NestedOptionParser
   attr_reader :option_parser_proc, :options, :positional_parameters, :sub_cmds
 
+  # If parsing succeeds, @options will have all options parsed from the command line
+  #
+  # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
+  # options for the subcommand by calling `OptionParser.on` at least once.
+  # The subcommand parser procs can be defined in the `subcommand_parser_procs` parameter.
+  #
+  # @example
+  #   help = lambda do |msg = nil, errors_are_fatal = true|
+  #     puts message.red if message
+  #     puts <<~END_HELP
+  #       This is a multiline help message.
+  #       It does not exit the program.
+  #     END_HELP
+  #   end
+  #
+  #   nop_control = NestedOptionParserControl.new(
+  #     option_parser_proc: proc do |parser|
+  #       parser.raise_unknown = false # Required for subcommand processing to work
+  #       parser.on '-h', '--help'
+  #       parser.on '-o', '--out_dir OUT_DIR'
+  #     end,
+  #     help: method(:help),
+  #     positional_parameter_proc: ::Nugem.positional_parameter_proc,
+  #     argv: %w[mysubcommand pos_param2 -o /tmp/test -x -y -z]
+  #     default_option_hash: { out_dir: '/home/mslinn/nugem_generated/blah', help: false },
+  #     subcommand_parser_procs: [SubCmd.new('mysubcommand', proc do |parser|
+  #       parser.on '-h', '--help'
+  #       parser.on '-o', '--out_dir OUT_DIR'
+  #     end]
+  #
+  #   NestedOptionParser.new nop_control
   def initialize(nop_control, errors_are_fatal: true)
     @nop_control = nop_control
     @help = nop_control.help
-    handle_positional_parameters(nop_control, errors_are_fatal)
 
     # Remaining positional parameters are arguments for the subcommand, if specified
     # nop_control.default_option_hash =
     # TODO Verify that nop_control.argv and default_option_hash are updated
-    nop_control.positional_parameter_proc&.call(nop_control)
+    nop_control.positional_parameter_proc&.call(nop_control, errors_are_fatal: errors_are_fatal)
 
     # TODO: Verify there are no positional parameters at the start of argv now
 
@@ -94,11 +92,11 @@ class NestedOptionParser
       default_option_hash: nop_control.default_option_hash,
       option_parser_proc:  nop_control.option_parser_proc
     )
-    return if subcommand_name.subcommand_name.to_s.strip.empty?
+    return if nop_control.subcommand&.name.to_s.strip.empty?
 
     @options = evaluate(
       default_option_hash: @options,
-      option_parser_proc:  subcommand.option_parser_proc
+      option_parser_proc:  nop_control.option_parser_proc
     )
     return if nop_control.argv.to_s.strip.empty?
 
@@ -139,21 +137,5 @@ class NestedOptionParser
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}".red
     exit 1
-  end
-
-  def handle_positional_parameters(nop_control)
-    # nop_control.argv might contain positional parameters now
-    return if nop_control.argv&.first&.start_with?('-')
-
-    subcommand_name = nop_control.argv&.shift
-    nop_control.subcommand = nop_control.sub_cmds.find do |sub_cmd|
-      sub_cmd.name == subcommand_name
-    end
-    if nop_control.subcommand.nil? &&
-       !subcommand_name.empty?
-      msg = "Error: No parsing was defined for subcommand '#{subcommand_name}'"
-      nop_control.help&.call msg.red, errors_are_fatal: errors_are_fatal
-      nil
-    end
   end
 end
