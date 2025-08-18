@@ -26,16 +26,17 @@ class NestedOptionParserTest
     end)
 
     it 'initializes a NestedOptionParser without a subcommand' do
-      nested_option_parser_control = NestedOptionParserControl.new(
+      nop_control = NestedOptionParserControl.new(
         common_parser_proc,
         help_proc,
         ::Nugem.positional_parameter_proc,
-        %w[ruby test --out_dir=/etc/hosts -y], # FIXME: ruby is not used as subcommand name, test is
+        %w[ruby test --out_dir=/etc/hosts -y],
         {},
         [ruby_subcmd]
       )
+      nop = nil
       begin
-        nop = described_class.new nested_option_parser_control
+        nop = described_class.new nop_control
       rescue StandardError => e
         puts e.message
       end
@@ -53,7 +54,7 @@ class NestedOptionParserTest
       ruby_subcmd = SubCmd.new 'ruby', (proc do |parser|
         parser.on '-y', '--yes'
       end)
-      nested_option_parser_control = NestedOptionParserControl.new(
+      nop_control = NestedOptionParserControl.new(
         common_parser_proc,
         help_proc,
         ::Nugem.positional_parameter_proc,
@@ -61,7 +62,7 @@ class NestedOptionParserTest
         {},
         [ruby_subcmd]
       )
-      nop = described_class.new nested_option_parser_control
+      nop = described_class.new nop_control
       options = {
         'gem_type' => 'ruby',
         'gem_name' => 'test',

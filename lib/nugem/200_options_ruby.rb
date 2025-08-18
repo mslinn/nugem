@@ -56,18 +56,14 @@ module Nugem
       ::Nugem.help_proc.call 'No subcommand type was provided on the command line',
                              errors_are_fatal: errors_are_fatal
     else
-      gem_type = nop.argv.shift
-      nop.default_option_hash['gem_type'] = gem_type
+      gem_name = nop.argv.shift
+      nop.default_option_hash['gem_name'] = gem_name
       if nop.argv&.first&.start_with?('-')
-        if @help
-          @help.call "No #{gem_type} name was provided on the command line", true
+        if ::Nugem.help_proc
+          ::Nugem.help_proc.call "No #{nop.subcommand_name} name was provided on the command line", true
         else
-          puts "Nugem.positional_parameter_proc error: No #{gem_type} name was provided on the command line".red
+          puts "Nugem.positional_parameter_proc error: No #{nop.subcommand_name} name was provided on the command line".red
         end
-        # ::Nugem.help_proc.call "No #{gem_type} name was provided on the command line",
-        #                        errors_are_fatal: errors_are_fatal
-      else
-        nop.default_option_hash['gem_name'] = @argv&.shift
       end
     end
     nop.default_option_hash
@@ -167,14 +163,14 @@ module Nugem
       # @return hash containing options
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
-      nested_option_parser_control = NestedOptionParserControl.new(
+      nop_control = NestedOptionParserControl.new(
         @option_parser_proc,
         ::Nugem.help_proc,
         argv_override,
         @options,
         @subcommand_parser_procs
       )
-      NestedOptionParser.new nested_option_parser_control, errors_are_fatal: @errors_are_fatal
+      NestedOptionParser.new nop_control, errors_are_fatal: @errors_are_fatal
     rescue OptionParser::InvalidOption => e
       ::Nugem.help.call(e.message, errors_are_fatal: @errors_are_fatal)
       e.message # Useful for rspec tests

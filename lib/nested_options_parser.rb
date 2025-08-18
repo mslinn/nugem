@@ -7,7 +7,8 @@ SubCmd = Struct.new(:name, :option_parser_proc) unless defined?(SubCmd)
 # not keyword arguments or arguments with default values,
 # which is why option_parser_proc and help are listed first
 class NestedOptionParserControl
-  attr_reader :argv, :default_option_hash, :help, :option_parser_proc, :positional_parameter_proc, :sub_cmds
+  attr_reader :argv, :default_option_hash, :help, :option_parser_proc, :positional_parameter_proc,
+              :sub_cmds, :subcommand_name
 
   def initialize(
     option_parser_proc,
@@ -15,7 +16,8 @@ class NestedOptionParserControl
     positional_parameter_proc,
     argv = [],
     default_option_hash = {},
-    sub_cmds = []
+    sub_cmds = [],
+    subcommand_name = nil
   )
     @option_parser_proc        = option_parser_proc
     @help                      = help
@@ -23,6 +25,7 @@ class NestedOptionParserControl
     @argv                      = argv
     @default_option_hash       = default_option_hash
     @sub_cmds                  = sub_cmds
+    @subcommand_name           = subcommand_name
   end
 end
 
@@ -56,7 +59,7 @@ class NestedOptionParser
   #     END_HELP
   #   end
   #
-  #   nested_option_parser_control = NestedOptionParserControl.new(
+  #   nop_control = NestedOptionParserControl.new(
   #     option_parser_proc: proc do |parser|
   #       parser.raise_unknown = false # Required for subcommand processing to work
   #       parser.on '-h', '--help'
@@ -71,34 +74,36 @@ class NestedOptionParser
   #       parser.on '-o', '--out_dir OUT_DIR'
   #     end]
   #
-  #   NestedOptionParser.new nested_option_parser_control
-  def initialize(nested_option_parser_control, errors_are_fatal: true)
-    @nested_option_parser_control = nested_option_parser_control
-    @help = nested_option_parser_control.help
+  #   NestedOptionParser.new nop_control
+  def initialize(nop_control, errors_are_fatal: true)
+    @nop_control = nop_control
+    @help = nop_control.help
 
-    # nested_option_parser_control.argv might contain positional parameters now
-    unless nested_option_parser_control.argv&.first&.start_with?('-')
-      subcommand_name = nested_option_parser_control.argv&.shift
-      subcommand = nested_option_parser_control.sub_cmds.find do |sub_cmd|
-        sub_cmd.name == subcommand_name
+    # nop_control.argv might contain positional parameters now
+    unless nop_control.argv&.first&.start_with?('-')
+      nop_control.subcommand_name = nop_control.argv&.shift
+      subcommand = nop_control.sub_cmds.find do |sub_cmd|
+        sub_cmd.name == nop_control.subcommand_name
       end
-      if subcommand.nil? && !subcommand_name.empty?
-        msg = "Error: No parsing was defined for subcommand '#{subcommand_name}'"
+      if nop_control.subcommand.nil? &&
+        !nop_control.subcommand_name.empty?
+        msg = "Error: No parsing was defined for subcommand '#{nop_control.subcommand_name}'"
         @help&.call msg.red, errors_are_fatal: errors_are_fatal
         return
       end
     end
 
-    # nested_option_parser_control.default_option_hash =
-    # TODO Verify that nested_option_parser_control.argv and default_option_hash are updated
-    nested_option_parser_control.positional_parameter_proc&.call(nested_option_parser_control)
+    # Remaining positional parameters are arguments for the subcommand, if specified
+    # nop_control.default_option_hash =
+    # TODO Verify that nop_control.argv and default_option_hash are updated
+    nop_control.positional_parameter_proc&.call(nop_control)
 
     # TODO: Verify there are no positional parameters at the start of argv now
 
     # Parse common options
     @options = evaluate(
-      default_option_hash: nested_option_parser_control.default_option_hash,
-      option_parser_proc:  nested_option_parser_control.option_parser_proc
+      default_option_hash: nop_control.default_option_hash,
+      option_parser_proc:  nop_control.option_parser_proc
     )
     return if subcommand_name.to_s.strip.empty?
 
@@ -106,20 +111,20 @@ class NestedOptionParser
       default_option_hash: @options,
       option_parser_proc:  subcommand.option_parser_proc
     )
-    return if nested_option_parser_control.argv.to_s.strip.empty?
+    return if nop_control.argv.to_s.strip.empty?
 
-    if nested_option_parser_control.help
+    if nop_control.help
       msg = <<~END_MSG
         Error: The following unrecognized options were found on the command line:\n#{@argv}
       END_MSG
-      nested_option_parser_control.help.call msg, errors_are_fatal
+      nop_control.help.call msg, errors_are_fatal
     elsif errors_are_fatal
       exit 1
     end
   end
 
   def argv
-    @nested_option_parser_control.argv
+    @nop_control.argv
   end
 
   # Process the command line arguments and update the options hash.
@@ -139,8 +144,8 @@ class NestedOptionParser
   def evaluate(default_option_hash:, option_parser_proc:)
     options = default_option_hash
     option_parser = OptionParser.new(&option_parser_proc)
-    # option_parser.default_argv = @nested_option_parser_control.argv
-    option_parser.order! @nested_option_parser_control.argv, into: options
+    # option_parser.default_argv = @nop_control.argv
+    option_parser.order! @nop_control.argv, into: options
     options
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}".red
