@@ -43,8 +43,8 @@ class NestedOptionParserTest
 
       options = {
         'gem_type' => 'ruby',
-        'gem_name' => 'test', # FIXME: this is missing in nop
-        out_dir: Pathname('/etc/hosts'),
+        'gem_name' => 'test',            # FIXME: this is missing in nop
+        out_dir: Pathname('/etc/hosts'), # FIXME: this is missing in nop
       }
       expect(nop.options).to eq(options)
       expect(nop.argv).to    eq(%w[-y])
