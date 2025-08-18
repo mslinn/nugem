@@ -106,20 +106,11 @@ class NestedOptionParser
     nop_control.complain(msg, errors_are_fatal)
   end
 
-  def parse_subcommand(nop_control)
-    unless nop_control.subcommand
-      msg = <<~END_MSG
-        No subcommand parsing was defined for the following arguments:\n  #{nop_control.argv.join ' '}
-      END_MSG
-      nop_control.complain(msg, errors_are_fatal)
-      return
-    end
-
-    @options = evaluate(
-      default_option_hash: @options,
-      option_parser_proc:  nop_control.option_parser_proc
-    )
+  def argv
+    @nop_control.argv
   end
+
+  private
 
   def complain(nop_control, errors_are_fatal)
     if nop_control.help
@@ -130,10 +121,6 @@ class NestedOptionParser
     elsif errors_are_fatal
       exit 1
     end
-  end
-
-  def argv
-    @nop_control.argv
   end
 
   # Process the command line arguments and update the options hash.
@@ -159,5 +146,20 @@ class NestedOptionParser
   rescue OptionParser::InvalidOption => e
     puts "Error: #{e.message}".red
     exit 1
+  end
+
+  def parse_subcommand(nop_control)
+    unless nop_control.subcommand
+      msg = <<~END_MSG
+        No subcommand parsing was defined for the following arguments:\n  #{nop_control.argv.join ' '}
+      END_MSG
+      nop_control.complain(msg, errors_are_fatal)
+      return
+    end
+
+    @options = evaluate(
+      default_option_hash: @options,
+      option_parser_proc:  nop_control.option_parser_proc
+    )
   end
 end
