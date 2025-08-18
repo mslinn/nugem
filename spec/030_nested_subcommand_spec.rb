@@ -34,9 +34,8 @@ class NestedOptionParserTest
         {},
         [ruby_subcmd]
       )
-      nop = nil
-      begin
-        nop = described_class.new nop_control
+      nop = begin
+        described_class.new nop_control
       rescue StandardError => e
         puts e.message
       end

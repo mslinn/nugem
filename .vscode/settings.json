@@ -4,5 +4,10 @@
   },
   "ruby.rubocop.configFilePath": ".rubocop.yml",
   "ruby.rubocop.useBundler": true,
-  "ruby.rubocop.executePath": "binstub/"
+  "ruby.rubocop.executePath": "binstub/",
+  "editor.foldingImportsByDefault": true,
+  "editor.foldingStrategy": "auto",
+  "compareFolders.ignoreEmptyLines": true,
+  "compareFolders.ignoreAllWhiteSpaces": true,
+  "rdbg.rubyVersionManager": "rbenv"
 }
