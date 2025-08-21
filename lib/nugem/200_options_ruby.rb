@@ -105,21 +105,6 @@ module Nugem
       @subcommand_parser_procs = [NestedOptionParserControl.jekyll_subcommand_parser_proc]
     end
 
-    def create_dir(dir, default_value)
-      dir ||= default_value
-      if Dir.exist?(dir) && !Dir.empty?(dir)
-        puts "Output directory '#{dir}' already exists and is not empty."
-        return dir if @options[:dry_run]
-
-        if @options[:overwrite]
-          puts "Overwriting contents of #{dir} because --force was specified."
-        else
-          @options[:overwrite] = ask "Do you want to overwrite the contents of #{dir}? (y/n)"
-        end
-      end
-      dir
-    end
-
     # Gather all the possible parameter values and performs type checking.
     # Subsequent methods must perform application-level sanity checks.
     # @return hash containing options

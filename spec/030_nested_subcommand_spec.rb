@@ -22,9 +22,11 @@ module Nugem
         END_HELP
       end
 
-      xit 'initializes a NestedOptionParser without a subcommand' do
+      it 'initializes a NestedOptionParser without a subcommand' do
         ruby_subcmd = SubCmd.new 'ruby', (proc do |parser|
-          parser.on '-x', '--xray'
+          parser.on '-x', '--xray' do
+            puts 'XRAY XRAY XRAY XRAY XRAY XRAY'
+          end
         end)
         nop_control = NestedOptionParserControl.new(
           common_parser_proc,
@@ -35,11 +37,7 @@ module Nugem
           [ruby_subcmd],
           ruby_subcmd
         )
-        nop = begin
-          described_class.new(nop_control, errors_are_fatal: false)
-        rescue StandardError => e
-          puts e.message
-        end
+        nop = described_class.new(nop_control, errors_are_fatal: false)
 
         options = {
           gem_type: 'ruby',

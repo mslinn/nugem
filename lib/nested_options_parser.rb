@@ -41,7 +41,7 @@ module Nugem
       @sub_cmds                  = sub_cmds
       @subcommand                = subcommand
 
-      @options = []
+      @options = {}
       make_procs
     end
 
@@ -88,7 +88,7 @@ module Nugem
         #   puts "level=#{level}".yellow
         # end
         parser.on('-o', '--out_dir=OUT_DIR',   Pathname, 'Output directory for the gem') do |path|
-          @options[:out_dir] = create_dir path.to_s, options[:out_dir]
+          @options[:out_dir] = path.to_s # TODO: elsewhere: create_dir path.to_s, @options[:out_dir]
         end
         parser.on '-p', '--private',                    TrueClass,
                   'Publish the gem to a private repository'
@@ -132,9 +132,10 @@ module Nugem
     #     end]
     #
     #   NestedOptionParser.new nop_control
-    def initialize(nop_control, errors_are_fatal: true)
-      @nop_control = nop_control
+    def initialize(nop_control, dry_run: false, errors_are_fatal: true)
+      @dry_run = dry_run
       @help = nop_control.help
+      @nop_control = nop_control
 
       # Remaining positional parameters are arguments for the subcommand, if specified
       # nop_control.default_option_hash =
@@ -163,6 +164,21 @@ module Nugem
       elsif errors_are_fatal
         exit 1
       end
+    end
+
+    def create_dir(dir, default_value)
+      dir ||= default_value
+      if Dir.exist?(dir) && !Dir.empty?(dir)
+        puts "Output directory '#{dir}' already exists and is not empty."
+        return dir if @dry_run
+
+        if @options[:overwrite]
+          puts "Overwriting contents of #{dir} because --force was specified."
+        else
+          @options[:overwrite] = ask "Do you want to overwrite the contents of #{dir}? (y/n)"
+        end
+      end
+      dir
     end
 
     # Process the command line arguments and update the options hash.

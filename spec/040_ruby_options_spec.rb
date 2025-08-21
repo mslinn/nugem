@@ -52,6 +52,7 @@ class RubyOptionsTest
         '-p'
       ]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
+      nugem_options.create_dir path.to_s, nugem_options[:out_dir] # TODO: add this in other places
       actual = nugem_options.nested_option_parser_from(argv, allow_unknown_options: false, dry_run: true)
       expected = nugem_options.options.merge({
                                                executable: ['blah'],
