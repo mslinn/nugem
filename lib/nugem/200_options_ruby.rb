@@ -59,48 +59,6 @@ module Nugem
     tagn:      [],
   }
 
-  # All of these options can have multiple occurances on a command line, except -K/--hooks
-  self.jekyll_subcommand_parser_proc = SubCmd.new 'jekyll', (proc do |parser|
-    parser.on '-B', '--blockn=BLOCKN' do |value|       # Specifies the name of a Jekyll no-arg block tag.
-      options[:blockn] << value
-    end
-    parser.on('-b', '--block=BLOCK') do |value|        # Specifies the name of a Jekyll block tag.
-      options[:block] << value
-    end
-    parser.on '-F', '--filter=FILTER' do |value|       # Specifies the name of a Jekyll/Liquid filter module.
-      options[:filter] << value
-    end
-    parser.on '-g', '--generator=GENERATOR' do |value| # Specifies a Jekyll generator.
-      options[:generator] << value
-    end
-    parser.on '-K', '--hooks=HOOKS'                    # Generate Jekyll hooks.
-    parser.on '-T', '--tagn=TAGN' do |value|           # Specifies the name of a Jekyll no-arg tag.
-      options[:tagn] << value
-    end
-    parser.on '-t', '--tag=TAG' do |value|             # Specifies the name of a Jekyll tag.
-      options[:tag] << value
-    end
-  end)
-
-  self.option_parser_proc = proc do |parser|
-    # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
-    parser.on '-e', '--executable EXECUTABLE' do |value|
-      options[:executable] << value
-    end
-    parser.on '-f', '--force',             TrueClass,            'Overwrite output directory'
-    parser.on '-H', '--host=HOST',         %w[github bitbucket], 'Repository host'
-    parser.on '-L', '--loglevel=LOGLEVEL', LOGLEVELS,            'Log level' # do |level|
-    #   puts "level=#{level}".yellow
-    # end
-    parser.on('-o', '--out_dir=OUT_DIR',   Pathname, 'Output directory for the gem') do |path|
-      options[:out_dir] = create_dir path.to_s, options[:out_dir]
-    end
-    parser.on '-p', '--private',                    TrueClass,
-              'Publish the gem to a private repository'
-    parser.on '-n', '--notodos',                    TrueClass,
-              'Suppress TODO messages in generated code'
-  end
-
   # This defines how positional parameters are extracted from
   # the copy of the command line used by module Nugem
   # @param nop [NestedOptionParser] nop.argv should be modified
@@ -144,7 +102,7 @@ module Nugem
                    .sort
                    .to_h
 
-      @subcommand_parser_procs = [::Nugem.jekyll_subcommand_parser_proc]
+      @subcommand_parser_procs = [NestedOptionParserControl.jekyll_subcommand_parser_proc]
     end
 
     def create_dir(dir, default_value)
