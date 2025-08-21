@@ -111,7 +111,7 @@ class NestedOptionParser
 
   def complain(errors_are_fatal)
     if @help
-      nop_control.help.call errors_are_fatal
+      @help.call errors_are_fatal
     elsif errors_are_fatal
       exit 1
     end
@@ -153,7 +153,7 @@ class NestedOptionParser
 
     @options = evaluate(
       default_option_hash: @options,
-      option_parser_proc:  nop_control.option_parser_proc
+      option_parser_proc:  nop_control.subcommand.option_parser_proc
     )
   end
 end

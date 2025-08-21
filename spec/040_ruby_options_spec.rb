@@ -21,9 +21,7 @@ class RubyOptionsTest
     it 'tests ruby gem with loglevel debug and summarize' do
       hash = { force: true, gem_type: 'ruby', out_dir: TEST_OUT_DIR }
       nugem_options = described_class.new(hash, errors_are_fatal: false)
-      actual = nugem_options.nested_option_parser_from ['ruby', 'test', '-f', '-o', TEST_OUT_DIR, '-L', 'debug'],
-                                                       allow_unknown_options: false,
-                                                       dry_run:               true
+      actual = nugem_options.nested_option_parser_from ['ruby', 'test', '-f', '-o', TEST_OUT_DIR, '-L', 'debug']
       expected = nugem_options.options.merge({ loglevel: 'debug' })
       expect(actual).to eq(expected)
 

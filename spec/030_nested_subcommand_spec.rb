@@ -66,7 +66,6 @@ class NestedOptionParserTest
       options = {
         gem_type: 'ruby',
         gem_name: 'test',
-        out_dir:  Pathname('/etc/hosts'),
         yes:      true,
       }
 
