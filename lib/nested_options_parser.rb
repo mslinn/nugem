@@ -42,8 +42,8 @@ class NestedOptionParserControl
   end
 
   def complain(msg, errors_are_fatal)
-    if nop_control.help
-      nop_control.help.call msg, errors_are_fatal
+    if @help
+      @help.call msg, errors_are_fatal
     elsif errors_are_fatal
       exit 1
     end
@@ -100,10 +100,7 @@ class NestedOptionParser
     parse_subcommand(nop_control) unless nop_control.argv.empty?
     return if nop_control.argv.empty?
 
-    msg = <<~END_MSG
-      The following unrecognized options were found on the command line:\n  #{nop_control.argv.join ' '}
-    END_MSG
-    nop_control.complain(msg, errors_are_fatal)
+    complain(errors_are_fatal)
   end
 
   def argv
@@ -112,12 +109,9 @@ class NestedOptionParser
 
   private
 
-  def complain(nop_control, errors_are_fatal)
-    if nop_control.help
-      msg = <<~END_MSG
-        The following unrecognized options were found on the command line:\n  #{nop_control.argv.join ' '}
-      END_MSG
-      nop_control.help.call msg, errors_are_fatal
+  def complain(errors_are_fatal)
+    if @help
+      nop_control.help.call errors_are_fatal
     elsif errors_are_fatal
       exit 1
     end
