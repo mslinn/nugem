@@ -6,6 +6,7 @@ require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
 module Nugem
+  # Just tests parsing, not actions
   class NestedOptionParserTest
     RSpec.describe NestedOptionParser do
       common_parser_proc = proc do |parser|
