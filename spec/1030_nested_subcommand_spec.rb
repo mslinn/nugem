@@ -10,7 +10,6 @@ module Nugem
   class NestedOptionParserTest
     RSpec.describe NestedOptionParser do
       common_parser_proc = proc do |parser|
-        parser.raise_unknown = false # Required for subcommand processing to work
         parser.on '-h', '--help'
         parser.on '-o', '--out_dir=OUT_DIR', Pathname
       end
@@ -33,12 +32,12 @@ module Nugem
           common_parser_proc,
           help_proc,
           ::Nugem.positional_parameter_proc,
-          %w[ruby test --out_dir=/etc/hosts -y],
+          %w[ruby test --out_dir=/etc/hosts --xray -z],
           {},
           [ruby_subcmd],
           ruby_subcmd
         )
-        nop = described_class.new(nop_control, errors_are_fatal: false)
+        nop = described_class.new(nop_control, errors_are_fatal: false) # Should output 'invalid option: -z'
 
         options = {
           gem_type: 'ruby',
@@ -46,7 +45,7 @@ module Nugem
           out_dir:  Pathname('/etc/hosts'),
         }
         expect(nop.options).to eq(options)
-        expect(nop.argv).to    eq(%w[-y])
+        expect(nop.argv).to    eq(%w[-z]) # Remaining token -z would normally be considered an error here
       end
 
       it 'initializes a NestedOptionParser as a subcommand NOP' do
@@ -63,14 +62,14 @@ module Nugem
           jekyll_subcmd
         )
         nop = described_class.new nop_control, errors_are_fatal: false
-        options = {
+        expected = {
           gem_type: 'ruby',
           gem_name: 'test',
           yes:      true,
         }
 
         expect(nop.argv).to    eq([])
-        expect(nop.options).to eq(options)
+        expect(nop.options).to eq(expected)
         expect(nop.argv).to    eq(%w[])
       end
     end

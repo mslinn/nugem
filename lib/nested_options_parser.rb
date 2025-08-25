@@ -8,9 +8,8 @@ module Nugem
   # not keyword arguments or arguments with default values,
   # which is why option_parser_proc and help are listed first
   class NestedOptionParserControl
-    attr_reader :argv, :default_option_hash, :help, :option_parser_proc, :positional_parameter_proc,
-                :sub_cmds
-    attr_accessor :subcommand
+    attr_reader :argv, :help, :option_parser_proc, :positional_parameter_proc, :sub_cmds
+    attr_accessor :default_option_hash, :subcommand
 
     # @param option_parser_proc [Proc] A proc that parses the options for a command by calling `OptionParser.on` and
     #   similar methods at least once.
@@ -142,9 +141,10 @@ module Nugem
       nop_control.positional_parameter_proc&.call(nop_control, errors_are_fatal: errors_are_fatal)
 
       # Parse common options
-      @nop_control.options = evaluate(
+      @nop_control.default_option_hash = evaluate(
         default_option_hash: nop_control.default_option_hash,
-        option_parser_proc:  nop_control.option_parser_proc
+        option_parser_proc:  nop_control.option_parser_proc,
+        subcommand_defined:  !nop_control.sub_cmds.empty?
       )
       parse_subcommand(nop_control) unless nop_control.argv.empty?
       return if nop_control.argv.empty?
@@ -195,9 +195,10 @@ module Nugem
     # @yieldparam parser [OptionParser] The OptionParser instance to configure.
     #
     # @return [Hash] The options parsed from the command line arguments.
-    def evaluate(default_option_hash:, option_parser_proc:)
+    def evaluate(default_option_hash:, option_parser_proc:, subcommand_defined: false)
       options = default_option_hash
       option_parser = OptionParser.new(&option_parser_proc)
+      option_parser.raise_unknown = !subcommand_defined
       # option_parser.default_argv = @nop_control.argv
       option_parser.order! @nop_control.argv, into: options
       options
@@ -217,7 +218,8 @@ module Nugem
 
       @options = evaluate(
         default_option_hash: @options,
-        option_parser_proc:  nop_control.subcommand.option_parser_proc
+        option_parser_proc:  nop_control.subcommand.option_parser_proc,
+        subcommand_defined:  false
       )
     end
   end
