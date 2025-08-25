@@ -6,4 +6,4 @@ else
   require 'nugem'
 end
 
-Nugem.run_me
+Nugem.main

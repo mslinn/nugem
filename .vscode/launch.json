@@ -7,7 +7,7 @@
         "VO_DEBUGGING": "true"
       },
       "name": "nugem help",
-      "script": "${workspaceFolder}/exe/nugem",
+      "script": "${workspaceFolder}/exe/nugem --help",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
