@@ -25,7 +25,7 @@ module Nugem
       it 'initializes a NestedOptionParser without a subcommand' do
         ruby_subcmd = SubCmd.new 'ruby', (proc do |parser|
           parser.on '-x', '--xray' do
-            puts 'XRAY XRAY XRAY XRAY XRAY XRAY'
+            puts 'XRAY XRAY XRAY XRAY XRAY XRAY' # Do not do anything, just notice the option was recognized
           end
         end)
         nop_control = NestedOptionParserControl.new(
@@ -37,7 +37,7 @@ module Nugem
           [ruby_subcmd],
           ruby_subcmd
         )
-        nop = described_class.new(nop_control, errors_are_fatal: false) # Should output 'invalid option: -z'
+        nop = described_class.new(nop_control, errors_are_fatal: false)
 
         options = {
           gem_type: 'ruby',
