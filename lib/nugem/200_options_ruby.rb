@@ -70,7 +70,7 @@ module Nugem
       else
         puts "Removing #{dir}".yellow if show_log_level_info
         FileUtils.rm_rf(Dir.glob(dir), secure: true)
-        Dir.mkdir dir
+        FileUtils.mkdir_p dir
       end
       show_log_level_info ? summarize : ''
     end
