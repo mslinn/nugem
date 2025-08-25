@@ -71,6 +71,7 @@ module Nugem
     tagn:      [],
   }
 
+  # All of these options can have multiple occurances on a command line, except -K/--hooks
   self.jekyll_subcommand_parser_proc = proc do |parser|
     parser.on '-B', '--blockn=BLOCKN' do |value| # Specifies the name of a Jekyll no-arg block tag.
       @options[:blockn] << value
@@ -111,7 +112,6 @@ module Nugem
   end
 
   def self.make_subcommands
-    # All of these options can have multiple occurances on a command line, except -K/--hooks
     @jekyll_subcommand = SubCmd.new 'jekyll', jekyll_subcommand_parser_proc
   end
 end

@@ -34,7 +34,7 @@ module Nugem
                    .sort
                    .to_h
 
-      @subcommand_parser_procs = [NestedOptionParserControl.jekyll_subcommand]
+      @subcommand_parser_procs = [::Nugem.jekyll_subcommand]
     end
 
     # Gather all the possible parameter values and performs type checking.
@@ -64,8 +64,6 @@ module Nugem
       dir = @options[:out_dir]
       overwrite = @options[:overwrite]
       show_log_level_info = LOGLEVELS.index(@options[:loglevel]) <= LOGLEVELS.index('info')
-
-      nugem_options
 
       if @options[:dry_run]
         puts "Dry run: skipping the removal of #{dir}".yellow if overwrite && show_log_level_info

@@ -27,8 +27,7 @@ module Nugem
                       puts "Unrecognized gem type '#{options[:gem_type]}'.".red
                       exit 2
                     end
-    parsed_options = nugem_options.parse_options({})
-    _nugem = Nugem.new parsed_options
+    # nugem = Nugem.new nugem_options.options
     puts nugem_options.prepare_and_report.green
   end
 
