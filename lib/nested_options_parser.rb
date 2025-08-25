@@ -41,7 +41,7 @@ module Nugem
       @subcommand                = subcommand
 
       @options = {}
-      make_subcommands
+      ::Nugem.make_subcommands
     end
 
     def complain(msg, errors_are_fatal)
