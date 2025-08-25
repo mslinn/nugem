@@ -15,14 +15,31 @@ module Nugem
       .join
   end
 
+  # Entry point
+  def self.main
+    options = parse_gem_type_name # Only sets the :gem_type and :gem_name
+    nugem_options = case options[:gem_type] # Parse all remaining options based on :gemtype
+                    when 'ruby'
+                      Options.new options
+                    when 'jekyll'
+                      JekyllOptions.new options
+                    else
+                      puts "Unrecognized gem type '#{options[:gem_type]}'.".red
+                      exit 2
+                    end
+    parsed_options = nugem_options.parse_options({})
+    _nugem = Nugem.new parsed_options
+    puts nugem_options.prepare_and_report.green
+  end
+
   # Sets :gem_type and :gem_name values in options from the first two command line arguments.
   # Modifies ARGV by removing those values.
   # Ignores other command line arguments.
   # @return [Hash] Options parsed from the command line arguments
   def self.parse_gem_type_name
-    ::Nugem.help_proc.call nil, errors_are_fatal: true if ARGV.empty?
+    ::Nugem.help_proc.call nil, errors_are_fatal: true if ARGV.empty? || ARGV[0] == '-h' || ARGV[0] == '--help'
 
-    if ARGV.length < 2 || ARGV[0..1].any { |x| x.start_with? '-' } # This comment prevents folding
+    if ARGV.length < 2 || ARGV[0..1].any? { |x| x.start_with? '-' } # This comment prevents folding
       ::Nugem.help_proc.call 'The type and name of the gem to create must be specfied before any options.',
                              errors_are_fatal: true
     end
@@ -43,23 +60,6 @@ module Nugem
   # @return Path to the templates
   def self.source_root
     File.expand_path '../../templates', __dir__
-  end
-
-  # Entry point
-  def self.main
-    options = parse_gem_type_name # Only sets the :gem_type and :gem_name
-    nugem_options = case options[:gem_type] # Parse all remaining options based on :gemtype
-                    when 'ruby'
-                      Options.new options
-                    when 'jekyll'
-                      JekyllOptions.new options
-                    else
-                      puts "Unrecognized gem type '#{options[:gem_type]}'.".red
-                      exit 2
-                    end
-    parsed_options = nugem_options.parse_options({})
-    _nugem = Nugem.new parsed_options
-    puts nugem_options.prepare_and_report.green
   end
 
   def self.todo

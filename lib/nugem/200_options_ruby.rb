@@ -2,79 +2,11 @@ require 'fileutils'
 require 'sod'
 require 'sod/types/pathname'
 
+# Procs are defined separately; this file just contains high-level logic
 module Nugem
   DEFAULT_OUT_DIR_BASE = File.join(Dir.home, 'nugem_generated').freeze
   HOSTS = %w[github gitlab bitbucket].freeze
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
-
-  class << self
-    attr_accessor :help_proc, :jekyll_plugin_options, :jekyll_subcommand_parser_proc, :option_parser_proc,
-                  :positional_parameter_proc
-  end
-
-  self.help_proc = lambda do |msg = nil, errors_are_fatal = true|
-    printf "Error: #{msg}\n\n".yellow if msg
-    msg = <<~END_HELP
-      nugem v#{VERSION}: Creates scaffolding for a Ruby gem or a Jekyll plugin.
-      (Jekyll plugins are a specialized type of Ruby gem.)
-
-      nugem [OPTIONS] ruby NAME    # Creates the scaffold for a new Ruby gem called NAME.
-      nugem [OPTIONS] jekyll NAME  # Creates the scaffold for a new Jekyll plugin called NAME.
-
-      The following OPTIONS are available for all gem types:
-        -f, --force                       # Delete output directory if it exists before generating output
-        -h, --help                        # Display this help message and exit
-        -H HOST, --host=HOST              # Repository host. Default: github
-                                          # Possible values: #{HOSTS.join ', '}
-        -L LOGLEVEL, --loglevel=LOGLEVEL  # Possible values: #{LOGLEVELS.join ', '}.
-                                          # Default: info
-        -o OUT_DIR, --out-dir=OUT_DIR     # Output directory for the gem. Default: ~/nugem_generated/NAME
-        -N, --no-todos                    # Suppress TODO: messages in generated code. Default: false
-        -p, --private                     # Publish the gem to a private repository. Default: false
-      Each of these OPTIONs can be invoked multiple times:
-        -e NAME1, --executables=NAME1     # Include an executable with the given name for the gem
-
-      The following options are only available for Jekyll plugins.
-        -K HOOKS, --hooks=HOOKS                # Generate Jekyll hooks.
-      Each of these OPTIONs can be invoked multiple times:
-        -B BLOCK1, --block=BLOCK1              # Specifies the name of a Jekyll block tag.
-        -N BLOCK1, --blockn=BLOCK1             # Specifies the name of a Jekyll no-arg block tag.
-        -f FILTER1, --filter=FILTER1           # Specifies the name of a Jekyll/Liquid filter module.
-        -g GENERATOR1, --generator=GENERATOR1  # Specifies the name of a Jekyll generator.
-        -t TAG1, --tag=TAG1                    # Specifies the name of a Jekyll tag.
-        -n TAG1, --tagn=TAG1                   # Specifies the name of a Jekyll no-arg tag.
-    END_HELP
-    printf msg.cyan
-    return unless errors_are_fatal
-
-    exit(1)
-  end
-
-  self.jekyll_plugin_options = {
-    block:     [],
-    blockn:    [],
-    filter:    [],
-    generator: [],
-    tag:       [],
-    tagn:      [],
-  }
-
-  # This defines how positional parameters are extracted from
-  # the copy of the command line used by module Nugem
-  # @param nop [NestedOptionParser] nop.argv should be modified
-  # @return default_option_hash (Hash)
-  self.positional_parameter_proc = proc do |nop, errors_are_fatal = true|
-    if nop.argv.empty? ||
-       nop.argv.length < 2 ||
-       nop.argv[0..1].any? { |x| x.start_with?('-') }
-      ::Nugem.help_proc.call 'Either the subcommand type or name was not provided on the command line',
-                             errors_are_fatal: errors_are_fatal
-    else
-      nop.default_option_hash[:gem_type] = nop.argv.shift
-      nop.default_option_hash[:gem_name] = nop.argv.shift
-    end
-    nop.default_option_hash
-  end
 
   class Options
     attr_accessor :errors_are_fatal, :options, :subcommand_parser_procs
@@ -102,7 +34,7 @@ module Nugem
                    .sort
                    .to_h
 
-      @subcommand_parser_procs = [NestedOptionParserControl.jekyll_subcommand_parser_proc]
+      @subcommand_parser_procs = [NestedOptionParserControl.jekyll_subcommand]
     end
 
     # Gather all the possible parameter values and performs type checking.
@@ -112,7 +44,7 @@ module Nugem
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       nop_control = NestedOptionParserControl.new(
-        ::Nugem.option_parser_proc,
+        ::Nugem.common_parser_proc,
         ::Nugem.help_proc,
         ::Nugem.positional_parameter_proc,
         argv,

@@ -17,8 +17,8 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "nugem gem test without options",
-      "script": "${workspaceFolder}/exe/nugem gem test",
+      "name": "nugem ruby test without options",
+      "script": "${workspaceFolder}/exe/nugem ruby test",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
@@ -28,8 +28,8 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Fail nugem gem with options before the gem type",
-      "script": "${workspaceFolder}/exe/nugem -o /tmp --yes gem test",
+      "name": "Fail nugem ruby with options before the gem type",
+      "script": "${workspaceFolder}/exe/nugem -o /tmp --yes ruby test",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
@@ -39,8 +39,8 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "nugem gem test -o /tmp --yes",
-      "script": "${workspaceFolder}/exe/nugem gem test -o /tmp --yes",
+      "name": "nugem ruby test -o /tmp --yes",
+      "script": "${workspaceFolder}/exe/nugem ruby test -o /tmp --yes",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
@@ -61,8 +61,8 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "demo gem test",
-      "script": "${workspaceFolder}/bin/demo gem test",
+      "name": "demo ruby test",
+      "script": "${workspaceFolder}/bin/demo ruby test",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
