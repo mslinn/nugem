@@ -124,5 +124,14 @@
       "type": "rdbg",
       "useBundler": true,
     },
+    {
+      "args": [],
+      "debugPort": "0",
+      "name": "Debug playground/optionparser_proc_fun with rdbg",
+      "request": "launch",
+      "script": "playground/optionparser_proc_fun.rb",
+      "type": "rdbg",
+      "useBundler": true,
+    },
   ]
 }
