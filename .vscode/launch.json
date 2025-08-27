@@ -6,6 +6,17 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
+      "name": "optionparser_proc_rok",
+      "script": "${workspaceFolder}/playground/optionparser_proc_rok.rb",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
       "name": "nugem help",
       "script": "${workspaceFolder}/exe/nugem --help",
       "request": "launch",
