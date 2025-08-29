@@ -37,6 +37,7 @@ module Nugem
       @subcommand_parser_procs = [::Nugem.jekyll_subcommand]
     end
 
+    # Constructor for NestedOptionParser using this instance's state.
     # Gather all the possible parameter values and performs type checking.
     # Subsequent methods must perform application-level sanity checks.
     # @return hash containing options
@@ -60,6 +61,7 @@ module Nugem
     # Do application-level sanity check stuff then summarize if log level sufficient
     # Called after user parameters have been gathered and saved as state in this instance
     # Only generate output if loglevel is info or lower
+    # @return [String] Human-friendly description of options in force
     def prepare_and_report
       dir = @options[:out_dir]
       overwrite = @options[:overwrite]

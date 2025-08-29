@@ -27,8 +27,12 @@ module Nugem
                       puts "Unrecognized gem type '#{options[:gem_type]}'.".red
                       exit 2
                     end
-    # nugem = Nugem.new nugem_options.options
     puts nugem_options.prepare_and_report.green
+    nugem = Nugem.new nugem_options.options
+    nugem.create_scaffold
+    nugem.initialize_repository
+    puts nugem.todos_report(options[:gem_name]) if nugem_options.options[:todos]
+    puts `tree #{nugem_options.options[:out_dir]}`
   end
 
   # Sets :gem_type and :gem_name values in options from the first two command line arguments.
