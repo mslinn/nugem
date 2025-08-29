@@ -36,11 +36,10 @@ module Nugem
       @help                      = help_proc
       @positional_parameter_proc = positional_parameter_proc
       @argv                      = argv
-      @default_option_hash       = default_option_hash
+      @default_option_hash       = default_option_hash # Accumulates parsed options starting from these defaults
       @sub_cmds                  = sub_cmds
       @subcommand                = subcommand
 
-      @options = {}
       ::Nugem.make_subcommands
     end
 
@@ -56,7 +55,7 @@ module Nugem
   class NestedOptionParser
     attr_reader :common_parser_proc, :options, :positional_parameters, :sub_cmds
 
-    # If parsing succeeds, @options will have all options parsed from the command line
+    # If parsing succeeds, @nop_control.default_option_hash will have all options parsed from the command line
     #
     # To handle a subcommand, pass a block that yields the `NestedOptionParser` instance and a proc that parses the
     # options for the subcommand by calling `OptionParser.on` at least once.
@@ -87,14 +86,15 @@ module Nugem
     #     end]
     #
     #   NestedOptionParser.new nop_control
-    def initialize(nop_control, dry_run: false, errors_are_fatal: true)
-      @dry_run = dry_run
+    def initialize(nop_control, **options)
+      @dry_run = options.key?(:dry_run) ? options[:dry_run] : false
+      @errors_are_fatal = options.key?(:errors_are_fatal) ? options[:errors_are_fatal] : true
       @help = nop_control.help
       @nop_control = nop_control
 
       # Remaining positional parameters are arguments for the subcommand, if specified
       # nop_control.default_option_hash =
-      nop_control.positional_parameter_proc&.call(nop_control, errors_are_fatal: errors_are_fatal)
+      @nop_control.positional_parameter_proc&.call(@nop_control, errors_are_fatal: @errors_are_fatal)
 
       # Parse common options
       @nop_control.default_option_hash = evaluate(
@@ -102,10 +102,8 @@ module Nugem
         common_parser_proc:  nop_control.common_parser_proc,
         subcommand_defined:  !nop_control.sub_cmds.empty?
       )
-      parse_subcommand(nop_control) unless nop_control.argv.empty?
-      return if nop_control.argv.empty?
-
-      complain(errors_are_fatal)
+      parse_subcommand(@nop_control) unless @nop_control.argv.empty?
+      complain unless @nop_control.argv.empty?
     end
 
     def argv
@@ -114,10 +112,10 @@ module Nugem
 
     private
 
-    def complain(errors_are_fatal)
+    def complain
       if @help
-        @help.call errors_are_fatal
-      elsif errors_are_fatal
+        @help.call @errors_are_fatal
+      elsif @errors_are_fatal
         exit 1
       end
     end
@@ -128,10 +126,10 @@ module Nugem
         puts "Output directory '#{dir}' already exists and is not empty."
         return dir if @dry_run
 
-        if @options[:overwrite]
-          puts "Overwriting contents of #{dir} because --force was specified."
+        if @nop_control.default_option_hash[:overwrite]
+          puts "Overwriting contents of #{dir} because --overwrite was specified."
         else
-          @options[:overwrite] = ask "Do you want to overwrite the contents of #{dir}? (y/n)"
+          @nop_control.default_option_hash[:overwrite] = ask "Do you want to overwrite the contents of #{dir}? (y/n)"
         end
       end
       dir
@@ -154,8 +152,7 @@ module Nugem
     def evaluate(default_option_hash:, common_parser_proc:, subcommand_defined: false)
       options = default_option_hash
       option_parser = OptionParser.new(&common_parser_proc)
-      option_parser.raise_unknown = !subcommand_defined
-      # option_parser.default_argv = @nop_control.argv
+      option_parser.raise_unknown = !subcommand_defined # TODO: rewrite using the better method
       option_parser.order! @nop_control.argv, into: options
       options
     rescue OptionParser::InvalidOption => e
@@ -163,6 +160,7 @@ module Nugem
       exit 1
     end
 
+    # Reads nop_control and writes @nop_control.default_option_hash
     def parse_subcommand(nop_control)
       unless nop_control.subcommand
         msg = <<~END_MSG
@@ -172,8 +170,8 @@ module Nugem
         return
       end
 
-      @options = evaluate(
-        default_option_hash: @options,
+      @nop_control.default_option_hash = evaluate(
+        default_option_hash: nop_control.default_option_hash,
         common_parser_proc:  nop_control.subcommand.common_parser_proc,
         subcommand_defined:  false
       )
