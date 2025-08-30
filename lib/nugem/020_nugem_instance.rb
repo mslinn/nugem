@@ -31,8 +31,9 @@ module Nugem
     #     out_dir: '~/output'
     #   })
     def initialize(options = DEFAULT_OPTIONS)
+      @gem_name = options[:gem_name]
       @options = options
-      @class_name = ::Nugem.camel_case(options[:gem_name])
+      @class_name = ::Nugem.camel_case(@gem_name)
       @module_name = "#{@class_name}Module"
       repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
@@ -79,7 +80,9 @@ module Nugem
         # Skip if file matches exclude_pattern
         next if exclude_pattern && relative_path.match?(exclude_pattern)
 
-        dest_file = File.join dest_path, relative_path
+        dest_file_temp = File.join dest_path, relative_path
+        dest_file = interpolate_percent_methods(dest_file_temp, [self, @repository, ::Nugem])
+        dest_file.delete_suffix! '.tt'
 
         if File.directory?(source)
           FileUtils.mkdir_p dest_file
@@ -120,6 +123,40 @@ module Nugem
       nil
     end
 
+    # Replace substrings of the form %methodname% in a string
+    # by calling the first object in an array that responds to that method.
+    #
+    # Example:
+    #   class Person
+    #     def name; "Alice"; end
+    #   end
+    #
+    #   class Info
+    #     def age; 30; end
+    #   end
+    #
+    #   objs = [Person.new, Info.new]
+    #   template = "Hello %name%, you are %age% years old."
+    #   interpolate_percent_methods(template, objs)
+    #   => "Hello Alice, you are 30 years old."
+    #
+    def interpolate_percent_methods(str, objs)
+      str.gsub(/%(\w+)%/) do
+        method_name = Regexp.last_match(1) # Extract text between %...%
+
+        # Find the first object in the array that responds to this method
+        obj = objs.find { |o| o.respond_to?(method_name) }
+
+        if obj
+          obj.send(method_name)              # Call it and substitute the result
+        else
+          puts "Warning: No object found responding to method '#{method_name}'".red
+          "%#{method_name}%"                 # Leave unchanged if no match found
+        end
+      end
+    end
+
+    # Colorize text if the 'colorize' gem is available; otherwise return plain text
     def set_color(text, color)
       require 'colorize'
       text.colorize(color)
