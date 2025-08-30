@@ -18,6 +18,7 @@ module Nugem
   # Entry point
   def self.main
     options = parse_gem_type_name # Only sets the :gem_type and :gem_name
+    options[:source_root] = File.expand_path('../../templates', File.dirname(__FILE__)) # templates live here
     nugem_options = case options[:gem_type] # Parse all remaining options based on :gemtype
                     when 'ruby'
                       Options.new options
