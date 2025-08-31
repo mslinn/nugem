@@ -53,10 +53,11 @@ RSpec.describe ObjectArrayBinding do
       expect(binding_provider.respond_to?(:baz)).to be false
     end
 
-    it 'defines foo but raises if ambiguous' do
-      provider = described_class.new([obj1, obj3])
-      expect(provider.respond_to?(:foo)).to be true
-      expect { provider.foo }.to raise_error(AmbiguousMethodError, /Ambiguous method 'foo'/)
+    it 'defines foo but raises AmbiguousMethodError if more than one object defines the desired method' do
+      let(:binding_provider) { described_class.new([obj1, obj3]) }
+
+      expect(binding_provider.respond_to?(:foo)).to be true
+      expect { binding_provider.foo }.to raise_error(AmbiguousMethodError, /Ambiguous method 'foo'/)
     end
   end
 end

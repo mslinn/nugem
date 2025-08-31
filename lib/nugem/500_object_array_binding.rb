@@ -36,6 +36,7 @@ class ObjectArrayBinding
 
   private
 
+  # Ensure all public method names are unique; ancestors are not examined
   def define_delegators!
     method_map = Hash.new { |h, k| h[k] = [] } # Collect all public methods across objects
 
