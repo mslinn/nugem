@@ -104,9 +104,14 @@ module Nugem
 
         FileUtils.mkdir_p File.dirname(dest_path)
         if this_is_a_template_file # read and process ERB template
-          erb = ERB.new(File.read(source_path), trim_mode: '-')
-          expanded_content = erb.result(binding) # FIXME: does this work?
-          File.write dest_path, expanded_content
+          begin
+            erb = ERB.new(File.read(source_path), trim_mode: '-')
+            expanded_content = erb.result(binding)
+            File.write dest_path, expanded_content
+          rescue StandardError => e
+            puts "Error processing template #{source_path}: #{e.message}".red
+            return
+          end
         else
           FileUtils.cp(source_path, dest_path)
         end
@@ -255,7 +260,7 @@ module Nugem
     # @param mode [Symbol, Integer] File permission handling: :preserve to keep source permissions,
     # or an integer for specific permissions (default: :preserve)
     def template(source, destination, force: true, context: nil, mode: :preserve)
-      source_path = File.expand_path(source)
+      source_path = File.expand_path File.join @options[:source_root], source
       dest_path = File.expand_path(destination)
 
       unless File.exist?(source_path)
