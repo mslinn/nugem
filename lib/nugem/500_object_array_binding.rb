@@ -46,15 +46,17 @@ class ObjectArrayBinding
     #   So the next time you access the key, the value is already set to an empty array.
     method_map = Hash.new { |h, k| h[k] = [] } # Collect all public methods across objects
 
+    # Store an entry for each public method from every object
     # Ignore public methods from ancestors of obj
     @objects.each do |obj|
       obj.public_methods(false).each { |m| method_map[m] << obj }
     end
 
+    # Ensure only one method per name is defined
     method_map.each do |method_name, responders|
       case responders.size
-      when 0 # Do nothing because respond_to? will return false, and a NameError will be raised if invoked
-        next
+      when 0 # Do nothing because respond_to? will return false
+        # A NameError will be raised if invoked as usual
       when 1 # Happy path: exactly one responder
         define_singleton_method(method_name) do |*args, &block|
           responders.first.public_send(method_name, *args, &block)
