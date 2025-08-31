@@ -45,14 +45,11 @@ module Nugem
     end
 
     def create_scaffold
-      puts "Creating a scaffold for a new Ruby gem named #{@options[:gem_name]} in #{@options[:out_dir]}.".green
-      directory 'common/gem_scaffold', @options[:out_dir], force: true, mode: :preserve,
-                exclude_pattern: 'spec/*'
-      if @options[:executable]
-        directory 'common/executable_scaffold', @options[:out_dir], force: true,
-                                                                    mode:  :preserve
-      end
-      template 'common/LICENCE.txt', "#{@options[:out_dir]}/LICENCE.txt", force: true if @repository.public?
+      out_dir = @options[:out_dir]
+      puts "Creating a scaffold for a new Ruby gem named #{@gem_name} in #{out_dir}.".green
+      directory 'common/gem_scaffold', out_dir, force: true, mode: :preserve, exclude_pattern: 'spec/*'
+      directory 'common/executable_scaffold', out_dir, force: true, mode: :preserve if @options[:executable]
+      template 'common/LICENCE.txt.tt', "#{out_dir}/LICENCE.txt", force: true if @repository.public?
     end
 
     # Copies a directory structure to a destination with customizable options
@@ -76,31 +73,48 @@ module Nugem
 
         relative_path = source.sub %r{^#{Regexp.escape(source_path)}/?}, ''
         next if relative_path.empty?
-
-        # Skip if file matches exclude_pattern
         next if exclude_pattern && relative_path.match?(exclude_pattern)
 
-        dest_file_temp = File.join dest_path, relative_path
-        dest_file = interpolate_percent_methods(dest_file_temp, [self, @repository, ::Nugem])
-        dest_file.delete_suffix! '.tt'
+        directory_entry dest_path, relative_path, force: force, mode: mode
+      rescue StandardError => e
+        puts "Error processing #{source}: #{e.message}".red
+        next
+      end
+    end
 
-        if File.directory?(source)
-          FileUtils.mkdir_p dest_file
+    # Process a template directory entry (file or directory)
+    # @param relative_path [String] Path relative to the source root
+    # @param force [Boolean] Whether to overwrite existing files (default: true)
+    # @param mode [Symbol, Integer] File permission handling: :preserve to keep source permissions,
+    #   or an integer for specific permissions (default: :preserve)
+    def directory_entry(dest_path, relative_path, force: true, mode: :preserve)
+      dest_file_temp = File.join dest_path, relative_path
+      dest_path = interpolate_percent_methods(dest_file_temp, [self, @repository, ::Nugem])
+      this_is_a_template_file = dest_path.end_with? '.tt'
+      dest_path.delete_suffix! '.tt'
+
+      source_path = File.expand_path File.join @options[:source_root], relative_path
+      if File.directory?(source_path)
+        FileUtils.mkdir_p dest_path
+      else # Copy file with appropriate mode handling
+        if File.exist?(dest_path) && !force
+          puts "Not overwriting #{dest_path} because --force was not specified."
+          return
+        end
+
+        FileUtils.mkdir_p File.dirname(dest_path)
+        if this_is_a_template_file # read and process ERB template
+          erb = ERB.new(File.read(source_path), trim_mode: '-')
+          expanded_content = erb.result(binding) # FIXME: does this work?
+          File.write dest_path, expanded_content
         else
-          # Copy file with appropriate mode handling
-          if File.exist?(dest_file) && !force
-            puts "Skipping #{dest_file} because it already exists."
-            next
-          end
+          FileUtils.cp(source_path, dest_path)
+        end
 
-          FileUtils.mkdir_p File.dirname(dest_file)
-          FileUtils.cp(source, dest_file)
-
-          if mode == :preserve # Preserve original file permissions
-            FileUtils.chmod File.stat(source).mode, dest_file
-          elsif mode.is_a?(Integer) # Set specific mode if provided
-            FileUtils.chmod mode, dest_file
-          end
+        if mode == :preserve # Preserve original file permissions
+          FileUtils.chmod File.stat(source_path).mode, dest_path
+        elsif mode.is_a?(Integer) # Set specific mode if provided
+          FileUtils.chmod mode, dest_path
         end
       end
     end
@@ -244,7 +258,10 @@ module Nugem
       source_path = File.expand_path(source)
       dest_path = File.expand_path(destination)
 
-      raise "Template file not found: #{source_path}" unless File.exist?(source_path)
+      unless File.exist?(source_path)
+        puts "Error: Template file not found: #{source_path}".red
+        exit 2
+      end
 
       # Read and process ERB template
       template_content = File.read source_path
