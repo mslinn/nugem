@@ -55,8 +55,8 @@ class ObjectArrayBinding
     # Ensure only one method per name is defined
     method_map.each do |method_name, responders|
       case responders.size
-      when 0 # Do nothing because respond_to? will return false
-        # A NameError will be raised if invoked as usual
+      when 0 # This should not be possible
+        # Do nothing because respond_to? will return false and a NameError will be raised if invoked as usual
       when 1 # Happy path: exactly one responder
         define_singleton_method(method_name) do |*args, &block|
           responders.first.public_send(method_name, *args, &block)

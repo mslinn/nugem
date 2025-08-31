@@ -42,6 +42,8 @@ module Nugem
         private: @options[:private],
         user:    repository_user_name
       )
+      @object_with_methods = [self, @repository, ::Nugem]
+      @oab = ObjectArrayBinding.new @object_with_methods
     end
 
     def create_scaffold
@@ -90,7 +92,7 @@ module Nugem
     def directory_entry(dest_path, relative_path, force: true, mode: :preserve)
       dest_file_temp = File.join dest_path, relative_path
       # Rename file containing method in name
-      dest_path = interpolate_percent_methods(dest_file_temp, [self, @repository, ::Nugem])
+      dest_path = interpolate_percent_methods(dest_file_temp, @object_with_methods)
       this_is_a_template_file = dest_path.end_with? '.tt'
       dest_path.delete_suffix! '.tt'
 
