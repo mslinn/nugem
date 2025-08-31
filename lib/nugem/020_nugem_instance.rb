@@ -108,8 +108,8 @@ module Nugem
             erb = ERB.new(File.read(source_path), trim_mode: '-')
             expanded_content = erb.result(binding)
             File.write dest_path, expanded_content
-          rescue StandardError => e
-            puts "Error processing template #{source_path}: #{e.message}".red
+          rescue NameError => e
+            puts "Error processing template #{source_path}: method #{e.name} is not defined in context where ERB is evaluated.".red
             return
           end
         else
@@ -191,64 +191,6 @@ module Nugem
       site.process
       FileUtils.cp(source, destination, options)
     end
-
-    # Copy files from the source directory to the destination directory,
-    # applying any specified options such as force, mode, or exclude patterns.
-    #
-    # @param source [String] The source directory to copy files from.
-    # @param destination [String] The destination directory to copy files to.
-    # @param options [Hash] Options for copying files, such as :force, :mode, and :exclude_pattern.
-    #
-    # @return [void]
-    # @example
-    #   directory('source_dir', 'destination_dir', force: true, mode: :preserve, exclude_pattern: /exclude_this/)
-    #
-    # @see FileUtils.cp for file copying options
-    # @see Jekyll::Site for site processing options
-    # def copy_directory_recursively(src, dest, force: true, preserve_mode: true, exclude_pattern: nil)
-    #   raise ArgumentError, "Source directory '#{src}' does not exist" unless Dir.exist?(src)
-
-    #   # Normalize paths
-    #   src = File.expand_path(src)
-    #   dest = File.expand_path(dest)
-
-    #   Find.find(src) do |path|
-    #     # Compute destination path
-    #     rel_path = path.sub(%r{^#{Regexp.escape(src)}/?}, '')
-    #     next if rel_path.empty?
-
-    #     # Skip excluded files/directories
-    #     if exclude_pattern && rel_path.match?(exclude_pattern)
-    #       puts "  Skipping excluded path: #{rel_path}"
-    #       Find.prune if File.directory?(path)
-    #       next
-    #     end
-
-    #     target = File.join(dest, rel_path)
-
-    #     if File.directory?(path)
-    #       FileUtils.mkdir_p(target)
-    #       FileUtils.chmod(File.stat(path).mode, target) if preserve_mode
-    #     elsif File.file?(path)
-    #       if !File.exist?(target) || force
-    #         FileUtils.mkdir_p(File.dirname(target))
-    #         FileUtils.cp(path, target, preserve: preserve_mode)
-    #       end
-    #     elsif File.symlink?(path)
-    #       link_target = File.readlink(path)
-    #       FileUtils.ln_s(link_target, target, force: force)
-    #     end
-    #   rescue Errno::ENOENT => e
-    #     puts "Source directory not found: #{e.message}; copy aborted".red
-    #     break
-    #   rescue Errno::EACCES => e
-    #     puts "Permission denied: #{e.message}; file or directory".red
-    #     # No break here, continue to next file
-    #   rescue StandardError => e
-    #     puts "Error copying files: #{e.message}; copy aborted".red
-    #     break
-    #   end
-    # end
 
     # Processes an ERB template and generates a file at the specified destination
     # Compatible with Thor's template method.
