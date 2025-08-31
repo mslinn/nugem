@@ -43,7 +43,7 @@ module Nugem
         user:    repository_user_name
       )
       @object_with_methods = [self, @repository, ::Nugem]
-      @oab = ObjectArrayBinding.new @object_with_methods
+      @oab = ObjectArrayBinding.new @object_with_methods, ivar_names: ['repository']
     end
 
     def create_scaffold

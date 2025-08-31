@@ -3,7 +3,7 @@ module Nugem
   class Repository
     include HighlineWrappers
 
-    attr_reader :gem_server_url, :global_config, :host, :name, :out_dir, :private, :user, :user_name, :user_email
+    attr_accessor :global_config, :host, :name, :out_dir, :private, :user, :user_name, :user_email
 
     Host = Struct.new(:domain, :camel_case, :id, keyword_init: true)
     HOSTS = [
@@ -13,7 +13,7 @@ module Nugem
     ].freeze
 
     def self.git_repository_user_name(host)
-      global_config = Rugged::Config.global
+      global_config = Rugged::Config.global # TODO: does this set the accessor value?
       git_config_key = "nugem.#{host}user"
       user = global_config[git_config_key]
 
@@ -21,9 +21,9 @@ module Nugem
       gh_config = github_config
       user ||= gh_config&.dig('github.com', 'user')
 
-      user = ask "What is your #{host} user name?" if user.to_s.empty?
-      global_config[git_config_key] = user if user != global_config[git_config_key]
-      user
+      user_name = ask "What is your #{host} user name?" if user.to_s.empty?
+      global_config[git_config_key] = user_name if user_name != global_config[git_config_key]
+      user_name
     end
 
     def initialize(options)
@@ -42,8 +42,6 @@ module Nugem
           For example, to use GitLab, run the command with --host gitlab.
         END_MSG
       end
-
-      @gem_server_url = @host[:domain]
 
       @global_config = Rugged::Config.global
       if @global_config.nil?

@@ -83,7 +83,7 @@ $ bundle exec rake install
 ### To Release A New Version
 
 To create a git tag for the new version, push git commits and tags,
-and push the new version of the gem to <%= @repository.gem_server_url %>, type:
+and push the new version of the gem to the Gem server, type:
 
 ```shell
 $ bundle exec rake release

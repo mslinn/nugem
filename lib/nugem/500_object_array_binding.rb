@@ -6,6 +6,11 @@ class AmbiguousMethodError < StandardError; end
 # but raises NameError if more than one object responds to the same method.
 # Only public methods will be found.
 #
+# By default, instance variable names are derived from class names (UserRepo → @userrepo, Project → @project).
+# You can override them by passing ivar_names. For example, the following defines @repository and @project:
+#
+#   ObjectArrayBinding.new([repo, project], ivar_names: ["repository", "project"])
+#
 # Unlike an approach that uses method_missing, this delegation approach invokes real methods created with
 # define_singleton_method. This means the methods can be used with respond_to? and the code runs much faster.
 #
@@ -15,14 +20,13 @@ class AmbiguousMethodError < StandardError; end
 # oab = ObjectArrayBinding.new([obj1, obj2])
 # expanded_template = oab.render template
 class ObjectArrayBinding
-  def initialize(objects)
+  def initialize(objects, ivar_names: nil)
     @objects = objects
+    define_instance_variables!(ivar_names)
     define_delegators!
   end
 
-  def get_binding
-    binding
-  end
+  def get_binding = binding
 
   def render(template)
     # For ERB (not necessarily with Rails), trim_mode: '-' removes one following newline:
@@ -58,15 +62,24 @@ class ObjectArrayBinding
       when 0 # This should not be possible
         # Do nothing because respond_to? will return false and a NameError will be raised if invoked as usual
       when 1 # Happy path: exactly one responder
-        define_singleton_method(method_name) do |*args, &block|
-          responders.first.public_send(method_name, *args, &block)
-        end
+        # define_singleton_method(method_name) do |*args, &block|
+        #   responders.first.public_send(method_name, *args, &block)
+        # end
+        target = responders.first
+        define_singleton_method(method_name) { |*args, &block| target.public_send(method_name, *args, &block) }
       else # Error: more than one responder
         define_singleton_method(method_name) do |*| # no arguments are passed to this block
           signatures = responders.map(&:to_s).join(', ')
           raise AmbiguousMethodError, "Ambiguous method '#{method_name}': multiple objects respond: #{signatures}"
         end
       end
+    end
+  end
+
+  def define_instance_variables!(ivar_names)
+    @objects.each_with_index do |obj, idx|
+      name = ivar_names&.[](idx) || obj.class.name.split('::').last.downcase
+      instance_variable_set("@#{name}", obj)
     end
   end
 end

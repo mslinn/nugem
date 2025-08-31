@@ -9,11 +9,10 @@ class RepositoryTest
   RSpec.describe Nugem::Repository do
     it 'tests bitbucket' do
       repo = described_class.new(
-        host:           :bitbucket,
-        private:        true,
-        user:           'maxmustermann',
-        name:           :testrepo,
-        gem_server_url: 'https://gems.mustermann.com'
+        host:    :bitbucket,
+        private: true,
+        user:    'maxmustermann',
+        name:    :testrepo
       )
       expect(repo.origin).to eq('git@bitbucket.org:maxmustermann/testrepo.git')
       expect(repo.private?).to be_truthy
@@ -25,10 +24,9 @@ class RepositoryTest
 
     it 'tests github' do
       repo = described_class.new(
-        host:           :github,
-        user:           'maxmustermann',
-        name:           :testrepo,
-        gem_server_url: 'https://rubygems.org'
+        host: :github,
+        user: 'maxmustermann',
+        name: :testrepo
       )
       expect(repo.origin).to eq('git@github.com:maxmustermann/testrepo.git')
       expect(repo.private?).to be_falsey

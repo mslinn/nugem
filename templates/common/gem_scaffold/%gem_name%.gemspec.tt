@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.license               = 'MIT'
   <% end %>
   spec.metadata = {
-    'allowed_push_host' => '<%= @repository.gem_server_url %>',
+    'allowed_push_host' => https://rubygems.org',
   <% unless @repository.private? %>
     'bug_tracker_uri'   => "#{host}/issues",
     'changelog_uri'     => "#{host}/CHANGELOG.md",
