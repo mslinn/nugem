@@ -108,8 +108,7 @@ module Nugem
         FileUtils.mkdir_p File.dirname(dest_path)
         if this_is_a_template_file # read and process ERB template
           begin
-            erb = ERB.new(File.read(source_path), trim_mode: '-')
-            expanded_content = erb.result(binding)
+            expanded_content = @oab.render File.read source_path
             File.write dest_path, expanded_content
           rescue NameError => e
             puts <<~END_MSG.red
