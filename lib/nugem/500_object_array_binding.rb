@@ -12,9 +12,8 @@ class AmbiguousMethodError < StandardError; end
 # Note that ambiguous methods return true in response to respond_to?, but raise NameError when invoked.
 #
 # @example
-# binding_array = ObjectArrayBinding.new([obj1, obj2])
-# erb = ERB.new template, trim_mode: '-'
-# expanded_template = erb.result binding_array
+# oab = ObjectArrayBinding.new([obj1, obj2])
+# expanded_template = oab.render template
 class ObjectArrayBinding
   def initialize(objects)
     @objects = objects
@@ -36,24 +35,31 @@ class ObjectArrayBinding
 
   private
 
-  # Ensure all public method names are unique; ancestors are not examined
+  # Ensure all public method names in @objects are unique; ancestors are not examined
   def define_delegators!
+    # Passing a block to Hash.new tells Ruby what to do when you access a missing key.
+    # The block takes two arguments:
+    #   h - the hash itself
+    #   k - the missing key
+    # Inside the block: h[k] = []
+    #   This creates a new empty array and assigns it as the value for that key.
+    #   So the next time you access the key, the value is already set to an empty array.
     method_map = Hash.new { |h, k| h[k] = [] } # Collect all public methods across objects
 
+    # Ignore public methods from ancestors of obj
     @objects.each do |obj|
-      # Do not include public methods from ancestors of obj
       obj.public_methods(false).each { |m| method_map[m] << obj }
     end
 
     method_map.each do |method_name, responders|
       case responders.size
-      when 0
-        # do nothing because respond_to? will return false
-      when 1
+      when 0 # Do nothing because respond_to? will return false, and a NameError will be raised if invoked
+        next
+      when 1 # Happy path: exactly one responder
         define_singleton_method(method_name) do |*args, &block|
           responders.first.public_send(method_name, *args, &block)
         end
-      else
+      else # Error: more than one responder
         define_singleton_method(method_name) do |*| # no arguments are passed to this block
           signatures = responders.map(&:to_s).join(', ')
           raise AmbiguousMethodError, "Ambiguous method '#{method_name}': multiple objects respond: #{signatures}"
