@@ -33,17 +33,19 @@ class ObjectArrayBinding
     end
 
     method_map.each do |method_name, responders|
-      if responders.size == 1
+      case responders.size
+      when 0
+        # do nothing because respond_to? will return false
+      when 1
         define_singleton_method(method_name) do |*args, &block|
           responders.first.public_send(method_name, *args, &block)
         end
-      elsif responders.size > 1
+      else
         define_singleton_method(method_name) do |*| # no arguments are passed to this block
           signatures = responders.map(&:to_s).join(', ')
           raise AmbiguousMethodError, "Ambiguous method '#{method_name}': multiple objects respond: #{signatures}"
         end
       end
-      # if 0 responders: don’t call define_singleton_method; respond_to? will be false
     end
   end
 end
