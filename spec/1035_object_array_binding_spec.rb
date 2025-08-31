@@ -37,7 +37,7 @@ RSpec.describe ObjectArrayBinding do
     it 'raises NameError with ambiguity message' do
       expect do
         render('<%= foo %>', [obj1, obj3])
-      end.to raise_error(NameError, /Ambiguous method 'foo'/)
+      end.to raise_error(AmbiguousMethodError, /Ambiguous method 'foo'/)
     end
   end
 
@@ -56,9 +56,10 @@ RSpec.describe ObjectArrayBinding do
       expect(binding_provider.respond_to?(:baz)).to be false
     end
 
-    it 'returns false if multiple objects respond' do
+    it 'defines foo but raises if ambiguous' do
       provider = described_class.new([obj1, obj3])
-      expect(provider.respond_to?(:foo)).to be false
+      expect(provider.respond_to?(:foo)).to be true
+      expect { provider.foo }.to raise_error(AmbiguousMethodError, /Ambiguous method 'foo'/)
     end
   end
 end
