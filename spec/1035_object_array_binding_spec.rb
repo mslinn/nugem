@@ -8,7 +8,7 @@ RSpec.describe ObjectArrayBinding do
   let(:obj2) { Struct.new(:bar).new('bar from obj2') }
   let(:obj3) { Struct.new(:foo).new('foo from obj3') }
 
-  let(:oab) { described_class.new([]) }
+  let(:oab)   { described_class.new([]) }
   let(:oab12) { described_class.new([obj1, obj2]) }
   let(:oab13) { described_class.new([obj1, obj3]) }
 
