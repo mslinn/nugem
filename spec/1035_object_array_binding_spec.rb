@@ -1,16 +1,17 @@
 require 'erb'
 require 'optparse'
 
-# require_relative '../500_object_array_binding'
 require_relative 'spec_helper'
-
-# source_path = 'templates/common/executable_scaffold/exe/%gem_name%.tt'
 
 RSpec.describe ObjectArrayBinding do
   let(:obj1) { Struct.new(:foo).new('foo from obj1') }
   let(:obj2) { Struct.new(:bar).new('bar from obj2') }
   let(:obj3) { Struct.new(:foo).new('foo from obj3') }
 
+  # For ERB (not necessarily with Rails), trim_mode: '-' removes one following newline:
+  #  - the newline must be the first char after the > that ends the ERB expression
+  #  - no following spaces are removed
+  #  - only a single newline is removed
   def render(template, objects)
     erb = ERB.new(template, trim_mode: '-')
     erb.result(ObjectArrayBinding.new(objects).get_binding)

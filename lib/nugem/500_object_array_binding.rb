@@ -2,7 +2,7 @@ require 'erb'
 
 # Provides a binding that resolves methods against an array of objects,
 # but raises if more than one object responds to the same method.
-# Methods can be public or private
+# Both public and private methods will be found.
 class ObjectArrayBinding
   def initialize(objects)
     @objects = objects
@@ -12,9 +12,9 @@ class ObjectArrayBinding
     binding
   end
 
+  # See https://www.leighhalliday.com/ruby-metaprogramming-method-missing
   def method_missing(name, ...)
     responders = @objects.select { |o| o.respond_to?(name) }
-
     case responders.size
     when 0
       super
