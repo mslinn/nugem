@@ -23,13 +23,11 @@ class ObjectArrayBinding
   private
 
   def define_delegators!
-    # Collect all public methods across objects
-    method_map = Hash.new { |h, k| h[k] = [] }
+    method_map = Hash.new { |h, k| h[k] = [] } # Collect all public methods across objects
 
     @objects.each do |obj|
-      obj.public_methods(false).each do |m|
-        method_map[m] << obj
-      end
+      # Do not include public methods from ancestors of obj
+      obj.public_methods(false).each { |m| method_map[m] << obj }
     end
 
     method_map.each do |method_name, responders|
