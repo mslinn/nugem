@@ -10,6 +10,11 @@ class AmbiguousMethodError < StandardError; end
 # define_singleton_method. This means the methods can be used with respond_to? and the code runs much faster.
 #
 # Note that ambiguous methods return true in response to respond_to?, but raise NameError when invoked.
+#
+# @example
+# binding_array = ObjectArrayBinding.new([obj1, obj2])
+# erb = ERB.new template, trim_mode: '-'
+# expanded_template = erb.result binding_array
 class ObjectArrayBinding
   def initialize(objects)
     @objects = objects
@@ -18,6 +23,15 @@ class ObjectArrayBinding
 
   def get_binding
     binding
+  end
+
+  def render(template)
+    # For ERB (not necessarily with Rails), trim_mode: '-' removes one following newline:
+    #  - the newline must be the first char after the > that ends the ERB expression
+    #  - no following spaces are removed
+    #  - only a single newline is removed
+    erb = ERB.new template, trim_mode: '-'
+    erb.result get_binding
   end
 
   private
