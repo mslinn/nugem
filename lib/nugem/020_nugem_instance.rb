@@ -89,6 +89,7 @@ module Nugem
     #   or an integer for specific permissions (default: :preserve)
     def directory_entry(dest_path, relative_path, force: true, mode: :preserve)
       dest_file_temp = File.join dest_path, relative_path
+      # Rename file containing method in name
       dest_path = interpolate_percent_methods(dest_file_temp, [self, @repository, ::Nugem])
       this_is_a_template_file = dest_path.end_with? '.tt'
       dest_path.delete_suffix! '.tt'
@@ -96,7 +97,7 @@ module Nugem
       source_path = File.expand_path File.join @options[:source_root], relative_path
       if File.directory?(source_path)
         FileUtils.mkdir_p dest_path
-      else # Copy file with appropriate mode handling
+      else # Copy file (and expand its contents if it is a template) with appropriate mode handling
         if File.exist?(dest_path) && !force
           puts "Not overwriting #{dest_path} because --force was not specified."
           return
@@ -109,7 +110,9 @@ module Nugem
             expanded_content = erb.result(binding)
             File.write dest_path, expanded_content
           rescue NameError => e
-            puts "Error processing template #{source_path}: method #{e.name} is not defined in context where ERB is evaluated.".red
+            puts <<~END_MSG.red
+              Error processing template #{source_path}: method #{e.name} is not defined in the context where the ERB is evaluated.
+            END_MSG
             return
           end
         else
