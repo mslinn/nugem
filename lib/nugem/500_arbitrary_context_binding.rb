@@ -2,6 +2,9 @@ require 'erb'
 
 class AmbiguousMethodError < StandardError; end
 
+# This class must be constructed *after* the objects and modules to be referenced
+# from ERBs have been constructed and are available.
+#
 # Provide a binding that resolves methods against an array of objects,
 # but raises NameError if more than one object responds to the same method.
 # Only public methods will be found.
