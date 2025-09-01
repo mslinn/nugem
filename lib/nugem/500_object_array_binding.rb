@@ -6,6 +6,14 @@ class AmbiguousMethodError < StandardError; end
 # but raises NameError if more than one object responds to the same method.
 # Only public methods will be found.
 #
+# modules/classes can also contribute methods to delegation resolution, not just be exposed as constants.
+#
+# That way your ERB can use:
+#  - Instance vars: <%= @repository.user_name %>
+#  - Delegated instance methods: <%= user_name %>
+#  - Module and class methods: <%= Project.version %>
+#  - Delegated module methods: <%= version %>
+#
 # By default, instance variable names are derived from class names (UserRepo → @userrepo, Project → @project).
 # You can override them by passing ivar_names. For example, the following defines @repository and @project:
 #
@@ -20,13 +28,20 @@ class AmbiguousMethodError < StandardError; end
 # oab = ObjectArrayBinding.new([obj1, obj2])
 # expanded_template = oab.render template
 class ObjectArrayBinding
-  def initialize(objects, ivar_names: nil)
-    @objects = objects
-    define_instance_variables!(ivar_names)
+  # ivars: aligns with objects: by index.
+  # modules: are made visible inside ERB (so you can call Project.version, etc.).
+  def initialize(base_binding:, objects: [], modules: [])
+    @objects = objects.dup
+    @modules = modules.dup
+    @base_binding = base_binding
+    define_module_constants!
     define_delegators!
   end
 
-  def get_binding = binding
+  def get_binding
+    # Use the *caller’s binding* (so pre-existing instance vars are available)
+    @base_binding
+  end
 
   def render(template)
     # For ERB (not necessarily with Rails), trim_mode: '-' removes one following newline:
@@ -39,7 +54,8 @@ class ObjectArrayBinding
 
   private
 
-  # Ensure all public method names in @objects are unique; ancestors are not examined
+  # Collect methods from both objects and modules for delegation.
+  # Ensures all public method names in @objects are unique; ancestors are not examined.
   def define_delegators!
     # Passing a block to Hash.new tells Ruby what to do when you access a missing key.
     # The block takes two arguments:
@@ -56,7 +72,12 @@ class ObjectArrayBinding
       obj.public_methods(false).each { |m| method_map[m] << obj }
     end
 
-    # Ensure only one method per name is defined
+    # Module/class methods (singleton methods)
+    @modules.each do |mod|
+      mod.methods(false).each { |m| method_map[m] << mod }
+    end
+
+    # Define delegators and ensure only one method per name is defined
     method_map.each do |method_name, responders|
       case responders.size
       when 0 # This should not be possible
@@ -66,20 +87,29 @@ class ObjectArrayBinding
         #   responders.first.public_send(method_name, *args, &block)
         # end
         target = responders.first
-        define_singleton_method(method_name) { |*args, &block| target.public_send(method_name, *args, &block) }
+        eval(<<~END_RUBY, @base_binding, __FILE__, __LINE__ + 1)
+          def #{method_name}(*a, &b)
+            ObjectSpace._id2ref(#{target.object_id}).public_send(:#{method_name}, *a, &b)
+          end
+        END_RUBY
       else # Error: more than one responder
-        define_singleton_method(method_name) do |*| # no arguments are passed to this block
-          signatures = responders.map(&:to_s).join(', ')
-          raise AmbiguousMethodError, "Ambiguous method '#{method_name}': multiple objects respond: #{signatures}"
-        end
+        eval(<<~END_RUBY, @base_binding, __FILE__, __LINE__ + 1)
+          def #{method_name}(*)
+            signatures = responders.map(&:to_s).join(', ')
+            raise AmbiguousMethodError,
+              "Ambiguous method '#{method_name}': multiple objects/modules (#{signatures}) respond"
+          end
+        END_RUBY
       end
     end
   end
 
-  def define_instance_variables!(ivar_names)
-    @objects.each_with_index do |obj, idx|
-      name = ivar_names&.[](idx) || obj.class.name.split('::').last.downcase
-      instance_variable_set("@#{name}", obj)
+  # Make modules/classes accessible as constants inside ERB
+  def define_module_constants!
+    @modules.each do |mod|
+      const_name = mod.name.split('::').last
+      eval("Object.const_set('#{const_name}', mod) unless Object.const_defined?('#{const_name}')", @base_binding,
+           __FILE__, __LINE__ - 1)
     end
   end
 end
