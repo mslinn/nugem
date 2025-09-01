@@ -93,7 +93,6 @@ class ArbitraryContextBinding
         end
       else # Error: more than one responder
         signatures = responders.map(&:to_s).join(', ')
-        # Build the message safely outside the eval string
         error_message = "Ambiguous method '#{method_name}': multiple objects/modules (#{signatures}) respond"
         define_singleton_method(method_name) do |*|
           raise AmbiguousMethodError, error_message
