@@ -25,12 +25,19 @@ class AmbiguousMethodError < StandardError; end
 # Note that ambiguous methods return true in response to respond_to?, but raise NameError when invoked.
 #
 # @example
-# oab = ObjectArrayBinding.new([obj1, obj2])
-# expanded_template = oab.render template
+# acb = ArbitraryContextBinding.new([obj1, obj2])
+# expanded_template = acb.render template
 class ArbitraryContextBinding
-  # ivars: aligns with objects: by index.
-  # modules: are made visible inside ERB (so you can call Project.version, etc.).
+  # @param base_binding: is the binding to use as the base for this context binding.
+  #                      This is typically the caller's binding so that instance variables
+  #                      defined in the caller are visible inside ERB templates.
+  # @param objects [Array]: are the objects whose public methods are copied into the ERB
+  #                         (so you can call obj.method, etc.).
+  # @param modules [Array]: are copied into the ERB (so you can call Project.version, etc.).
   def initialize(base_binding: binding, objects: [], modules: [])
+    raise ArgumentError, 'objects must be an array' unless objects.is_a? Array
+    raise ArgumentError, 'modules must be an array' unless modules.is_a? Array
+
     @objects = objects.dup
     @modules = modules.dup
     @base_binding = base_binding

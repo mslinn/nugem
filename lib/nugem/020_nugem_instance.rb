@@ -42,7 +42,7 @@ module Nugem
         private: @options[:private],
         user:    repository_user_name
       )
-      @oab = ArbitraryContextBinding.new base_binding: binding, modules: ::Nugem
+      @oab = ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem]
     end
 
     def create_scaffold
@@ -78,7 +78,7 @@ module Nugem
 
         directory_entry dest_path, relative_path, force: force, mode: mode
       rescue StandardError => e
-        puts "Error processing #{source}: #{e.message}".red
+        puts "Error processing directory entry #{source}:\n  #{e.message}".red
         next
       end
     end
@@ -91,7 +91,7 @@ module Nugem
     def directory_entry(dest_path, relative_path, force: true, mode: :preserve)
       dest_file_temp = File.join dest_path, relative_path
       # Rename file containing method in name
-      dest_path = interpolate_percent_methods(dest_file_temp, @object_with_methods)
+      dest_path = interpolate_percent_methods(dest_file_temp) if dest_file_temp.include? '%'
       this_is_a_template_file = dest_path.end_with? '.tt'
       dest_path.delete_suffix! '.tt'
 
@@ -161,20 +161,13 @@ module Nugem
     #   template = "Hello %name%, you are %age% years old."
     #   interpolate_percent_methods(template, objs)
     #   => "Hello Alice, you are 30 years old."
-    #
-    def interpolate_percent_methods(str, objs)
+    def interpolate_percent_methods(str)
       str.gsub(/%(\w+)%/) do
         method_name = Regexp.last_match(1) # Extract text between %...%
-
-        # Find the first object in the array that responds to this method
-        obj = objs.find { |o| o.respond_to?(method_name) }
-
-        if obj
-          obj.send(method_name)              # Call it and substitute the result
-        else
-          puts "Warning: No object found responding to method '#{method_name}'".red
-          "%#{method_name}%"                 # Leave unchanged if no match found
-        end
+        @oab.send(method_name)
+      rescue NameError
+        puts "Warning: No object found responding to method '#{method_name}'".red
+        "%#{method_name}%" # Leave unchanged if no match found
       end
     end
 
