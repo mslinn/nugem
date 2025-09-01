@@ -6,18 +6,13 @@ class AmbiguousMethodError < StandardError; end
 # but raises NameError if more than one object responds to the same method.
 # Only public methods will be found.
 #
-# modules/classes can also contribute methods to delegation resolution, not just be exposed as constants.
+# Modules and classes can also contribute methods to delegation resolution.
 #
-# That way your ERB can use:
+# An ERB can use:
 #  - Instance vars: <%= @repository.user_name %>
 #  - Delegated instance methods: <%= user_name %>
 #  - Module and class methods: <%= Project.version %>
 #  - Delegated module methods: <%= version %>
-#
-# By default, instance variable names are derived from class names (UserRepo → @userrepo, Project → @project).
-# You can override them by passing ivar_names. For example, the following defines @repository and @project:
-#
-#   ObjectArrayBinding.new([repo, project], ivar_names: ["repository", "project"])
 #
 # Unlike an approach that uses method_missing, this delegation approach invokes real methods created with
 # define_singleton_method. This means the methods can be used with respond_to? and the code runs much faster.
@@ -25,7 +20,7 @@ class AmbiguousMethodError < StandardError; end
 # Note that ambiguous methods return true in response to respond_to?, but raise NameError when invoked.
 #
 # @example
-# acb = ArbitraryContextBinding.new([obj1, obj2])
+# acb = ArbitraryContextBinding.new(objects: [obj1, obj2])
 # expanded_template = acb.render template
 class ArbitraryContextBinding
   # @param base_binding: is the binding to use as the base for this context binding.
@@ -45,25 +40,30 @@ class ArbitraryContextBinding
     define_delegators!
   end
 
-  def get_binding
-    # Use the caller’s binding so pre-existing instance variables are available
-    @base_binding
-  end
+  # @return the caller’s binding so pre-existing instance variables are available
+  def get_binding = @base_binding
 
+  # Render an ERB template string in the fully constructed context.
+  # @param template [String] The ERB template to render.
+  # @return [String] The rendered (expanded) template.
   def render(template)
     # For ERB (not necessarily with Rails), trim_mode: '-' removes one following newline:
     #  - the newline must be the first char after the > that ends the ERB expression
     #  - no following spaces are removed
     #  - only a single newline is removed
     erb = ERB.new template, trim_mode: '-'
-    ctx = ArbitraryContextBinding.new(objects: @objects, modules: @modules, base_binding: @base_binding)
+    ctx = ArbitraryContextBinding.new(base_binding: @base_binding, modules: @modules, objects: @objects)
     erb.result ctx.get_binding
   end
 
   private
 
   # Collect methods from both objects and modules for delegation.
-  # Ensures all public method names in @objects are unique; ancestors are not examined.
+  # Ensures all public method names in @objects and @modules are unique; ancestors are not examined.
+  # Although Ruby allows multiple inheritance via mixins, this class does not.
+  # If more than one object or module responds to a method name,a NameError will be raised.
+  # This is to avoid ambiguity and unintended consequences.
+  # Note that respond_to? will return true for ambiguous methods.
   def define_delegators!
     # Passing a block to Hash.new tells Ruby what to do when you access a missing key.
     # The block takes two arguments:
@@ -72,7 +72,7 @@ class ArbitraryContextBinding
     # Inside the block: h[k] = []
     #   This creates a new empty array and assigns it as the value for that key.
     #   So the next time you access the key, the value is already set to an empty array.
-    method_map = Hash.new { |h, k| h[k] = [] } # Collect all public methods across objects
+    method_map = Hash.new { |h, k| h[k] = [] } # Initialization for collecting all public methods across objects
 
     # Store an entry for each public method from every object
     # Ignore public methods from ancestors of obj
@@ -81,6 +81,7 @@ class ArbitraryContextBinding
     end
 
     # Module/class methods (singleton methods)
+    # Ignore public methods from ancestors of mod
     @modules.each do |mod|
       mod.methods(false).each { |m| method_map[m] << mod }
     end
@@ -98,7 +99,7 @@ class ArbitraryContextBinding
         define_singleton_method(method_name) do |*args, &block|
           target.public_send(method_name, *args, &block)
         end
-      else # Error: more than one responder
+      else # Error: more than one responder (ambiguous)
         signatures = responders.map(&:to_s).join(', ')
         error_message = "Ambiguous method '#{method_name}': multiple objects/modules (#{signatures}) respond"
         define_singleton_method(method_name) do |*|
@@ -108,7 +109,7 @@ class ArbitraryContextBinding
     end
   end
 
-  # Make modules/classes accessible as constants inside ERB
+  # Copy constants from modules and classes into the ERB
   def define_module_constants!
     @modules.each do |mod|
       const_name = mod.name.split('::').last
