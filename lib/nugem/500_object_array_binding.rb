@@ -27,10 +27,10 @@ class AmbiguousMethodError < StandardError; end
 # @example
 # oab = ObjectArrayBinding.new([obj1, obj2])
 # expanded_template = oab.render template
-class ObjectArrayBinding
+class ArbitraryContextBinding
   # ivars: aligns with objects: by index.
   # modules: are made visible inside ERB (so you can call Project.version, etc.).
-  def initialize(base_binding:, objects: [], modules: [])
+  def initialize(base_binding: binding, objects: [], modules: [])
     @objects = objects.dup
     @modules = modules.dup
     @base_binding = base_binding
@@ -49,7 +49,8 @@ class ObjectArrayBinding
     #  - no following spaces are removed
     #  - only a single newline is removed
     erb = ERB.new template, trim_mode: '-'
-    erb.result get_binding
+    ctx = ArbitraryContextBinding.new(objects: @objects, modules: @modules, base_binding: @base_binding)
+    erb.result ctx.get_binding
   end
 
   private
@@ -93,11 +94,12 @@ class ObjectArrayBinding
           end
         END_RUBY
       else # Error: more than one responder
+        signatures = responders.map(&:to_s).join(', ')
+        # Build the message safely outside the eval string
+        error_message = "Ambiguous method '#{method_name}': multiple objects/modules (#{signatures}) respond"
         eval(<<~END_RUBY, @base_binding, __FILE__, __LINE__ + 1)
           def #{method_name}(*)
-            signatures = responders.map(&:to_s).join(', ')
-            raise AmbiguousMethodError,
-              "Ambiguous method '#{method_name}': multiple objects/modules (#{signatures}) respond"
+            raise AmbiguousMethodError, #{error_message.dump}
           end
         END_RUBY
       end
@@ -108,8 +110,8 @@ class ObjectArrayBinding
   def define_module_constants!
     @modules.each do |mod|
       const_name = mod.name.split('::').last
-      eval("Object.const_set('#{const_name}', mod) unless Object.const_defined?('#{const_name}')", @base_binding,
-           __FILE__, __LINE__ - 1)
+      string = "Object.const_set('#{const_name}', mod) unless Object.const_defined?('#{const_name}')"
+      eval(string, @base_binding, __FILE__, __LINE__ - 1)
     end
   end
 end

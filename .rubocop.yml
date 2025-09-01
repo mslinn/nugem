@@ -105,3 +105,6 @@ RSpec/ExampleLength:
 
 RSpec/MultipleExpectations:
   Max: 15
+
+RSpec/ScatteredLet:
+  Enabled: false
