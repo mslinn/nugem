@@ -39,7 +39,7 @@ class ArbitraryContextBinding
   end
 
   def get_binding
-    # Use the *caller’s binding* (so pre-existing instance vars are available)
+    # Use the caller’s binding so pre-existing instance variables are available
     @base_binding
   end
 
@@ -88,20 +88,16 @@ class ArbitraryContextBinding
         #   responders.first.public_send(method_name, *args, &block)
         # end
         target = responders.first
-        eval(<<~END_RUBY, @base_binding, __FILE__, __LINE__ + 1)
-          def #{method_name}(*a, &b)
-            ObjectSpace._id2ref(#{target.object_id}).public_send(:#{method_name}, *a, &b)
-          end
-        END_RUBY
+        define_singleton_method(method_name) do |*args, &block|
+          target.public_send(method_name, *args, &block)
+        end
       else # Error: more than one responder
         signatures = responders.map(&:to_s).join(', ')
         # Build the message safely outside the eval string
         error_message = "Ambiguous method '#{method_name}': multiple objects/modules (#{signatures}) respond"
-        eval(<<~END_RUBY, @base_binding, __FILE__, __LINE__ + 1)
-          def #{method_name}(*)
-            raise AmbiguousMethodError, #{error_message.dump}
-          end
-        END_RUBY
+        define_singleton_method(method_name) do |*|
+          raise AmbiguousMethodError, error_message
+        end
       end
     end
   end
@@ -110,8 +106,7 @@ class ArbitraryContextBinding
   def define_module_constants!
     @modules.each do |mod|
       const_name = mod.name.split('::').last
-      string = "Object.const_set('#{const_name}', mod) unless Object.const_defined?('#{const_name}')"
-      eval(string, @base_binding, __FILE__, __LINE__ - 1)
+      Object.const_set(const_name, mod) unless Object.const_defined?(const_name)
     end
   end
 end
