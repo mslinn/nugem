@@ -4,7 +4,6 @@ require 'find'
 require 'rugged'
 
 module Nugem
-  # Created by vscode to avoid name conflicts with Nugem::Nugem
   class Nugem
     attr_reader :gem_name, :options, :dir, :class_name, :module_name, :repository
 
@@ -15,7 +14,7 @@ module Nugem
       executables: false,
     }.freeze
 
-    # Initializes a new Nugem instance with the given gem name and options.
+    # Initialize a new Nugem instance with the given gem name and options.
     #
     # @param gem_name [String] The name of the gem.
     # @param options [Hash] Options for the gem scaffold, including host, private, and out_dir.
@@ -53,7 +52,7 @@ module Nugem
       template 'common/LICENCE.txt.tt', "#{out_dir}/LICENCE.txt", force: true if @repository.public?
     end
 
-    # Copies a directory structure to a destination with customizable options
+    # Copy a directory structure to a destination with customizable options.
     # Compatible with Thor's directory method.
     #
     # @param path_fragment [String] Source directory path to copy from, relative to @options[:source_root]
@@ -83,15 +82,16 @@ module Nugem
       end
     end
 
-    # Process a template directory entry (file or directory)
+    # Process a template directory entry (file or directory).
     # @param relative_path [String] Path relative to the source root
     # @param force [Boolean] Whether to overwrite existing files (default: true)
     # @param mode [Symbol, Integer] File permission handling: :preserve to keep source permissions,
     #   or an integer for specific permissions (default: :preserve)
     def directory_entry(dest_path, relative_path, force: true, mode: :preserve)
-      dest_file_temp = File.join dest_path, relative_path
       # Rename file containing method in name
+      dest_file_temp = File.join dest_path, relative_path
       dest_path = interpolate_percent_methods(dest_file_temp) if dest_file_temp.include? '%'
+
       this_is_a_template_file = dest_path.end_with? '.tt'
       dest_path.delete_suffix! '.tt'
 
@@ -120,8 +120,11 @@ module Nugem
         end
 
         if mode == :preserve # Preserve original file permissions
-          FileUtils.chmod File.stat(source_path).mode, dest_path
+          file_mode = File.stat(source_path).mode
+          puts "  Setting #{source_path} to mode #{file_mode}".green
+          FileUtils.chmod file_mode, dest_path
         elsif mode.is_a?(Integer) # Set specific mode if provided
+          puts "  Setting #{source_path} to mode #{mode}".green
           FileUtils.chmod mode, dest_path
         end
       end
