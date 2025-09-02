@@ -32,7 +32,7 @@ module Nugem
     nugem = Nugem.new nugem_options.options
     nugem.create_scaffold
     nugem.initialize_repository
-    puts nugem.todos_report.yellow if nugem_options.options[:todos]
+    puts nugem.todos_report&.yellow if nugem_options.options[:todos]
     puts `tree #{nugem_options.options[:out_dir]}`
   end
 
