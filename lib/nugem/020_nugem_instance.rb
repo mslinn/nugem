@@ -100,7 +100,7 @@ module Nugem
     # @param relative_path [String] Path relative to the source root
     def directory_entry(dest_path_fq, source_path_fq, this_is_a_template_file)
       if File.directory?(source_path_fq)
-        FileUtils.mkdir_p dest_path
+        FileUtils.mkdir_p dest_path_fq
       else # Copy file (and expand its contents if it is a template) with appropriate mode handling
         if File.exist?(dest_path_fq) && !force
           puts "Not overwriting #{dest_path_fq} because --force was not specified."
