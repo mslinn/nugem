@@ -4,7 +4,7 @@ require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
 class TemplateTest
-  @gem_name = 'test_gem'
+  # @gem_name = 'test_gem'
   @rspec = true
   the_binding = binding
   template = ERBTemplates::Template.new(the_binding, 'common/gem_scaffold', 'Gemfile.tt')

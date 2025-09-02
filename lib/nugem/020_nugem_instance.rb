@@ -34,6 +34,7 @@ module Nugem
       @options = options
       @class_name = ::Nugem.camel_case(@gem_name)
       @module_name = "#{@class_name}Module"
+      @force       = options[:force]
       @out_dir     = options[:out_dir]
       repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
@@ -72,10 +73,9 @@ module Nugem
         puts msg.red
         return
       end
-      source_path_fq_interpolated = interpolate_percent_methods source_path_fq.delete_suffix! '.tt'
 
-      dest_path_fq = File.expand_path destination_fq
-      FileUtils.mkdir_p dest_path_fq
+      dest_path_fq = interpolate_percent_methods File.expand_path destination_fq
+      FileUtils.mkdir_p dest_path_fq if Dir.exist?(source_path_fq)
 
       # Iterate through all files and directories in source_path
       Dir.glob(File.join(source_path_fq, '**', '*'), File::FNM_DOTMATCH).each do |entry|
@@ -85,7 +85,7 @@ module Nugem
         next if relative_path.empty?
         next if exclude_pattern && relative_path.match?(exclude_pattern)
 
-        directory_entry dest_path_fq, source_path_fq_interpolated, path_fragment.end_with?('.tt')
+        directory_entry source_path_fq, dest_path_interpolated_fq, path_fragment.end_with?('.tt')
       rescue StandardError => e
         puts <<~END_MSG.red
           Error processing directory entry #{entry}:
@@ -98,11 +98,11 @@ module Nugem
 
     # Process a template directory entry (file or directory).
     # @param relative_path [String] Path relative to the source root
-    def directory_entry(dest_path_fq, source_path_fq, this_is_a_template_file)
+    def directory_entry(source_path_fq, dest_path_fq, this_is_a_template_file)
       if File.directory?(source_path_fq)
         FileUtils.mkdir_p dest_path_fq
       else # Copy file (and expand its contents if it is a template) with appropriate mode handling
-        if File.exist?(dest_path_fq) && !force
+        if File.exist?(dest_path_fq) && !@force
           puts "Not overwriting #{dest_path_fq} because --force was not specified."
           return
         end
@@ -190,11 +190,10 @@ module Nugem
     #
     # @param source [String] Path to the ERB template file, relative to the source root
     # @param destination [String] Target path for the generated file
-    # @param force [Boolean] Overwrite existing file if true (default: true)
     # @param context [Binding, nil] Binding context for ERB evaluation (default: nil, uses current binding)
     # @param mode [Symbol, Integer] File permission handling: :preserve to keep source permissions,
     # or an integer for specific permissions (default: :preserve)
-    def template(source, destination, force: true, context: nil, mode: :preserve)
+    def template(source, destination, context: nil, mode: :preserve)
       source_path = File.expand_path File.join @options[:source_root], source
       dest_path = File.expand_path(destination)
 
@@ -211,7 +210,7 @@ module Nugem
       FileUtils.mkdir_p File.dirname(dest_path) # Create parent directories for destination
 
       # Check if destination exists and handle force option
-      if File.exist?(dest_path) && !force
+      if File.exist?(dest_path) && !@force
         puts "Skipping #{dest_path} because it already exists"
         return
       end
