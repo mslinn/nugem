@@ -35,7 +35,7 @@ module Nugem
       @options = options
       @class_name = ::Nugem.camel_case(@gem_name)
       @module_name = "#{@class_name}Module"
-      @force       = options[:force]
+      @force       = options[:force] # TODO: delete this variable?
       @out_dir     = options[:out_dir]
       repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
@@ -49,9 +49,10 @@ module Nugem
 
     def create_scaffold
       puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@out_dir}.".green
-      directory 'common/gem_scaffold', @out_dir, exclude_pattern: 'common/gem_scaffold/spec/.*'
+      directory exclude_pattern: %r{common/gem_scaffold/spec/.*},
+                path_fragment:   'common/gem_scaffold'
       directory('common/executable_scaffold', @out_dir) if @options[:executable]
-      template 'common/LICENCE.txt.tt', "#{@out_dir}/LICENCE.txt" if @repository.public?
+      template 'common/LICENCE.txt.tt', "#{@out_dir}/LICENCE.txt"
     end
 
     # Copy a directory structure to a destination with customizable options.
@@ -64,7 +65,17 @@ module Nugem
     #        the resolution values of relative paths.
     # @param options [Hash] only supports :exclude_pattern, which must contain a regular expression;
     #                                     it excludes specified files/directories from copying.
-    def directory(path_fragment, destination, **options)
+    def directory(path_fragment:, destination: '', **options)
+      unless path_fragment
+        puts 'Error: Nugem.directory called without a path_fragment'.red
+        exit 2
+      end
+
+      unless destination
+        puts "Error: Nugem.directory called without a destination; path_fragment=#{path_fragment}".red
+        exit 2
+      end
+
       exclude_pattern = options[:exclude_pattern]
 
       source_path_fq = File.expand_path path_fragment, @options[:source_root]
@@ -80,20 +91,50 @@ module Nugem
 
       dest_path_interpolated_fq = File.expand_path interpolate_percent_methods destination
       FileUtils.mkdir_p dest_path_interpolated_fq if Dir.exist?(source_path_fq)
-      directory_processing(source_path_fq, dest_path_interpolated_fq, path_fragment, exclude_pattern)
+      directory_processing dest_path_interpolated_fq: dest_path_interpolated_fq,
+                           exclude_pattern:           exclude_pattern,
+                           path_fragment:             path_fragment,
+                           source_path_fq:            source_path_fq
     end
 
-    # Internal method to process directory entries.
-    def directory_processing(source_path_fq, dest_path_interpolated_fq, path_fragment, exclude_pattern)
+    # Internal method to iterate through directory entries.
+    #
+    # @param dest_path_interpolated_fq [String] Fully qualified destination directory path
+    # @param exclude_pattern [Regexp, nil] Optional regular expression to exclude files/directories
+    # @param path_fragment [String] Original path fragment used to call directory
+    # @param source_path_fq [String] Fully qualified source directory path
+    # @return [void]
+    def directory_processing(dest_path_interpolated_fq:, path_fragment:, source_path_fq:, exclude_pattern: nil)
+      unless dest_path_interpolated_fq
+        puts "Error: Nugem.directory_processing called without a dest_path_interpolated_fq; path_fragment=#{path_fragment}".red
+        exit 2
+      end
+      unless path_fragment
+        puts "Error: Nugem.directory_processing called without a path_fragment; source_path_fq=#{source_path_fq}".red
+        exit 2
+      end
+      unless source_path_fq
+        puts "Error: Nugem.directory_processing called without a source_path_fq; path_fragment=#{path_fragment}".red
+        exit 2
+      end
+
       # Iterate through all files and directories in source_path_fq
       Dir.glob(File.join(source_path_fq, '**', '*'), File::FNM_DOTMATCH).each do |entry|
+        puts "  Examining #{entry}".green
         next if entry.end_with? '.', '..'
 
         relative_path = entry.sub %r{^#{Regexp.escape(source_path_fq)}/?}, ''
         next if relative_path.empty?
         next if exclude_pattern && relative_path.match?(exclude_pattern)
 
-        directory_entry source_path_fq, dest_path_interpolated_fq, path_fragment.end_with?('.tt')
+        source_entry_path_fq = File.join source_path_fq, relative_path
+        next if Dir.exist? source_entry_path_fq
+
+        dest_entry_path_fq = File.join dest_path_interpolated_fq, relative_path
+
+        directory_entry dest_path_fq:            dest_entry_path_fq,
+                        source_path_fq:          source_entry_path_fq,
+                        this_is_a_template_file: path_fragment.end_with?('.tt')
       rescue StandardError => e
         puts <<~END_MSG.red
           Error processing directory entry #{entry}:
@@ -105,33 +146,36 @@ module Nugem
     end
 
     # Process a template directory entry (file or directory).
-    # @param relative_path [String] Path relative to the source root
-    def directory_entry(source_path_fq, dest_path_fq, this_is_a_template_file)
-      if File.directory?(source_path_fq)
-        FileUtils.mkdir_p dest_path_fq
-      else # Copy file (and expand its contents if it is a template) with appropriate mode handling
-        if File.exist?(dest_path_fq) && !@force
-          puts "Not overwriting #{dest_path_fq} because --force was not specified."
-          return
-        end
+    # Copy file (and expand its contents if it is a template) with appropriate mode handling
+    #
+    # @param dest_path_fq [String] Fully qualified destination path
+    # @param source_path_fq [String] Fully qualified source path
+    # @param this_is_a_template_file [Boolean] True if the file is a template
+    # @return [void]
+    def directory_entry(dest_path_fq:, source_path_fq:, this_is_a_template_file:)
+      if File.exist?(dest_path_fq) && !@force
+        puts "Not overwriting #{dest_path_fq} because --force was not specified."
+        return
+      end
 
-        FileUtils.mkdir_p File.dirname(dest_path_fq)
-        if this_is_a_template_file # read and process ERB template
-          begin
-            expanded_content = @acb.render File.read source_path_fq
-            puts "  Expanding template #{source_path_fq} to #{dest_path_fq}".green
-            File.write dest_path_fq, expanded_content
-            preserve_mode source_path_fq, dest_path_fq
-          rescue NameError => e
-            puts <<~END_MSG.red
-              Error processing template #{source_path_fq}: method #{e.name} is not defined in the context where the ERB is evaluated.
-            END_MSG
-            nil
-          end
-        else
-          puts "  Copying #{source_path_fq} to #{dest_path_fq}".green
-          FileUtils.cp(source_path_fq, dest_path_fq) # Preserves file contents and permissions but not owner or group
+      puts "Creating #{dest_path_fq}." unless Dir.exist?(dest_path_fq)
+      FileUtils.mkdir_p File.dirname(dest_path_fq)
+
+      if this_is_a_template_file # read and process ERB template
+        begin
+          expanded_content = @acb.render File.read source_path_fq
+          puts "  Expanding template #{source_path_fq} to #{dest_path_fq}".green
+          File.write dest_path_fq, expanded_content
+          preserve_mode source_path_fq, dest_path_fq
+        rescue NameError => e
+          puts <<~END_MSG.red
+            Error processing template #{source_path_fq}: method #{e.name} is not defined in the context where the ERB is evaluated.
+          END_MSG
+          nil
         end
+      else
+        puts "  Copying #{source_path_fq} to #{dest_path_fq}".green
+        FileUtils.cp(source_path_fq, dest_path_fq) # Preserves file contents and permissions but not owner or group
       end
     end
 
