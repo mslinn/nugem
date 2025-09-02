@@ -138,7 +138,6 @@ module Nugem
     def initialize_repository
       puts "Initializing repository for #{@options[:gem_name]} at #{@repository.host}.".green
       @repository.create_local_git_repository if %i[github gitlab bitbucket].include?(@repository.host)
-      @repository.push_to_remote(@options[:out_dir]) if @repository.public?
     end
 
     def git_repository_user_name(host)
