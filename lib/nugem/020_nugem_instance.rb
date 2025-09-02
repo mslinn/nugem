@@ -51,7 +51,7 @@ module Nugem
       puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@out_dir}.".green
       directory exclude_pattern: %r{common/gem_scaffold/spec/.*},
                 path_fragment:   'common/gem_scaffold'
-      directory('common/executable_scaffold', @out_dir) if @options[:executable]
+      directory(path_fragment: 'common/executable_scaffold') if @options[:executable]
       template 'common/LICENCE.txt.tt', "#{@out_dir}/LICENCE.txt"
     end
 
@@ -65,14 +65,9 @@ module Nugem
     #        the resolution values of relative paths.
     # @param options [Hash] only supports :exclude_pattern, which must contain a regular expression;
     #                                     it excludes specified files/directories from copying.
-    def directory(path_fragment:, destination: '', **options)
+    def directory(path_fragment:, destination: @out_dir || Dir.pwd, **options)
       unless path_fragment
         puts 'Error: Nugem.directory called without a path_fragment'.red
-        exit 2
-      end
-
-      unless destination
-        puts "Error: Nugem.directory called without a destination; path_fragment=#{path_fragment}".red
         exit 2
       end
 
@@ -101,7 +96,7 @@ module Nugem
     #
     # @param dest_path_interpolated_fq [String] Fully qualified destination directory path
     # @param exclude_pattern [Regexp, nil] Optional regular expression to exclude files/directories
-    # @param path_fragment [String] Original path fragment used to call directory
+    # @param path_fragment [String] Relative directory to write to
     # @param source_path_fq [String] Fully qualified source directory path
     # @return [void]
     def directory_processing(dest_path_interpolated_fq:, path_fragment:, source_path_fq:, exclude_pattern: nil)
