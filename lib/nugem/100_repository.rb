@@ -77,7 +77,7 @@ module Nugem
     end
 
     def create_local_git_repository
-      puts set_color('Creating the local git repository', :green)
+      puts 'Creating the local git repository'.green
       run 'git init'
       run 'git add .'
 

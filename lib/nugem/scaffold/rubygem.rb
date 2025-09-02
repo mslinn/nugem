@@ -16,11 +16,11 @@ module Nugem
       desc: 'Publish the gem in a private repository.'
 
     def gem(gem_name)
-      # puts set_color("gem_name=#{gem_name}", :yellow)
+      # puts "gem_name=#{gem_name}".yellow
       super if gem_name.empty?
 
       @executables = options[:executable]
-      @force       = options[:forse]
+      @force       = options[:force]
       @host        = options[:host] # FIXME: conflicts with @host in create_gem_scaffold()
       @out_dir     = options[:out_dir]
       @private     = options[:private]
@@ -44,14 +44,10 @@ module Nugem
         private: @private,
         user:    git_repository_user_name(@host)
       )
-      puts set_color("Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@options[:out_dir]}.", :green)
-      exclude_pattern = case @test_framework
-                        when 'minitest' then /spec.*/
-                        when 'rspec'    then /test.*/
-                        end
-      directory('common/gem_scaffold',        @options[:out_dir], force: true, mode: :preserve, exclude_pattern:)
-      directory 'common/executable_scaffold', @options[:out_dir], force: true, mode: :preserve if @executables
-      template  'common/LICENCE.txt',         "#{@options[:out_dir]}/LICENCE.txt", force: true if @repository.public?
+      puts "Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@out_dir}.".green
+      directory 'common/gem_scaffold',        @out_dir, exclude_pattern: /spec.*/
+      directory 'common/executable_scaffold', @out_dir if @executables
+      template  'common/LICENCE.txt',         "#{@out_dir}/LICENCE.txt"
     end
   end
 end
