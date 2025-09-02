@@ -90,7 +90,7 @@ module Nugem
     def directory_entry(dest_path, relative_path, force: true, mode: :preserve)
       # Rename file containing method in name
       dest_file_temp = File.join dest_path, relative_path
-      dest_path = interpolate_percent_methods(dest_file_temp) if dest_file_temp.include? '%'
+      dest_path = interpolate_percent_methods(dest_file_temp)
 
       this_is_a_template_file = dest_path.end_with? '.tt'
       dest_path.delete_suffix! '.tt'
@@ -121,10 +121,10 @@ module Nugem
 
         if mode == :preserve # Preserve original file permissions
           file_mode = File.stat(source_path).mode
-          puts "  Setting #{source_path} to mode #{file_mode}".green
+          puts "  Setting #{source_path} to mode #{file_mode.to_s(8)}".green
           FileUtils.chmod file_mode, dest_path
         elsif mode.is_a?(Integer) # Set specific mode if provided
-          puts "  Setting #{source_path} to mode #{mode}".green
+          puts "  Setting #{source_path} to mode #{mode.to_s(8)}".green
           FileUtils.chmod mode, dest_path
         end
       end
