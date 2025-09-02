@@ -32,7 +32,7 @@ module Nugem
     nugem = Nugem.new nugem_options.options
     nugem.create_scaffold
     nugem.initialize_repository
-    puts nugem.todos_report(options[:gem_name]) if nugem_options.options[:todos]
+    puts nugem.todos_report.yellow if nugem_options.options[:todos]
     puts `tree #{nugem_options.options[:out_dir]}`
   end
 
@@ -122,30 +122,5 @@ module Nugem
       puts "Error: #{e.message} is an invalid gem name.".red
       false
     end
-  end
-
-  #
-  # Instance methods
-  #
-
-  def todos_count(filename)
-    filename_fq = "#{@options[:out_dir]}/#{filename}"
-    content = File.read filename_fq
-    content.scan('TODO').length
-  end
-
-  def todos_report(gem_name)
-    gemspec_todos = todos_count "#{gem_name}.gemspec"
-    readme_todos = todos_count 'README.md'
-    if readme_todos.zero? && gemspec_todos.zero?
-      puts "There are no TODOs. You can run 'bundle' from within your new gem project now.".blue
-      return
-    end
-
-    msg = 'Please complete'
-    msg << " the #{gemspec_todos} TODOs in #{gem_name}.gemspec" if gemspec_todos.positive?
-    msg << ' and' if gemspec_todos.positive? && readme_todos.positive?
-    msg << " the #{readme_todos} TODOs in README.md." if readme_todos.positive?
-    puts msg.yellow
   end
 end

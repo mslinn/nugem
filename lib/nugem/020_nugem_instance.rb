@@ -230,5 +230,36 @@ module Nugem
         FileUtils.chmod(mode, dest_path) # Set specific mode if provided
       end
     end
+
+    # Counts the number of 'TODO' strings in the given file within the output directory
+    def todos_count(filename)
+      filename_fq = "#{@options[:out_dir]}/#{filename}"
+
+      unless File.exist?(filename_fq)
+        puts "Error: #{filename_fq} does not exist, there are no TODOs to count.".red
+        return 0
+      end
+
+      content = File.exist?(filename_fq) ? File.read(filename_fq) : ''
+      content.scan('TODO').length
+    end
+
+    # Shows how many TODOs are in the gemspec and README files
+    # @return [String] Multiline string indicating the number of TODOs found
+    def todos_report
+      gem_name = @options[:gem_name]
+      gemspec_todos = todos_count "#{gem_name}.gemspec"
+      readme_todos = todos_count 'README.md'
+      if readme_todos.zero? && gemspec_todos.zero?
+        puts "There are no TODOs. You can run 'bundle' from within your new gem project now.".blue
+        return
+      end
+
+      msg = 'Please complete'
+      msg << " the #{gemspec_todos} TODOs in #{gem_name}.gemspec" if gemspec_todos.positive?
+      msg << ' and' if gemspec_todos.positive? && readme_todos.positive?
+      msg << " the #{readme_todos} TODOs in README.md." if readme_todos.positive?
+      msg
+    end
   end
 end
