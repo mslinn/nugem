@@ -1,6 +1,7 @@
 require 'erb'
 require 'fileutils'
 require 'find'
+require 'pathname'
 require 'rugged'
 
 module Nugem
@@ -54,16 +55,19 @@ module Nugem
     end
 
     # Copy a directory structure to a destination with customizable options.
-    # Compatible with Thor's directory method.
+    # Somewhat compatible with Thor's directory method.
     #
     # @param path_fragment [String] Source directory path to copy from, relative to @options[:source_root]
-    # @param destination_fq [String] Target directory absolute path to copy to (normally starts with @options[:out_dir])
+    # @param destination [String] Target directory path to copy to.
+    #        If a relative path is provided, it is interpreted as being relative to @options[:out_dir].
+    #        Further, if @options[:out_dir] is nil, the current directory when this method is executed determines
+    #        the resolution values of relative paths.
     # @param options [Hash] only supports :exclude_pattern, which must contain a regular expression;
-    #                                     it excludes specified files/directories from copying
-    def directory(path_fragment, destination_fq, **options)
+    #                                     it excludes specified files/directories from copying.
+    def directory(path_fragment, destination, **options)
       exclude_pattern = options[:exclude_pattern]
 
-      source_path_fq = File.join File.expand_path(@options[:source_root]), path_fragment
+      source_path_fq = File.expand_path path_fragment, @options[:source_root]
       unless Dir.exist? source_path_fq
         msg = if File.exist? source_path_fq
                 "Error: #{source_path_fq} is not a directory."
@@ -74,14 +78,18 @@ module Nugem
         return
       end
 
-      dest_path_fq = interpolate_percent_methods File.expand_path destination_fq
-      FileUtils.mkdir_p dest_path_fq if Dir.exist?(source_path_fq)
+      dest_path_interpolated_fq = File.expand_path interpolate_percent_methods destination
+      FileUtils.mkdir_p dest_path_interpolated_fq if Dir.exist?(source_path_fq)
+      directory_processing(source_path_fq, dest_path_interpolated_fq, path_fragment, exclude_pattern)
+    end
 
-      # Iterate through all files and directories in source_path
+    # Internal method to process directory entries.
+    def directory_processing(source_path_fq, dest_path_interpolated_fq, path_fragment, exclude_pattern)
+      # Iterate through all files and directories in source_path_fq
       Dir.glob(File.join(source_path_fq, '**', '*'), File::FNM_DOTMATCH).each do |entry|
         next if entry.end_with? '.', '..'
 
-        relative_path = entry.sub %r{^#{Regexp.escape(source_path)}/?}, ''
+        relative_path = entry.sub %r{^#{Regexp.escape(source_path_fq)}/?}, ''
         next if relative_path.empty?
         next if exclude_pattern && relative_path.match?(exclude_pattern)
 
