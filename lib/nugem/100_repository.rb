@@ -156,10 +156,6 @@ module Nugem
       "git@#{@host.domain}:#{@user}/#{@name}.git"
     end
 
-    # TODO: Currently all private repositories are on BitBucket and all public repos are on GitHub
-    # TODO: Drop BitBucket?
-    # TODO: Support private repos on GitHub
-    # TODO: Support GitLab
     def private?
       @private
     end

@@ -36,6 +36,26 @@ module Nugem
     puts `tree #{nugem_options.options[:out_dir]}`
   end
 
+  def method_option(name, default: nil, desc: '', enum: [], type: :string)
+    name = name.to_s
+
+    msg = "Defining method #{name} returning #{type} with default value #{default}"
+    msg += "\n  Description: #{desc}" unless desc.empty?
+    msg += "\n  Enum values: #{enum.join(', ')}" unless enum.empty?
+    puts msg.green
+
+    define_method(name) do
+      instance_variable_get("@#{name}")
+    end
+
+    define_method("#{name}=") do |value|
+      instance_variable_set("@#{name}", value)
+    end
+
+    instance_variable_set("@#{name}", default)
+    # TODO: figure out what to do with desc, enum and type
+  end
+
   # Sets :gem_type and :gem_name values in options from the first two command line arguments.
   # Modifies ARGV by removing those values.
   # Ignores other command line arguments.

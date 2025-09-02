@@ -46,10 +46,10 @@ module Nugem
     end
 
     def create_scaffold
-      puts "Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@out_dir}.".green
+      puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@out_dir}.".green
       directory 'common/gem_scaffold', @out_dir, exclude_pattern: 'common/gem_scaffold/spec/.*'
-      directory 'common/executable_scaffold', out_dir if @options[:executable]
-      template 'common/LICENCE.txt.tt', "#{out_dir}/LICENCE.txt" if @repository.public?
+      directory 'common/executable_scaffold', @out_dir if @options[:executable]
+      template 'common/LICENCE.txt.tt', "#{@out_dir}/LICENCE.txt" if @repository.public?
     end
 
     # Copy a directory structure to a destination with customizable options.
@@ -62,7 +62,7 @@ module Nugem
     #                               or an integer for specific permissions (default: :preserve)
     # @param exclude_pattern [Regexp, nil] Regular expression to exclude files/directories from copying (default: nil)
     def directory(path_fragment, destination, force: true, mode: :preserve, exclude_pattern: nil)
-      source_path = File.expand_path @options[:source_root], path_fragment
+      source_path = File.join File.expand_path(@options[:source_root]), path_fragment
       dest_path = File.expand_path destination
       return unless File.directory? source_path
 
