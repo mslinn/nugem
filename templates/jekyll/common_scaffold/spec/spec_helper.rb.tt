@@ -3,7 +3,7 @@ require 'jekyll_plugin_logger'
 require 'liquid'
 require 'fileutils'
 require 'yaml'
-require_relative '../lib/<%= @gem_name %>'
+require_relative '../lib/<%= gem_name %>'
 
 RSpec.configure do |config|
   config.filter_run :focus

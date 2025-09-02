@@ -39,7 +39,7 @@ permalink: "/blog/:year/:month/:day/:title:output_ext"
 plugins: # Use file name of the plugin entry point, not the gem name
   - jekyll
   - jekyll_plugin_logger
-  - <%= @gem_name %>
+  - <%= gem_name %>
 sass:
   style: compressed
 title: <%= gem_name %> Demonstration

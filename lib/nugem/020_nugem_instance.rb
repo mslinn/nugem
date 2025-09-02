@@ -42,7 +42,7 @@ module Nugem
         private: @options[:private],
         user:    repository_user_name
       )
-      @oab = ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem]
+      @acb = ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem], objects: [self]
     end
 
     def create_scaffold
@@ -56,32 +56,41 @@ module Nugem
     # Compatible with Thor's directory method.
     #
     # @param path_fragment [String] Source directory path to copy from, relative to @options[:source_root]
-    # @param destination [String] Target directory path to copy to
-    # @param force [Boolean] Overwrite existing files if true (default: true)
-    # @param mode [Symbol, Integer] File permission handling: :preserve to keep source permissions,
-    #                               or an integer for specific permissions (default: :preserve)
-    # @param exclude_pattern [Regexp, nil] Regular expression to exclude files/directories from copying (default: nil)
-    def directory(path_fragment, destination, force: true, mode: :preserve, exclude_pattern: nil)
-      source_path = File.join File.expand_path(@options[:source_root]), path_fragment
-      dest_path = File.expand_path destination
-      return unless File.directory? source_path
+    # @param destination_fq [String] Target directory absolute path to copy to (normally starts with @options[:out_dir])
+    # @param options [Hash] only supports :exclude_pattern, which must contain a regular expression;
+    #                                     it excludes specified files/directories from copying
+    def directory(path_fragment, destination_fq, **options)
+      exclude_pattern = options[:exclude_pattern]
 
-      FileUtils.mkdir_p dest_path
+      source_path_fq = File.join File.expand_path(@options[:source_root]), path_fragment
+      unless Dir.exist? source_path_fq
+        msg = if File.exist? source_path_fq
+                "Error: #{source_path_fq} is not a directory."
+              else
+                "Error: directory #{source_path_fq} does not exist."
+              end
+        puts msg.red
+        return
+      end
+      source_path_fq_interpolated = interpolate_percent_methods source_path_fq.delete_suffix! '.tt'
 
-      # Iterate through all files and directories in source
-      Dir.glob(File.join(source_path, '**', '*'), File::FNM_DOTMATCH).each do |source|
-        next if source.end_with? '.', '..'
+      dest_path_fq = File.expand_path destination_fq
+      FileUtils.mkdir_p dest_path_fq
 
-        relative_path = source.sub %r{^#{Regexp.escape(source_path)}/?}, ''
+      # Iterate through all files and directories in source_path
+      Dir.glob(File.join(source_path_fq, '**', '*'), File::FNM_DOTMATCH).each do |entry|
+        next if entry.end_with? '.', '..'
+
+        relative_path = entry.sub %r{^#{Regexp.escape(source_path)}/?}, ''
         next if relative_path.empty?
         next if exclude_pattern && relative_path.match?(exclude_pattern)
 
-        directory_entry dest_path, relative_path, force: force, mode: mode
+        directory_entry dest_path_fq, source_path_fq_interpolated, path_fragment.end_with?('.tt')
       rescue StandardError => e
         puts <<~END_MSG.red
-          Error processing directory entry #{source}:
+          Error processing directory entry #{entry}:
             #{e.message}
-            Directory processing of #{path_fragment} terminated.
+            Directory processing of #{source_path_fq} terminated.
         END_MSG
         break
       end
@@ -89,51 +98,31 @@ module Nugem
 
     # Process a template directory entry (file or directory).
     # @param relative_path [String] Path relative to the source root
-    # @param force [Boolean] Whether to overwrite existing files (default: true)
-    # @param mode [Symbol, Integer] File permission handling: :preserve to keep source permissions,
-    #   or an integer for specific permissions (default: :preserve)
-    def directory_entry(dest_path, relative_path, force: true, mode: :preserve)
-      # Rename file containing method in name
-      dest_file_temp = File.join dest_path, relative_path
-      dest_path = interpolate_percent_methods(dest_file_temp)
-
-      this_is_a_template_file = dest_path.end_with? '.tt'
-      dest_path.delete_suffix! '.tt'
-
-      source_path = File.expand_path File.join @options[:source_root], relative_path
-      if File.directory?(source_path)
+    def directory_entry(dest_path_fq, source_path_fq, this_is_a_template_file)
+      if File.directory?(source_path_fq)
         FileUtils.mkdir_p dest_path
       else # Copy file (and expand its contents if it is a template) with appropriate mode handling
-        if File.exist?(dest_path) && !force
-          puts "Not overwriting #{dest_path} because --force was not specified."
+        if File.exist?(dest_path_fq) && !force
+          puts "Not overwriting #{dest_path_fq} because --force was not specified."
           return
         end
 
-        FileUtils.mkdir_p File.dirname(dest_path)
+        FileUtils.mkdir_p File.dirname(dest_path_fq)
         if this_is_a_template_file # read and process ERB template
           begin
-            expanded_content = @oab.render File.read source_path
-            puts "  Expanding template #{source_path} to #{dest_path}".green
-            File.write dest_path, expanded_content
+            expanded_content = @acb.render File.read source_path_fq
+            puts "  Expanding template #{source_path_fq} to #{dest_path_fq}".green
+            File.write dest_path_fq, expanded_content
+            preserve_mode source_path_fq, dest_path_fq
           rescue NameError => e
             puts <<~END_MSG.red
-              Error processing template #{source_path}: method #{e.name} is not defined in the context where the ERB is evaluated.
+              Error processing template #{source_path_fq}: method #{e.name} is not defined in the context where the ERB is evaluated.
             END_MSG
-            return
+            nil
           end
         else
-          puts "  Copying #{source_path} to #{dest_path}".green
-          FileUtils.cp(source_path, dest_path) # Preserves file contents and permissions but not owner or group
-        end
-
-        # Preserve directory permissions if required
-        if mode == :preserve && (this_is_a_template_file || File.directory?(source_path))
-          file_mode = File.stat(source_path).mode
-          puts "  Setting #{source_path} to mode #{file_mode.to_s(8)}".green
-          FileUtils.chmod file_mode, dest_path
-        elsif mode.is_a?(Integer) # Set specific mode if provided
-          puts "  Setting #{source_path} to mode #{mode.to_s(8)}".green
-          FileUtils.chmod mode, dest_path
+          puts "  Copying #{source_path_fq} to #{dest_path_fq}".green
+          FileUtils.cp(source_path_fq, dest_path_fq) # Preserves file contents and permissions but not owner or group
         end
       end
     end
@@ -175,11 +164,17 @@ module Nugem
     def interpolate_percent_methods(str)
       str.gsub(/%(\w+)%/) do
         method_name = Regexp.last_match(1) # Extract text between %...%
-        @oab.send(method_name)
+        @acb.render "<%= #{method_name} %>"
       rescue NameError
         puts "Warning: No object found responding to method '#{method_name}'".red
         "%#{method_name}%" # Leave unchanged if no match found
       end
+    end
+
+    def preserve_mode(source_path, dest_path)
+      file_mode = File.stat(source_path).mode
+      puts "  Setting #{source_path} to mode #{file_mode.to_s(8)}".green
+      FileUtils.chmod file_mode, dest_path
     end
 
     # TODO: figure out what I was thinking here

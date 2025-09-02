@@ -24,7 +24,7 @@ require_relative 'dumpers'
 # Default value is false.
 # The hooks for pages, posts and documents access safe via pages.site.safe, posts.site.safe and documents.site.safe, respectively.
 module <%= @class_name %>
-  # PLUGIN_NAME = '<%= @gem_name %>'.freeze unless defined? PLUGIN_NAME
+  # PLUGIN_NAME = '<%= gem_name %>'.freeze unless defined? PLUGIN_NAME
 
   ########## :site hooks
   # These hooks influence the entire site

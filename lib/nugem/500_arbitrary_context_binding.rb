@@ -115,6 +115,10 @@ class ArbitraryContextBinding
   # Copy constants from modules and classes into the ERB
   def define_module_constants!
     @modules.each do |mod|
+      unless mod.is_a?(Module)
+        puts "Error: #{mod} is not a Module or Class; ignoring constant.".red
+        next
+      end
       const_name = mod.name.split('::').last
       Object.const_set(const_name, mod) unless Object.const_defined?(const_name)
     end

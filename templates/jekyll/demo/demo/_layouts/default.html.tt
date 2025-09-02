@@ -56,7 +56,7 @@ layout: compress
               href="https://www.mslinn.com/jekyll/10400-jekyll-plugin-template-collection.html">
             <span property="dct:title"><%= @repository.user_name %></span></a>
           has waived all copyright and related or neighboring rights to
-          <span property="dct:title"><%= @gem_name %> Demonstration</span>.
+          <span property="dct:title"><%= gem_name %> Demonstration</span>.
           This work is published from <span property="vcard:Country" datatype="dct:ISO3166" content="CA"
               about="https://www.mslinn.com/jekyll/10400-jekyll-plugin-template-collection.html">Canada</span>.
         </p>

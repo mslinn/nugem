@@ -1,5 +1,5 @@
 require 'spec_helper'
-require_relative '../lib/<%= @gem_name %>'
+require_relative '../lib/<%= gem_name %>'
 
 RSpec.describe <%= @class_name %>Module do
   extend described_class # Define class methods from <%= @class_name %>Module

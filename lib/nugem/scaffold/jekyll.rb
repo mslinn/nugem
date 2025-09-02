@@ -90,8 +90,8 @@ module Nugem
   def create_jekyll_scaffold
     puts "Creating a Jekyll scaffold for a new gem named #{@gem_name} in #{@options[:out_dir]}".green
     @mute = true
-    directory 'jekyll/common_scaffold', @options[:out_dir], force: true, mode: :preserve
-    directory 'jekyll/demo', @options[:out_dir], force: true, mode: :preserve
+    directory 'jekyll/common_scaffold', @options[:out_dir]
+    directory 'jekyll/demo', @options[:out_dir]
   end
 
   def create_jekyll_block_scaffold(block_name)
@@ -101,7 +101,7 @@ module Nugem
     # [["opt1", "string"], ["opt2", "boolean"]]
     puts "Creating Jekyll block tag #{@block_name} scaffold within #{@jekyll_class_name}".green
     @mute = true
-    directory 'jekyll/block_scaffold', @options[:out_dir], force: true, mode: :preserve
+    directory 'jekyll/block_scaffold', @options[:out_dir]
     append_to_file "#{@options[:out_dir]}/demo/index.html",
                    JekyllDemo.add(block_name, @jekyll_parameter_names_types, :block)
   end
@@ -111,7 +111,7 @@ module Nugem
     @jekyll_class_name = Nugem.camel_case block_name
     puts "Creating Jekyll block tag no_arg #{@block_name} scaffold within #{@jekyll_class_name}".green
     @mute = true
-    directory 'jekyll/block_no_arg_scaffold', @options[:out_dir], force: true, mode: :preserve
+    directory 'jekyll/block_no_arg_scaffold', @options[:out_dir]
     append_to_file "#{@options[:out_dir]}/demo/index.html",
                    JekyllDemo.add(block_name, @jekyll_parameter_names_types, :block)
   end
@@ -140,7 +140,7 @@ module Nugem
     end
     puts "Creating a new Jekyll filter method scaffold #{@filter_name}".green
     @mute = true
-    directory 'jekyll/filter_scaffold', @options[:out_dir], force: true, mode: :preserve
+    directory 'jekyll/filter_scaffold', @options[:out_dir]
 
     tp = ': ' + @filter_params.map { |x| "'#{x}_value'" }.join(', ') unless @filter_params.empty?
     append_to_file "#{@options[:out_dir]}/demo/index.html",
@@ -153,7 +153,7 @@ module Nugem
     @jekyll_class_name = Nugem.camel_case generator_name
     puts "Creating a new Jekyll generator class scaffold #{@jekyll_class_name}".green
     @mute = true
-    directory 'jekyll/generator_scaffold', @options[:out_dir], force: true, mode: :preserve
+    directory 'jekyll/generator_scaffold', @options[:out_dir]
   end
 
   def create_jekyll_hooks_scaffold(plugin_name)
@@ -161,7 +161,7 @@ module Nugem
     @jekyll_class_name = Nugem.camel_case plugin_name
     puts 'Creating a new Jekyll hook scaffold'.green
     @mute = true
-    directory 'jekyll/hooks_scaffold', @options[:out_dir], force: true, mode: :preserve
+    directory 'jekyll/hooks_scaffold', @options[:out_dir]
   end
 
   def create_jekyll_tag_no_arg_scaffold(tag_name)
@@ -169,7 +169,7 @@ module Nugem
     @jekyll_class_name = Nugem.camel_case @tag_name
     puts "Creating Jekyll tag no_arg #{@tag_name} scaffold within #{@jekyll_class_name}".green
     @mute = true
-    directory 'jekyll/tag_no_arg_scaffold', @options[:out_dir], force: true, mode: :preserve
+    directory 'jekyll/tag_no_arg_scaffold', @options[:out_dir]
     append_to_file "#{@options[:out_dir]}/demo/index.html",
                    JekyllDemo.add(tag_name, @jekyll_parameter_names_types, :tag)
   end
@@ -182,7 +182,7 @@ module Nugem
     puts "Creating Jekyll tag #{@tag_name} scaffold within #{@jekyll_class_name}".green
     @mute = true
     # puts "@jekyll_parameter_names_types=#{@jekyll_parameter_names_types}".yellow
-    directory 'jekyll/tag_scaffold', @options[:out_dir], force: true, mode: :preserve
+    directory 'jekyll/tag_scaffold', @options[:out_dir]
     append_to_file "#{@options[:out_dir]}/demo/index.html",
                    JekyllDemo.add(tag_name, @jekyll_parameter_names_types, :tag)
   end

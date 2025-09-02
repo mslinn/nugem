@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-# The <%= @gem_name %> gem dependencies are defined in <%= @gem_name %>.gemspec
+# The <%= gem_name %> gem dependencies are defined in <%= gem_name %>.gemspec
 gemspec
 
 group :test, :development do

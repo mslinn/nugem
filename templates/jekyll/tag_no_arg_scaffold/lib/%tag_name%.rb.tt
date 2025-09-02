@@ -1,5 +1,5 @@
 require 'jekyll_plugin_support'
-require_relative '<%= @gem_name %>/version'
+require_relative '<%= gem_name %>/version'
 
 module <%= @class_name %>
   class <%= @jekyll_class_name %> < JekyllTag

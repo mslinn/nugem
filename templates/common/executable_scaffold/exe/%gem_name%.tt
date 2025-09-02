@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/<%= @gem_name %>'
+require_relative '../lib/<%= gem_name %>'
 
 <%= @class_name %>.main

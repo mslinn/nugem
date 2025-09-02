@@ -35,7 +35,7 @@ Metrics/AbcSize:
 
 Metrics/BlockLength:
   Exclude:
-    - <%= @gem_name %>.gemspec
+    - <%= gem_name %>.gemspec
   Max: 30
 
 Metrics/CyclomaticComplexity:

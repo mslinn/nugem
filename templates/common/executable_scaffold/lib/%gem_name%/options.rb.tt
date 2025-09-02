@@ -4,9 +4,9 @@ require 'optparse'
 def help(msg = nil)
   printf "Error: #{msg}\n\n".yellow unless msg.nil?
   msg = <<~END_HELP
-    <%= @gem_name %>: Describe this executable.
+    <%= gem_name %>: Describe this executable.
 
-    Syntax: <%= @gem_name %> [Options]
+    Syntax: <%= gem_name %> [Options]
 
     Options:
       -h       Show this help message

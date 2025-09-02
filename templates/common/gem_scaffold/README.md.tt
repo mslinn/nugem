@@ -14,7 +14,7 @@ Add the following to your Jekyll website's `Gemfile`:
 
 ```ruby
 group :jekyll_plugins do
-  gem '<%= @gem_name %>'
+  gem '<%= gem_name %>'
 end
 ```
 <% end %>
@@ -22,13 +22,13 @@ end
 Either add this line to your application&rsquo;s `Gemfile`:
 
 ```ruby
-gem '<%= @gem_name %>'
+gem '<%= gem_name %>'
 ```
 
 ... or add the following to your application&rsquo;s `.gemspec`:
 
 ```ruby
-spec.add_dependency '<%= @gem_name %>'
+spec.add_dependency '<%= gem_name %>'
 ```
 <% end %>
 

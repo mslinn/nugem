@@ -31,11 +31,11 @@ end
 
 task publish: [:build] do
   $VERBOSE = nil
-  load '<%= @gem_name %>/version.rb'
+  load '<%= gem_name %>/version.rb'
   <% if @repository.private? %>
-  system "gem inabox pkg/<%= @gem_name %>-#{<%= @class_name %>::VERSION}.gem"
+  system "gem inabox pkg/<%= gem_name %>-#{<%= @class_name %>::VERSION}.gem"
   <% else %>
-  system "gem push pkg/<%= @gem_name %>-#{<%= @class_name %>::VERSION}.gem"
+  system "gem push pkg/<%= gem_name %>-#{<%= @class_name %>::VERSION}.gem"
   <% end %>
 end
 

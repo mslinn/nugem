@@ -1,6 +1,6 @@
 require 'jekyll_plugin_support'
 require 'helper/jekyll_plugin_helper'
-require_relative '<%= @gem_name %>/version'
+require_relative '<%= gem_name %>/version'
 
 # See https://www.mslinn.com/jekyll/10200-jekyll-plugin-background.html
 # See https://www.mslinn.com/jekyll/10400-jekyll-plugin-template-collection.html
