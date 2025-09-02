@@ -34,6 +34,7 @@ module Nugem
       @options = options
       @class_name = ::Nugem.camel_case(@gem_name)
       @module_name = "#{@class_name}Module"
+      @out_dir     = options[:out_dir]
       repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
         host:    @options[:host],
@@ -45,11 +46,10 @@ module Nugem
     end
 
     def create_scaffold
-      out_dir = @options[:out_dir]
-      puts "Creating a scaffold for a new Ruby gem named #{@gem_name} in #{out_dir}.".green
-      directory 'common/gem_scaffold', out_dir, force: true, mode: :preserve, exclude_pattern: 'spec/*'
-      directory 'common/executable_scaffold', out_dir, force: true, mode: :preserve if @options[:executable]
-      template 'common/LICENCE.txt.tt', "#{out_dir}/LICENCE.txt", force: true if @repository.public?
+      puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@out_dir}.".green
+      directory 'common/gem_scaffold', @out_dir, exclude_pattern: 'common/gem_scaffold/spec/.*'
+      directory('common/executable_scaffold', @out_dir) if @options[:executable]
+      template 'common/LICENCE.txt.tt', "#{@out_dir}/LICENCE.txt" if @repository.public?
     end
 
     # Copy a directory structure to a destination with customizable options.
@@ -58,10 +58,11 @@ module Nugem
     # @param path_fragment [String] Source directory path to copy from, relative to @options[:source_root]
     # @param destination [String] Target directory path to copy to
     # @param force [Boolean] Overwrite existing files if true (default: true)
-    # @param mode [Symbol, Integer] File permission handling: :preserve to keep source permissions, or an integer for specific permissions (default: :preserve)
+    # @param mode [Symbol, Integer] File permission handling: :preserve to keep source permissions,
+    #                               or an integer for specific permissions (default: :preserve)
     # @param exclude_pattern [Regexp, nil] Regular expression to exclude files/directories from copying (default: nil)
     def directory(path_fragment, destination, force: true, mode: :preserve, exclude_pattern: nil)
-      source_path = File.expand_path @options[:source_root], path_fragment
+      source_path = File.join File.expand_path(@options[:source_root]), path_fragment
       dest_path = File.expand_path destination
       return unless File.directory? source_path
 
@@ -77,8 +78,12 @@ module Nugem
 
         directory_entry dest_path, relative_path, force: force, mode: mode
       rescue StandardError => e
-        puts "Error processing directory entry #{source}:\n  #{e.message}".red
-        next
+        puts <<~END_MSG.red
+          Error processing directory entry #{source}:
+            #{e.message}
+            Directory processing of #{path_fragment} terminated.
+        END_MSG
+        break
       end
     end
 
@@ -108,6 +113,7 @@ module Nugem
         if this_is_a_template_file # read and process ERB template
           begin
             expanded_content = @oab.render File.read source_path
+            puts "  Expanding template #{source_path} to #{dest_path}".green
             File.write dest_path, expanded_content
           rescue NameError => e
             puts <<~END_MSG.red
@@ -116,10 +122,12 @@ module Nugem
             return
           end
         else
-          FileUtils.cp(source_path, dest_path)
+          puts "  Copying #{source_path} to #{dest_path}".green
+          FileUtils.cp(source_path, dest_path) # Preserves file contents and permissions but not owner or group
         end
 
-        if mode == :preserve # Preserve original file permissions
+        # Preserve directory permissions if required
+        if mode == :preserve && (this_is_a_template_file || File.directory?(source_path))
           file_mode = File.stat(source_path).mode
           puts "  Setting #{source_path} to mode #{file_mode.to_s(8)}".green
           FileUtils.chmod file_mode, dest_path
@@ -131,7 +139,7 @@ module Nugem
     end
 
     def initialize_repository
-      puts set_color("Initializing repository for #{@options[:gem_name]} at #{@repository.host}.", :green)
+      puts "Initializing repository for #{@options[:gem_name]} at #{@repository.host}.".green
       @repository.create_local_git_repository if %i[github gitlab bitbucket].include?(@repository.host)
       @repository.push_to_remote(@options[:out_dir]) if @repository.public?
     end
@@ -172,15 +180,6 @@ module Nugem
         puts "Warning: No object found responding to method '#{method_name}'".red
         "%#{method_name}%" # Leave unchanged if no match found
       end
-    end
-
-    # Colorize text if the 'colorize' gem is available; otherwise return plain text
-    def set_color(text, color)
-      require 'colorize'
-      text.colorize(color)
-    rescue LoadError
-      puts 'Colorizer gem not found. Install it with `gem install colorizer` to use colored output.'
-      text
     end
 
     # TODO: figure out what I was thinking here

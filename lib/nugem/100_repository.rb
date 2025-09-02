@@ -77,7 +77,7 @@ module Nugem
     end
 
     def create_local_git_repository
-      puts set_color('Creating the local git repository', :green)
+      puts 'Creating the local git repository'.green
       run 'git init'
       run 'git add .'
 
@@ -156,10 +156,6 @@ module Nugem
       "git@#{@host.domain}:#{@user}/#{@name}.git"
     end
 
-    # TODO: Currently all private repositories are on BitBucket and all public repos are on GitHub
-    # TODO: Drop BitBucket?
-    # TODO: Support private repos on GitHub
-    # TODO: Support GitLab
     def private?
       @private
     end
