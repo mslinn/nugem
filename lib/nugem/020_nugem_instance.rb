@@ -38,7 +38,7 @@ module Nugem
       @class_name = ::Nugem.camel_case(@gem_name)
       @module_name = "#{@class_name}Module"
       @force       = options[:force] # TODO: delete this variable?
-      @out_dir     = ENV.fetch('my_gems') || options[:out_dir]
+      @out_dir     = ENV.fetch 'my_gems', options[:out_dir]
       repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
         host:    @options[:host],
