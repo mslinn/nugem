@@ -42,6 +42,7 @@ module Nugem
 
       my_gems  = ENV.fetch('my_gems', nil)
       @out_dir = my_gems ? File.join(my_gems, @gem_name) : options[:out_dir]
+      options[:out_dir] = @out_dir
 
       repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
@@ -316,14 +317,12 @@ module Nugem
 
     # Counts the number of 'TODO' strings in the given file within the output directory
     def todos_count(filename)
-      filename_fq = "#{@options[:out_dir]}/#{filename}"
-
-      unless File.exist?(filename_fq)
-        puts "Error: #{filename_fq} does not exist, there are no TODOs to count.".red
+      unless File.exist?(filename)
+        puts "Error: #{filename} does not exist, there are no TODOs to count.".red
         return 0
       end
 
-      content = File.exist?(filename_fq) ? File.read(filename_fq) : ''
+      content = File.exist?(filename) ? File.read(filename) : ''
       content.scan('TODO').length
     end
 
@@ -331,8 +330,8 @@ module Nugem
     # @return [String] Multiline string indicating the number of TODOs found
     def todos_report
       gem_name = @options[:gem_name]
-      gemspec_todos = todos_count "#{gem_name}.gemspec"
-      readme_todos = todos_count 'README.md'
+      gemspec_todos = todos_count File.join @options[:out_dir], "#{gem_name}.gemspec"
+      readme_todos  = todos_count File.join @options[:out_dir], 'README.md'
       if readme_todos.zero? && gemspec_todos.zero?
         puts "There are no TODOs. You can run 'bundle' from within your new gem project now.".blue
         return
