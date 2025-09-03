@@ -33,12 +33,16 @@ module Nugem
     #     out_dir: '~/output'
     #   })
     def initialize(options = DEFAULT_OPTIONS)
-      @gem_name = options[:gem_name]
-      @options = options
-      @class_name = ::Nugem.camel_case(@gem_name)
-      @module_name = "#{@class_name}Module"
+      @options     = options
+      @gem_name    = options[:gem_name]
       @force       = options[:force] # TODO: delete this variable?
-      @out_dir     = ENV.fetch 'my_gems', options[:out_dir]
+
+      @class_name  = ::Nugem.camel_case(@gem_name)
+      @module_name = "#{@class_name}Module"
+
+      my_gems  = ENV.fetch('my_gems', nil)
+      @out_dir = my_gems ? File.join(my_gems, @gem_name) : options[:out_dir]
+
       repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
         host:    @options[:host],
