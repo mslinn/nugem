@@ -136,7 +136,7 @@ module Nugem
       Dir.chdir @options[:out_dir] do
         puts "Preparing a git repository in #{Dir.pwd}".green
         run 'chmod +x bin/*'
-        run 'chmod +x exe/*' if @executables
+        run 'chmod +x exe/*' if @options[:executables].any?
         create_local_git_repository
         FileUtils.rm_f 'Gemfile.lock'
         # puts "Running 'bundle'".green

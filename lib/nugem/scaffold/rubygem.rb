@@ -7,7 +7,7 @@ module Nugem
     # puts "gem_name=#{gem_name}".yellow
     super if gem_name.empty?
 
-    @executables = options[:executable]
+    @executables = options[:executables]
     @force       = options[:force]
     @host        = options[:host] # FIXME: conflicts with @host in create_gem_scaffold()
     @out_dir     = options[:out_dir]

@@ -8,7 +8,7 @@ module Nugem
   self.common_parser_proc = proc do |parser|
     # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
     parser.on '-e', '--executable EXECUTABLE' do |value|
-      @options[:executable] << value
+      @options[:executables] << value
     end
     parser.on '-f', '--force',             TrueClass,            'Overwrite output directory'
     parser.on '-H', '--host=HOST',         %w[github bitbucket], 'Repository host'

@@ -12,7 +12,7 @@ module Nugem
       out_dir:     "#{Dir.home}/nugem_generated",
       host:        :github,
       private:     false,
-      executables: false,
+      executables: [],
     }.freeze
 
     # Initialize a new Nugem instance with the given gem name and options.
@@ -51,7 +51,7 @@ module Nugem
       puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@out_dir}.".green
       directory exclude_pattern:   %r{common/gem_scaffold/spec/.*},
                 src_path_fragment: 'common/gem_scaffold'
-      directory(src_path_fragment: 'common/executable_scaffold') if @options[:executable]
+      directory(src_path_fragment: 'common/executable_scaffold') if @options[:executables].any?
       template 'common/LICENCE.txt.tt', "#{@out_dir}/LICENCE.txt"
     end
 

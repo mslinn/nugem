@@ -55,10 +55,10 @@ class RubyOptionsTest
       nugem_options.create_dir path.to_s, nugem_options[:out_dir] # TODO: add this in other places
       actual = nugem_options.nested_option_parser_from(argv, allow_unknown_options: false, dry_run: true)
       expected = nugem_options.options.merge({
-                                               executable: ['blah'],
-                                               loglevel:   'debug',
-                                               out_dir:    TEST_OUT_DIR,
-                                               private:    true,
+                                               executables: ['blah'],
+                                               loglevel:    'debug',
+                                               out_dir:     TEST_OUT_DIR,
+                                               private:     true,
                                              })
       expect(actual).to eq(expected)
 
@@ -81,8 +81,8 @@ class RubyOptionsTest
       argv = %w[ruby test -e ex1 -e ex2 --loglevel=debug]
       nugem_options = described_class.new({ gem_type: 'ruby' }, errors_are_fatal: false)
       expected = nugem_options.options.merge({
-                                               executable: %w[ex1 ex2],
-                                               loglevel:   'debug',
+                                               executables: %w[ex1 ex2],
+                                               loglevel:    'debug',
                                              })
       actual = nugem_options.nested_option_parser_from(argv, allow_unknown_options: false, dry_run: true)
       expect(actual).to eq(expected)

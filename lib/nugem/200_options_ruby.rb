@@ -18,15 +18,15 @@ module Nugem
       @errors_are_fatal = errors_are_fatal
 
       ruby_gem_options = {
-        executable: [],
-        dry_run:    dry_run,
-        force:      false,
-        host:       'github',
-        loglevel:   LOGLEVELS[3], # Default is 'info'
-        out_dir:    "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
-        overwrite:  false,
-        private:    false,
-        todos:      true,
+        executables: [],
+        dry_run:     dry_run,
+        force:       false,
+        host:        'github',
+        loglevel:    LOGLEVELS[3], # Default is 'info'
+        out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
+        overwrite:   false,
+        private:     false,
+        todos:       true,
       }
       @options = default_options
                    .merge(ruby_gem_options)
@@ -78,12 +78,13 @@ module Nugem
     end
 
     def summarize
-      executable_msg = if @options[:executable].empty?
+      executables = @options[:executables]
+      executable_msg = if executables.empty?
                          'No executables will be included'
-                       elsif @options[:executable].length > 1
-                         "Executables called #{@options[:executable].join ', '} will be included"
+                       elsif executables.length > 1
+                         "Executables called #{executables.join ', '} will be included"
                        else
-                         "An executable called #{@options[:executable].join} will be included"
+                         "An executable called #{executables.join} will be included"
                        end
       force_msg = if @options[:force]
                     'Any pre-existing content in the output directory will be deleted before generating new output.'
