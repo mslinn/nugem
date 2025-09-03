@@ -40,10 +40,6 @@ module Nugem
       @class_name  = ::Nugem.camel_case(@gem_name)
       @module_name = "#{@class_name}Module"
 
-      my_gems  = ENV.fetch('my_gems', nil)
-      @out_dir = my_gems ? File.join(my_gems, @gem_name) : options[:out_dir]
-      options[:out_dir] = @out_dir
-
       repository_user_name = git_repository_user_name(@options[:host])
       @repository = ::Nugem::Repository.new(
         host:    @options[:host],
@@ -125,7 +121,7 @@ module Nugem
 
       # Iterate through all files and directories in src_path_fq
       Dir.glob(File.join(src_path_fq, '**', '*'), File::FNM_DOTMATCH).each do |entry|
-        puts "  Examining #{entry.delete_prefix(src_path_fq + '/')}".green
+        # puts "  Examining #{entry.delete_prefix(src_path_fq + '/')}".green
         next if entry.end_with? '.', '..'
 
         src_path_interpolated_fq = interpolate_percent_methods src_path_fq
@@ -197,9 +193,10 @@ module Nugem
       if this_is_a_template_file # read and process ERB template
         begin
           expanded_content = @acb.render File.read src_path_fq
-          puts "  Expanding template #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to #{dest_path_fq.gsub(
-            /\A#{Dir.home}/, '~'
-          )}".green
+          puts '  ' + <<~END_MSG.green # rubocop:disable Style/StringConcatenation
+            Expanding template #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to
+               #{dest_path_fq.gsub(/\A#{Dir.home}/, '~').gsub(/\A#{@my_gems}/, '$my_gems')}
+          END_MSG
           File.write dest_path_fq, expanded_content
           preserve_mode src_path_fq, dest_path_fq
         rescue NameError => e
@@ -216,7 +213,7 @@ module Nugem
     end
 
     def initialize_repository
-      puts "Initializing repository for #{@options[:gem_name]} at #{@repository.host}.".green
+      puts "Initializing repository for the '#{@options[:gem_name]}' gem, hosted at #{@repository.host.camel_case}...".green
       @repository.create_local_git_repository if %i[github gitlab bitbucket].include?(@repository.host)
     end
 
@@ -256,6 +253,12 @@ module Nugem
         puts "Warning: No object found responding to method '#{method_name}'".red
         "%#{method_name}%" # Leave unchanged if no match found
       end
+    end
+
+    def output_directory
+      @my_gems = ENV.fetch('my_gems', nil)
+      @out_dir = @my_gems ? File.join(@my_gems, @gem_name) : options[:out_dir]
+      @options[:output_directory] = @out_dir
     end
 
     def preserve_mode(source_path, dest_path)

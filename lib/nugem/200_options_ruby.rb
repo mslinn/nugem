@@ -95,7 +95,7 @@ module Nugem
         Options:
          - Gem type: #{@options[:gem_type]}
          - Loglevel #{@options[:loglevel]}
-         - Output directory: '#{@options[:out_dir]}'
+         - Output directory: '#{@options[:output_directory]}'
          - #{force_msg}
          - #{executable_msg}
          - Git host: #{@options[:host]}
