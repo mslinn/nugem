@@ -3,11 +3,8 @@ require 'fileutils'
 require 'rubygems/specification'
 require 'rugged'
 
+# Class methods
 module Nugem
-  #
-  # Class methods
-  #
-
   def self.camel_case(str)
     str.tr('-', '_')
       .split('_')

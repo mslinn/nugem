@@ -16,6 +16,8 @@ module Nugem
     }.freeze
 
     # Initialize a new Nugem instance with the given gem name and options.
+    # Defines various globals, including @acb [ArbitraryContextBinding], which is used to resolve variable
+    # references in ERB templates
     #
     # @param gem_name [String] The name of the gem.
     # @param options [Hash] Options for the gem scaffold, including host, private, and out_dir.
