@@ -1,96 +1,21 @@
-<% unless @repository.private? %>
-require 'coveralls'
-Coveralls.wear!
-<% end %>
+require 'rspec/expectations'
 
-<% unless @rails %>
-$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
-require '<%= gem_name %>'
-<% end %>
+require_relative '../lib/<%= @gem_name %>'
 
-require 'minitest/autorun'
+RSpec.configure do |config|
+  # See https://relishapp.com/rspec/rspec-core/docs/command-line/only-failures
+  config.example_status_persistence_file_path = 'spec/status_persistence.txt'
 
-require 'minitest/reporters'
-<% if @rails %>
-require 'minitest/reporters/screenshot_reporter'
-Minitest::Reporters.use! [Minitest::Reporters::SpecReporter.new,
-                          Minitest::Reporters::JUnitReporter.new,
-                          Minitest::Reporters::ScreenshotReporter.new]
-<% else %>
-Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
-<% end %>
+  # See https://rspec.info/features/3-12/rspec-core/filtering/filter-run-when-matching/
+  # and https://github.com/rspec/rspec/issues/221
+  config.filter_run_when_matching :focus
 
-# Filter out Minitest backtrace while allowing backtrace from other libraries to be shown.
-Minitest.backtrace_filter = Minitest::BacktraceFilter.new
+  # Other values: :progress, :html, :json, CustomFormatterClass
+  config.formatter = :documentation
 
-<% if @rails %>
-require File.expand_path('../test/dummy/config/environment.rb',  __dir__)
-ActiveRecord::Migrator.migrations_paths = [File.expand_path('../test/dummy/db/migrate', __dir__)]
-<% if @mountable %>
-ActiveRecord::Migrator.migrations_paths << File.expand_path('../db/migrate', __dir__)
-<% end %>
-require 'rails/test_help'
+  # See https://rspec.info/features/3-12/rspec-core/command-line/order/
+  config.order = :defined
 
-# Load support files
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
-
-# Load fixtures from the engine
-if ActiveSupport::TestCase.respond_to?(:fixture_path=)
-  ActiveSupport::TestCase.fixture_path = File.expand_path('fixtures', __dir__)
-  ActionDispatch::IntegrationTest.fixture_path = ActiveSupport::TestCase.fixture_path
-  ActiveSupport::TestCase.fixtures :all
+  # See https://www.rubydoc.info/github/rspec/rspec-core/RSpec%2FCore%2FConfiguration:pending_failure_output
+  config.pending_failure_output = :skip
 end
-
-# default test class for unit tests
-class UnitTest < ActiveSupport::TestCase
-  # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-  fixtures :all
-end
-
-# configure webtests with capybara and poltergeist (headless)
-require 'capybara/rails'
-require 'capybara_minitest_spec'
-require 'capybara/poltergeist'
-
-CAPYBARA_WINDOW_SIZE = [1024, 768]
-
-if ENV['HEADLESS'] == 'true'
-  # headless driver configuration
-  Capybara.register_driver :poltergeist do |app|
-    poltergeist_options = { debug: false, timeout: 30, js_errors: true, window_size: CAPYBARA_WINDOW_SIZE }
-    Capybara::Poltergeist::Driver.new(app, poltergeist_options)
-  end
-  Capybara.default_driver = :poltergeist
-else
-  # chrome browser driver configuration
-  Capybara.register_driver :selenium do |app|
-    Capybara::Selenium::Driver.new(app, :browser => :chrome)
-  end
-  Capybara.default_driver = :selenium
-  Capybara.current_session.driver.browser.manage.window.resize_to CAPYBARA_WINDOW_SIZE[0], CAPYBARA_WINDOW_SIZE[1]
-end
-Capybara.default_max_wait_time = 5   # how long should capybara wait for elements to appear on the page (ajax)
-
-# use database_cleaner to clean the database after every test with truncation, instead of using transactional fixtures
-require 'database_cleaner'
-DatabaseCleaner.strategy = :truncation
-
-# default test class for webtests
-class WebTest < ActionDispatch::IntegrationTest
-  include Capybara::DSL
-  extend Minitest::Spec::DSL
-  include Minitest::Reporters::Screenshot
-
-  # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-  fixtures :all
-
-  # disable transactional fixtures, as we use DatabaseCleaner
-  self.use_transactional_fixtures = false
-
-  # clean database after each test with database_cleaner
-  def after_teardown
-    super
-    DatabaseCleaner.clean
-  end
-end
-<% end %>

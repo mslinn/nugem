@@ -1,11 +1,15 @@
-require_relative 'test_helper'
+require 'rspec/expectations'
+require 'rspec/match_ignoring_whitespace'
 
-class <%= @class_name %>Test < Minitest::Test
-  def test_it_is_a_module
-    assert_kind_of Module, <%= @class_name %>
-  end
+require_relative 'spec_helper'
+require_relative '../lib/<%= @gem_name %>'
 
-  def test_that_it_has_a_version_number
-    refute_nil ::<%= @class_name %>::VERSION
+class <%= @class_name %>Test
+  RSpec.describe <%= @class_name %> do
+    it 'tests does something' do
+      actual = 1
+      expected = 1
+      expect(actual).to eq(expected)
+    end
   end
 end

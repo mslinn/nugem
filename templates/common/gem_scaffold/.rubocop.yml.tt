@@ -1,13 +1,11 @@
 require:
-  <% if @jekyll %>
+  <%- if @jekyll -%>
   # - rubocop-jekyll
-  <% end %>
+  <%- end -%>
   - rubocop-md
   - rubocop-performance
   - rubocop-rake
-  <% if @test_framework == 'rspec' %>
   - rubocop-rspec
-  <% end %>
 
 AllCops:
   Exclude:
@@ -62,7 +60,6 @@ Style/FrozenStringLiteralComment:
 
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: comma
-<% if @test_framework == 'rspec' %>
 
 RSpec/SpecFilePathFormat:
   IgnoreMethods: true
@@ -72,4 +69,3 @@ RSpec/ExampleLength:
 
 RSpec/MultipleExpectations:
   Max: 15
-<% end %>

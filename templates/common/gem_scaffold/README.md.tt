@@ -1,15 +1,11 @@
-<% if @repository.public? %>
 # `<%= gem_name.capitalize %>` [![Gem Version](https://badge.fury.io/rb/<%= gem_name %>.svg)](https://badge.fury.io/rb/<%= gem_name %>)
-<% else %>
-# `<%= gem_name.capitalize %>`
-<% end %>
 
 <%= @todo %>Description of <%= @class_name %>
 
 
 ## Installation
 
-<% if @jekyll %>
+<%- if @jekyll -%>
 Add the following to your Jekyll website's `Gemfile`:
 
 ```ruby
@@ -17,8 +13,8 @@ group :jekyll_plugins do
   gem '<%= gem_name %>'
 end
 ```
-<% end %>
-<% unless @jekyll %>
+<%- end -%>
+<%- unless @jekyll -%>
 Either add this line to your application&rsquo;s `Gemfile`:
 
 ```ruby
@@ -30,7 +26,7 @@ gem '<%= gem_name %>'
 ```ruby
 spec.add_dependency '<%= gem_name %>'
 ```
-<% end %>
+<%- end -%>
 
 And then execute:
 
@@ -95,8 +91,6 @@ $ bundle exec rake release
 Bug reports and pull requests are welcome at <%= @repository.url %>.
 
 
-<% if @repository.public? %>
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-<% end %>

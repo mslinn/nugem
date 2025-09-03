@@ -9,14 +9,7 @@
 /doc/
 /pkg/
 /tmp/
-<% if @rails %>
-test/dummy/db/*.sqlite3
-test/dummy/db/*.sqlite3-journal
-test/dummy/log/*.log
-test/dummy/tmp/
-test/dummy/.sass-cache
-<% end %>
-<% if @jekyll %>
+<%- if @jekyll -%>
 spec/status_persistence.txt
 .jekyll-cache/
 .jekyll-metadata
@@ -24,4 +17,4 @@ _site/
 demo/_site/
 demo/.jekyll-cache/
 demo/.jekyll-metadata
-<% end %>
+<%- end -%>

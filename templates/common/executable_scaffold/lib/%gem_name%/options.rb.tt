@@ -21,8 +21,8 @@ def parse_options
     parser.program_name = File.basename __FILE__
     @parser = parser
 
-    # parser.on('-b',      '--bpm BPM', OptionParser::DecimalInteger, 'Specify BPM (default is 120 bpm)')
-    # parser.on('-f',      '--overwrite',                             'Overwrite output MIDI file if present') {% endcomment %}
+    # parser.on('-b',    '--bpm BPM', OptionParser::DecimalInteger, 'Specify BPM (default is 120 bpm)')
+    # parser.on('-f',    '--overwrite',                             'Overwrite output MIDI file if present') {% endcomment %}
     parser.on_tail('-h', '--help',                                  'Show this message') do
       help
     end
