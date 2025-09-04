@@ -49,8 +49,17 @@ module Nugem
         private: @options[:private],
         user:    repository_user_name
       )
-      output_directory
+      compute_output_directory
+
+      # Because the binding includes a reference to self, everything accessible to self can be resolved by this binding
       @acb = ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem], objects: [self]
+    end
+
+    def compute_output_directory
+      @my_gems = ENV.fetch('my_gems', nil)
+      @out_dir = @my_gems ? File.join(@my_gems, @gem_name) : options[:out_dir]
+      @options[:output_directory] = @out_dir
+      @out_dir
     end
 
     def create_scaffold
@@ -256,13 +265,6 @@ module Nugem
         puts "Warning: No object found responding to method '#{method_name}'".red
         "%#{method_name}%" # Leave unchanged if no match found
       end
-    end
-
-    def output_directory
-      @my_gems = ENV.fetch('my_gems', nil)
-      @out_dir = @my_gems ? File.join(@my_gems, @gem_name) : options[:out_dir]
-      @options[:output_directory] = @out_dir
-      @out_dir
     end
 
     def preserve_mode(source_path, dest_path)
