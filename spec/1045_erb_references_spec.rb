@@ -55,6 +55,7 @@ module Nugem
         expect(nugem.acb.render('<%= @gem_name %>')).to                   eq('test')
         expect(nugem.acb.render('<%= @module_name %>')).to                eq('TestModule')
         expect(nugem.acb.render('<%= @options[:gem_name] %>')).to         eq('test')
+        expect(nugem.acb.render('<%= @options[:output_directory] %>')).to eq('/a/b/c/my_gems/test')
         expect(nugem.acb.render('<%= @repository.host.camel_case %>')).to eq('GitHub')
         expect(nugem.acb.render('<%= @repository.name %>')).to            eq('test')
         expect(nugem.acb.render('<%= @repository.private %>')).to         eq('false')

@@ -357,8 +357,8 @@ module Nugem
     # @return [String] Multiline string indicating the number of TODOs found
     def todos_report
       gem_name = @options[:gem_name]
-      gemspec_todos = todos_count File.join @options[:out_dir], "#{gem_name}.gemspec"
-      readme_todos  = todos_count File.join @options[:out_dir], 'README.md'
+      gemspec_todos = todos_count File.join @options[:output_directory], "#{gem_name}.gemspec"
+      readme_todos  = todos_count File.join @options[:output_directory], 'README.md'
       if readme_todos.zero? && gemspec_todos.zero?
         puts "There are no TODOs. You can run 'bundle' from within your new gem project now.".blue
         return
