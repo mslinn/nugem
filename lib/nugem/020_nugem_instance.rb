@@ -332,7 +332,7 @@ module Nugem
 
     def to_s
       msg = '#<Nugem'
-      # msg += " acb=#{@acb}"
+      # msg += " acb=#{@acb}" # stack overflow
       msg += " class_name='#{@class_name}' force=#{@force} gem_name='#{@gem_name}'"
       msg += " module_name='#{@module_name}' my_gems='#{@my_gems}' out_dir='#{@out_dir}'"
       msg += " host='#{@host.camel_case}'" if @host
