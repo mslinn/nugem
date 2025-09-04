@@ -6,7 +6,7 @@ require 'rugged'
 
 module Nugem
   class Nugem
-    attr_reader :gem_name, :options, :dir, :class_name, :module_name, :repository
+    attr_reader :acb, :gem_name, :options, :dir, :class_name, :module_name, :repository
 
     DEFAULT_OPTIONS = {
       out_dir:     "#{Dir.home}/nugem_generated",
@@ -37,7 +37,7 @@ module Nugem
     def initialize(options = DEFAULT_OPTIONS)
       @options     = options
       @gem_name    = options[:gem_name]
-      @force       = options[:force] # TODO: delete this variable?
+      @force       = options[:force] # TODO: clarify what this variable actually does
 
       @class_name  = ::Nugem.camel_case(@gem_name)
       @module_name = "#{@class_name}Module"
@@ -49,6 +49,7 @@ module Nugem
         private: @options[:private],
         user:    repository_user_name
       )
+      output_directory
       @acb = ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem], objects: [self]
     end
 
@@ -261,6 +262,7 @@ module Nugem
       @my_gems = ENV.fetch('my_gems', nil)
       @out_dir = @my_gems ? File.join(@my_gems, @gem_name) : options[:out_dir]
       @options[:output_directory] = @out_dir
+      @out_dir
     end
 
     def preserve_mode(source_path, dest_path)

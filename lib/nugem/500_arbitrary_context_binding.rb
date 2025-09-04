@@ -26,6 +26,8 @@ class AmbiguousMethodError < StandardError; end
 # acb = ArbitraryContextBinding.new(objects: [obj1, obj2])
 # expanded_template = acb.render template
 class ArbitraryContextBinding
+  attr_reader :base_binding, :modules, :objects
+
   # @param base_binding: is the binding to use as the base for this context binding.
   #                      This is typically the caller's binding so that instance variables
   #                      defined in the caller are visible inside ERB templates.
