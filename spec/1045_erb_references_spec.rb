@@ -5,6 +5,7 @@ module Nugem
   class ValuesTest
     # Ensure that all variables referenced by ERB templates resolve
     RSpec.describe 'ERB references' do
+      x = 'x'
       def nugem_from_argv(argv)
         original_verbose = $VERBOSE # See https://avdi.codes/temporarily-disabling-warnings-in-ruby/
         $VERBOSE = nil
@@ -35,9 +36,17 @@ module Nugem
         expect(nugem.acb.render('<%= @out_dir %>')).to eq('/a/b/c/my_gems/test')
       end
 
-      it 'resolves local variables within the Nugem.initialize method' do
+      it 'resolves local variables defined where the Nugem.initialize method was called from' do
         ENV['my_gems'] = '/a/b/c/my_gems'
         nugem = nugem_from_argv %w[ruby test]
+        expect(nugem.acb.render('<%= options[:gem_name] %>')).to eq('test')
+      end
+
+      it 'resolves local variables defined within the Nugem.initialize method' do
+        ENV['my_gems'] = '/a/b/c/my_gems'
+        nugem = nugem_from_argv %w[ruby test]
+        expect(nugem.acb.render('<%= x %>')).to eq('x')
+        expect(nugem.acb.render('<%= original_verbose %>')).to eq('false')
         expect(nugem.acb.render('<%= repository_user_name %>')).to eq('Mike Slinn')
       end
 

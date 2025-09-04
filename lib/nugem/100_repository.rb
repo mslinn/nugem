@@ -152,6 +152,10 @@ module Nugem
       todos_report gem_name
     end
 
+    def inspect
+      to_s
+    end
+
     def origin
       "git@#{@host.domain}:#{@user}/#{@name}.git"
     end
@@ -162,6 +166,16 @@ module Nugem
 
     def public?
       !@private
+    end
+
+    def to_s
+      msg = '#<Repository'
+      msg += " host='#{@host.camel_case}'" if @host
+      msg += " global_config (#{@global_config.to_hash.length} entries)" if @global_config
+      msg += " name='#{@name}' private=#{@private} user='#{@user}'"
+      msg += " user_email='#{@user_email}' user_name='#{@user_name}'"
+      msg += '>'
+      msg
     end
 
     def url

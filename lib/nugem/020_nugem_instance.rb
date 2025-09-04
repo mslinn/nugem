@@ -8,12 +8,14 @@ module Nugem
   class Nugem
     attr_reader :acb, :gem_name, :options, :dir, :class_name, :module_name, :repository
 
-    DEFAULT_OPTIONS = {
-      out_dir:     "#{Dir.home}/nugem_generated",
-      host:        :github,
-      private:     false,
-      executables: [],
-    }.freeze
+    unless defined?(DEFAULT_OPTIONS)
+      DEFAULT_OPTIONS = {
+        out_dir:     "#{Dir.home}/nugem_generated",
+        host:        :github,
+        private:     false,
+        executables: [],
+      }.freeze
+    end
 
     # Initialize a new Nugem instance with the given gem name and options.
     # Defines various globals, including @acb [ArbitraryContextBinding], which is used to resolve variable
@@ -229,6 +231,10 @@ module Nugem
       @repository.create_local_git_repository if %i[github gitlab bitbucket].include?(@repository.host)
     end
 
+    def inspect
+      to_s
+    end
+
     def git_repository_user_name(host)
       case host
       when 'bitbucket', 'gitlab', 'github'
@@ -322,6 +328,18 @@ module Nugem
       elsif mode.is_a?(Integer)
         FileUtils.chmod(mode, dest_path) # Set specific mode if provided
       end
+    end
+
+    def to_s
+      msg = '#<Nugem'
+      # msg += " acb=#{@acb}"
+      msg += " class_name='#{@class_name}' force=#{@force} gem_name='#{@gem_name}'"
+      msg += " module_name='#{@module_name}' my_gems='#{@my_gems}' out_dir='#{@out_dir}'"
+      msg += " host='#{@host.camel_case}'" if @host
+      msg += " options (#{@options.length} entries)" if @options.any?
+      msg += " #{@repository}" if @repository
+      msg += '>'
+      msg
     end
 
     # Counts the number of 'TODO' strings in the given file within the output directory

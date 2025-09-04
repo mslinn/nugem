@@ -61,6 +61,17 @@ class ArbitraryContextBinding
     erb.result ctx.get_binding
   end
 
+  def to_s
+    msg = 'ArbitraryContextBinding'
+    msg += " #{@base_binding.local_variables.length} objects" if @base_binding.local_variables.any?
+    msg += " #{@base_binding.instance_variables.length} objects" if @base_binding.instance_variables.any?
+    msg += " #{@objects.length} objects" if @objects.any?
+    msg += " #{@modules.length} objects" if @modules.any?
+    msg
+  end
+
+  def inspect = to_s
+
   private
 
   # Collect methods from both objects and modules for delegation.
