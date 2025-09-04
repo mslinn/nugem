@@ -21,8 +21,8 @@ module Nugem
     #
     # @param gem_name [String] The name of the gem.
     # @param options [Hash] Options for the gem scaffold, including host, private, and out_dir.
-    #                if an environment variable called my_gems is defined, out_dir will default to its value,
-    #                otherwise out_dir will default to ~/nugem_generated.
+    #                if an environment variable called my_gems is defined, out_dir will default to $my_gems/gem_name,
+    #                otherwise out_dir will default to ~/nugem_generated/gem_name.
     #
     # @return [Nugem] A new instance of Nugem.
     #

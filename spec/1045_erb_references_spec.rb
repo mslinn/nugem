@@ -23,11 +23,10 @@ module Nugem
         expect(nugem.acb.render('<%= @gem_name %>')).to eq('test')
       end
 
-      it 'out_dir special handling using current directory' do
+      it 'out_dir special handling using home' do
         ENV.delete 'my_gems'
         nugem = nugem_from_argv %w[ruby test]
-        expect(nugem.acb.render('<%= @out_dir %>')).to eq(File.join(Dir.pwd, 'test'))
-        expect(nugem.acb.render('<%= @out_dir %>')).to eq(File.join(Dir.pwd, 'test'))
+        expect(nugem.acb.render('<%= @out_dir %>')).to eq(File.join(Dir.home, 'nugem_generated/test'))
       end
 
       it 'out_dir special handling using $my_gems' do
