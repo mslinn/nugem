@@ -3,6 +3,7 @@ require 'optparse'
 
 require_relative 'spec_helper'
 
+# TODO: delete this file after ACB project works
 module TestHelpers
   def self.version = '9.9.9'
   def self.helper  = 'helper called'

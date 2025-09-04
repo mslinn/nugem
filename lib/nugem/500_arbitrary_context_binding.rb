@@ -1,5 +1,7 @@
 require 'erb'
 
+# TODO: delete this file after ACB project works
+
 class AmbiguousMethodError < StandardError; end
 
 # This class must be constructed *after* the objects and modules to be referenced
