@@ -1,3 +1,4 @@
+require 'arbitrary_context_binding'
 require 'erb'
 require 'fileutils'
 require 'find'
@@ -54,7 +55,8 @@ module Nugem
       compute_output_directory
 
       # Because the binding includes a reference to self, everything accessible to self can be resolved by this binding
-      @acb = ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem], objects: [self]
+      @acb = ArbitraryContextBinding::ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem],
+                                                                  objects: [self]
     end
 
     def compute_output_directory
