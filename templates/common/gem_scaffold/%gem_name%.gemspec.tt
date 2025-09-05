@@ -2,9 +2,11 @@ require_relative 'lib/<%= gem_name %>/version'
 
 Gem::Specification.new do |spec|
   <%- if @repository.github? -%>
-  host = 'https://github.com/<%= `gh api user | jq -r '.login'`.chomp %>/<%= gem_name %>'
+  userid = `gh api user | jq -r '.login'`.chomp
+  host = 'https://github.com/<%= userid %>/<%= gem_name %>'
   <%- else -%>
-  host = 'https://bitbucket.com/<%= `bb api user | jq -r '.login'`.chomp %>/<%= gem_name %>'
+  userid = `bb api user | jq -r '.login'`.chomp # FIXME: this is bogus (bb does not exist)
+  host = 'https://bitbucket.com/<%= userid %>/<%= gem_name %>'
   <%- end -%>
 
   spec.authors               = ['<%= @repository.user_name %>']
@@ -18,7 +20,7 @@ Gem::Specification.new do |spec|
   END_DESC
   spec.email                 = ['<%= @repository.user_email %>']
   spec.files                 = Dir['.rubocop.yml', 'LICENSE.*', 'Rakefile', '{lib,spec}/**/*', '*.gemspec', '*.md']
-  spec.homepage              = '<%= @repository.url %>'
+  spec.homepage              = host
   spec.license               = 'MIT'
   spec.metadata = {
     'allowed_push_host' => 'https://rubygems.org',

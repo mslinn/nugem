@@ -41,6 +41,7 @@ Gem::Specification.new do |spec|
   spec.summary               = 'Nugem creates a scaffold project for new gems.'
   spec.version               = Nugem::VERSION
 
+  spec.add_dependency 'arbitrary_context_binding'
   spec.add_dependency 'colorize'
   spec.add_dependency 'gem_support'
   spec.add_dependency 'highline'
