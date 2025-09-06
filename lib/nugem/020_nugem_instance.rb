@@ -52,7 +52,10 @@ module Nugem
         private: @options[:private],
         user:    repository_user_name
       )
-      compute_output_directory
+      if File.exist?(compute_output_directory) && !@options[:force]
+        puts "Aborting because #{@out_dir} is not empty and --force was not specified.".red
+        exit 1
+      end
 
       # Because the binding includes a reference to self, everything accessible to self can be resolved by this binding
       @acb = ArbitraryContextBinding::ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem],
