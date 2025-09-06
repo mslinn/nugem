@@ -2,11 +2,9 @@ require_relative 'lib/<%= gem_name %>/version'
 
 Gem::Specification.new do |spec|
   <%- if @repository.github? -%>
-  userid = `gh api user | jq -r '.login'`.chomp
-  host = 'https://github.com/<%= userid %>/<%= gem_name %>'
+    host = 'https://github.com/<%= git_userid %>/<%= gem_name %>'
   <%- else -%>
-  userid = `bb api user | jq -r '.login'`.chomp # FIXME: this is bogus (bb does not exist)
-  host = 'https://bitbucket.com/<%= userid %>/<%= gem_name %>'
+    host = 'https://bitbucket.com/<%= git_userid %>/<%= gem_name %>'
   <%- end -%>
 
   spec.authors               = ['<%= @repository.user_name %>']

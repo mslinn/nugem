@@ -214,7 +214,7 @@ module Nugem
           expanded_content = @acb.render File.read src_path_fq
           puts '  ' + <<~END_MSG.green # rubocop:disable Style/StringConcatenation
             Expanding template #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to
-               #{dest_path_fq.gsub(/\A#{Dir.home}/, '~').gsub(/\A#{@my_gems}/, '$my_gems')}
+                #{dest_path_fq.gsub(/\A#{Dir.home}/, '~').gsub(/\A#{@my_gems}/, '$my_gems')}
           END_MSG
           File.write dest_path_fq, expanded_content
           preserve_mode src_path_fq, dest_path_fq
@@ -226,21 +226,23 @@ module Nugem
         end
       else
         puts "  Copying #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to " \
-             "#{dest_path_fq.gsub(/\A#{Dir.home}/, '~')}".green
+             "\n    #{dest_path_fq.gsub(/\A#{Dir.home}/, '~')}".green
         FileUtils.cp(src_path_fq, dest_path_fq) # Preserves file contents and permissions but not owner or group
       end
     end
 
     def initialize_repository
-      puts "Initializing repository for the '#{@options[:gem_name]}' gem, hosted at #{@repository.host.camel_case}...".green
+      puts "\nInitializing a new repository for the '#{@options[:gem_name]}' gem, hosted at #{@repository.host.camel_case}...".green
       @repository.create_local_git_repository if %i[github gitlab bitbucket].include?(@repository.host)
+    rescue StandardError => e
+      puts e.message.red
     end
 
     def inspect
       to_s
     end
 
-    def git_repository_user_name(host)
+    def git_repository_user_name(host = @options[:host])
       case host
       when 'bitbucket', 'gitlab', 'github'
         Rugged::Config.global['user.name']
@@ -249,6 +251,21 @@ module Nugem
       end
     rescue StandardError => e
       puts "Error retrieving git user name: #{e.message}".red
+      nil
+    end
+
+    def git_userid(host = @options[:host])
+      case host
+      when 'github'
+        `gh api user | jq -r '.login'`.chomp
+      when 'bitbucket', 'gitlab'
+        puts "Error: git_userid(#{host}) has not been implemented yet"
+        exit 3
+      else
+        raise ArgumentError, "Unknown host: #{host}"
+      end
+    rescue StandardError => e
+      puts "Error retrieving git userid: #{e.message}".red
       nil
     end
 
@@ -365,15 +382,14 @@ module Nugem
       gemspec_todos = todos_count File.join @options[:output_directory], "#{gem_name}.gemspec"
       readme_todos  = todos_count File.join @options[:output_directory], 'README.md'
       if readme_todos.zero? && gemspec_todos.zero?
-        puts "There are no TODOs. You can run 'bundle' from within your new gem project now.".blue
-        return
+        "\nThere are no TODOs. You can run 'bundle' from within your new gem project now.".green
+      else
+        msg = '\nPlease complete'
+        msg << " the #{gemspec_todos} TODOs in #{gem_name}.gemspec" if gemspec_todos.positive?
+        msg << ' and' if gemspec_todos.positive? && readme_todos.positive?
+        msg << " the #{readme_todos} TODOs in README.md." if readme_todos.positive?
+        msg.yellow
       end
-
-      msg = 'Please complete'
-      msg << " the #{gemspec_todos} TODOs in #{gem_name}.gemspec" if gemspec_todos.positive?
-      msg << ' and' if gemspec_todos.positive? && readme_todos.positive?
-      msg << " the #{readme_todos} TODOs in README.md." if readme_todos.positive?
-      msg
     end
   end
 end

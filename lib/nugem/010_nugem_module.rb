@@ -29,8 +29,13 @@ module Nugem
     nugem = Nugem.new nugem_options.options
     nugem.create_scaffold
     nugem.initialize_repository
-    puts nugem.todos_report&.yellow if nugem_options.options[:todos]
-    puts `tree #{nugem_options.options[:out_dir]}`
+    puts nugem.todos_report if nugem_options.options[:todos]
+    msg = "\n" + `tree #{nugem_options.options[:output_directory]}` # rubocop:disable Style/StringConcatenation
+    if msg.include? '0 directories, 0 files'
+      puts 'No files were generated'.yellow
+    else
+      puts msg.green
+    end
   end
 
   def method_option(name, default: nil, desc: '', enum: [], type: :string)
