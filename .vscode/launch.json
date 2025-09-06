@@ -39,8 +39,8 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "Fail nugem ruby with options before the gem type",
-      "script": "${workspaceFolder}/exe/nugem -o /tmp --yes ruby test",
+      "name": "Fail options before the gem type",
+      "script": "${workspaceFolder}/exe/nugem -o /tmp/nugem_test --yes ruby test",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
@@ -50,8 +50,19 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "nugem ruby test -o /tmp --yes",
-      "script": "${workspaceFolder}/exe/nugem ruby test -o /tmp --yes",
+      "name": "Fail invalid option --yes",
+      "script": "${workspaceFolder}/exe/nugem ruby test -o /tmp/nugem_test --yes",
+      "request": "launch",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "debugPort": "0",
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "Nugem overwrite /tmp/nugem_test",
+      "script": "${workspaceFolder}/exe/nugem ruby test -o /tmp/nugem_test --force",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,

@@ -25,6 +25,11 @@ module Nugem
                       puts "Unrecognized gem type '#{options[:gem_type]}'.".red
                       exit 2
                     end
+    nop = nugem_options.nested_option_parser_from ARGV
+    if nop.argv
+      puts "Invalid syntax: #{nop.argv}"
+      exit 5
+    end
     puts nugem_options.prepare_and_report.green
     nugem = Nugem.new nugem_options.options
     nugem.create_scaffold
@@ -71,8 +76,8 @@ module Nugem
     end
 
     options = {}
-    options[:gem_type] = ARGV.shift
-    options[:gem_name] = ARGV.shift
+    options[:gem_type] = ARGV[0]
+    options[:gem_name] = ARGV[1]
 
     unless ::Nugem.validate_gem_name(options[:gem_name]) # This comment prevents folding
       ::Nugem.help_proc.call "Error: '#{options[:gem_name]}' is an invalid gem name.",
