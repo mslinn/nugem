@@ -27,15 +27,6 @@
     },
     <%- end -%>
     {
-      "args": [],
-      "debugPort": "0",
-      "name": "Debug current file with rdbg",
-      "script": "${file}",
-      "request": "launch",
-      "type": "rdbg",
-      "useBundler": true,
-    },
-    {
       "name": "Run selected Ruby file with ruby_lsp",
       "program": "ruby ${file}",
       "request": "launch",
@@ -53,16 +44,44 @@
       "type": "ruby_lsp",
     },
     {
-      "name": "RSpec - active spec file only",
-      "program": "${workspaceRoot}/binstub/rspec -I ${workspaceRoot} ${file}",
+      "args": [
+        "-I",
+        "${workspaceRoot}/lib",
+        "-I",
+        "${workspaceRoot}/spec",
+        "-P",
+        "${workspaceRoot}/spec/**/*_spec.rb"
+      ],
+      "askParameters": false,
+      "debugPort": "0",
+      "name": "RSpec - all",
       "request": "launch",
-      "type": "ruby_lsp",
+      "script": "${workspaceRoot}/binstub/rspec",
+      "type": "rdbg",
     },
     {
-      "name": "RSpec - all",
-      "program": "${workspaceRoot}/binstub/rspec -I ${workspaceRoot}",
+      "args": [
+        "-I",
+        "${workspaceRoot}/lib",
+        "-I",
+        "${workspaceRoot}/spec",
+        "${file}"
+      ],
+      "debugPort": "0",
+      "name": "RSpec - active spec only",
       "request": "launch",
-      "type": "ruby_lsp",
-    }
+      "script": "${workspaceRoot}/binstub/rspec",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "args": [],
+      "debugPort": "0",
+      "name": "Debug current file with rdbg",
+      "request": "launch",
+      "script": "${file}",
+      "type": "rdbg",
+      "useBundler": true,
+    },
   ]
 }
