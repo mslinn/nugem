@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.0.0 / 2025-06-14
+## 2.0.0 / 2025-09-16
 
 * Rails support has been removed.
 * Geminabox support has been removed.
