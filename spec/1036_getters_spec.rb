@@ -1,7 +1,7 @@
 require_relative 'spec_helper'
 require_relative '../lib/nugem'
 
-# Do not use let to define variables so ArbitraryContextBinding can be constructed properly
+# Do not use let to define variables so CustomBinding can be constructed properly
 RSpec.describe 'Getters' do
   repository = Nugem::Repository.new({
                                        host:    'github',
@@ -9,15 +9,13 @@ RSpec.describe 'Getters' do
                                        private: true,
                                        user:    'Mike Slinn',
                                      })
-  acb_nugem_module = ArbitraryContextBinding.new(modules: [Nugem])
+  cb = CustomBinding.new
+  cb.add_object_to_binding_as 'repository', repository
 
   describe 'Nugem getters' do
     it 'reads values from constructed context' do
-      result = acb_nugem_module.render('User: <%= repository.user_name %>')
+      result = cb.render('User: <%= repository.user_name %>')
       expect(result).to eq('User: Mike Slinn')
-
-      # result = acb_nugem_module.render('Project Title: <%= @project.title %>')
-      # expect(result).to eq('Project Title: TODO')
     end
   end
 end

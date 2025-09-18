@@ -1,4 +1,4 @@
-require 'arbitrary_context_binding'
+require 'custom_binding'
 require 'erb'
 require 'fileutils'
 require 'find'
@@ -19,7 +19,7 @@ module Nugem
     end
 
     # Initialize a new Nugem instance with the given gem name and options.
-    # Defines various globals, including @acb [ArbitraryContextBinding], which is used to resolve variable
+    # Defines various globals, including @acb [CustomBinding], which is used to resolve variable
     # references in ERB templates
     #
     # @param gem_name [String] The name of the gem.
@@ -58,8 +58,7 @@ module Nugem
       end
 
       # Because the binding includes a reference to self, everything accessible to self can be resolved by this binding
-      @acb = ArbitraryContextBinding::ArbitraryContextBinding.new base_binding: binding, modules: [::Nugem],
-                                                                  objects: [self]
+      @acb = CustomBinding::CustomBinding.new
     end
 
     def compute_output_directory

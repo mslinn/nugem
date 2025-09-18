@@ -1,4 +1,4 @@
-require 'arbitrary_context_binding'
+require 'custom_binding'
 require 'colorize'
 require_relative 'highline_wrappers'
 
