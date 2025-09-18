@@ -26,7 +26,7 @@ module Nugem
                       exit 2
                     end
     nop = nugem_options.nested_option_parser_from ARGV
-    if nop.argv
+    if nop.argv.any?
       puts "Invalid syntax: #{nop.argv}"
       exit 5
     end

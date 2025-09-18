@@ -19,7 +19,7 @@ module Nugem
     end
 
     # Initialize a new Nugem instance with the given gem name and options.
-    # Defines various globals, including @acb [CustomBinding], which is used to resolve variable
+    # Defines various globals, including @cb [CustomBinding], which is used to resolve variable
     # references in ERB templates
     #
     # @param gem_name [String] The name of the gem.
@@ -54,22 +54,32 @@ module Nugem
       )
       if File.exist?(compute_output_directory) && !@options[:force]
         puts "Aborting because #{@out_dir} is not empty and --force was not specified.".red
-        exit 1
+        exit! 1
       end
 
-      # Because the binding includes a reference to self, everything accessible to self can be resolved by this binding
-      @acb = CustomBinding::CustomBinding.new
+      @cb = CustomBinding::CustomBinding.new({
+                                               class_name:           @class_name,
+                                               force:                @force,
+                                               gem_name:             @gem_name,
+                                               module_name:          @module_name,
+                                               repository:           @repository,
+                                               repository_user_name: repository_user_name,
+                                             })
     end
 
     def compute_output_directory
       @my_gems = ENV.fetch('my_gems', nil)
-      @out_dir = @my_gems ? File.join(@my_gems, @gem_name) : options[:out_dir]
+      @out_dir = @my_gems ? File.join(@my_gems, gem_name) : options[:out_dir]
       @options[:output_directory] = @out_dir
+
+      @cb.add_object_to_binding_as 'my_gems', @my_gems
+      @cb.add_object_to_binding_as 'output_directory', @out_dir
+
       @out_dir
     end
 
     def create_scaffold
-      puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{@gem_name} in #{@out_dir}.".green
+      puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{gem_name} in #{@out_dir}.".green
       directory exclude_pattern:   %r{common/gem_scaffold/spec/.*},
                 src_path_fragment: 'common/gem_scaffold'
       directory(src_path_fragment: 'common/executable_scaffold') if @options[:executables].any?
@@ -88,8 +98,8 @@ module Nugem
     #                                     it excludes specified files/directories from copying.
     def directory(src_path_fragment:, dest_root: @out_dir || Dir.pwd, **options)
       unless src_path_fragment
-        puts 'Error: Nugem.directory called without a src_path_fragment'.red
-        exit 2
+        puts 'Internal error: Nugem.directory called without a src_path_fragment'.red
+        exit! 2
       end
 
       src_path_fq = File.expand_path src_path_fragment, @options[:source_root]
@@ -120,21 +130,23 @@ module Nugem
     # @return [void]
     def directory_processing(dest_root_interpolated:, src_path_fq:, src_path_fragment:, exclude_pattern: nil)
       if dest_root_interpolated.include?('%')
-        puts "Error in directory_processing: Destination root #{dest_root_interpolated} contains a '%' character, which probably means interpolation failed.".red
-        exit 5
+        puts "Directory_processing halted because the destination root (#{dest_root_interpolated}) contains a '%' " \
+             'character, which means Windows environment variable interpolation failed.\n' \
+             'Provide a definition for the Windows environment variable and retry.'.red
+        exit! 5
       end
       unless dest_root_interpolated
-        puts 'Error: Nugem.directory_processing called without dest_root_interpolated; ' \
+        puts 'Internal error: Nugem.directory_processing called without dest_root_interpolated; ' \
              "src_path_fragment=#{src_path_fragment}".red
-        exit 2
+        exit! 2
       end
       unless src_path_fragment
         puts "Error: Nugem.directory_processing called without src_path_fragment; src_path_fq=#{src_path_fq}".red
-        exit 2
+        exit! 2
       end
       unless src_path_fq
         puts "Error: Nugem.directory_processing called without src_path_fq; src_path_fragment=#{src_path_fragment}".red
-        exit 2
+        exit! 2
       end
 
       # Iterate through all files and directories in src_path_fq
@@ -144,8 +156,10 @@ module Nugem
 
         src_path_interpolated_fq = interpolate_percent_methods src_path_fq
         if src_path_interpolated_fq.include?('%')
-          puts "Error in directory_processing: Source path #{src_path_interpolated_fq} contains a '%' character, which probably means interpolation failed.".red
-          exit 5
+          puts "Error in directory_processing: Source path #{src_path_interpolated_fq} contains a '%' character, " \
+               'which probably means Windows environment variable interpolation failed.' \
+               'Provide a definition for the undefined Windows environment variable and retry.'.red
+          exit! 5
         end
 
         relative_path = entry.sub %r{^#{Regexp.escape(src_path_interpolated_fq)}/?}, ''
@@ -159,7 +173,7 @@ module Nugem
                              exclude_pattern
                            else
                              puts "Error: exclude_pattern must be a String or Regexp, not #{exclude_pattern.class}".red
-                             exit 3
+                             exit! 3
                            end
           next if relative_path.match?(exclude_regexp)
         end
@@ -175,11 +189,12 @@ module Nugem
                         src_path_fq:             source_entry_path_fq,
                         this_is_a_template_file: this_is_a_template_file
       rescue StandardError => e
-        puts <<~END_MSG.red
+        msg <<~END_MSG
           Error processing directory entry #{entry}:
             #{e.message}
             Directory processing of #{src_path_interpolated_fq} terminated.
         END_MSG
+        puts msg.red
         break
       end
     end
@@ -193,16 +208,19 @@ module Nugem
     # @return [void]
     def directory_entry(dest_path_fq:, src_path_fq:, this_is_a_template_file:)
       if dest_path_fq.include?('%')
-        puts "Error in directory_entry: Destination path #{dest_path_fq} contains a '%' character, which probably means interpolation failed.".red
-        exit 5
+        puts "Error in directory_entry: Destination path #{dest_path_fq} contains a '%' character, " \
+             'which probably means interpolation failed.\n' \
+             'Provide a definition for the embedded Windows environment variable and retry.'.red
+        exit! 5
       end
       if dest_path_fq.end_with?('.tt')
-        puts "Error in directory_entry: Destination path #{dest_path_fq} ends with '.tt', which means it was not recognized as a template.".red
-        exit 5
+        puts "Error in directory_entry: Destination path #{dest_path_fq} ends with '.tt', " \
+             'which means it was not recognized as a template.'.red
+        exit! 5
       end
       if File.exist?(dest_path_fq) && !@force
         puts "Not overwriting #{dest_path_fq} because --force was not specified."
-        return
+        exit! 12
       end
 
       puts "Creating #{dest_path_fq}." if File.directory?(src_path_fq) && !Dir.exist?(dest_path_fq)
@@ -210,7 +228,7 @@ module Nugem
 
       if this_is_a_template_file # read and process ERB template
         begin
-          expanded_content = @acb.render File.read src_path_fq
+          expanded_content = @cb.render File.read src_path_fq
           puts '  ' + <<~END_MSG.green # rubocop:disable Style/StringConcatenation
             Expanding template #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to
                 #{dest_path_fq.gsub(/\A#{Dir.home}/, '~').gsub(/\A#{@my_gems}/, '$my_gems')}
@@ -259,7 +277,7 @@ module Nugem
         `gh api user | jq -r '.login'`.chomp
       when 'bitbucket', 'gitlab'
         puts "Error: git_userid(#{host}) has not been implemented yet"
-        exit 3
+        exit! 3
       else
         raise ArgumentError, "Unknown host: #{host}"
       end
@@ -287,7 +305,7 @@ module Nugem
     def interpolate_percent_methods(str)
       str.gsub(/%(\w+)%/) do
         method_name = Regexp.last_match(1) # Extract text between %...%
-        @acb.render "<%= #{method_name} %>"
+        @cb.render "<%= #{method_name} %>"
       rescue NameError
         puts "Warning: No object found responding to method '#{method_name}'".red
         "%#{method_name}%" # Leave unchanged if no match found
@@ -319,14 +337,14 @@ module Nugem
     def template(source, destination, context: nil, mode: :preserve)
       if source.include?('%')
         puts 'Error in template:'
-        exit 6
+        exit! 6
       end
       source_path = File.expand_path File.join @options[:source_root], source
       dest_path = File.expand_path(destination)
 
       unless File.exist?(source_path)
         puts "Error: Template file not found: #{source_path}".red
-        exit 2
+        exit! 2
       end
 
       # Read and process ERB template
@@ -353,8 +371,8 @@ module Nugem
 
     def to_s
       msg = '#<Nugem'
-      # msg += " acb=#{@acb}" # stack overflow
-      msg += " class_name='#{@class_name}' force=#{@force} gem_name='#{@gem_name}'"
+      # msg += " acb=#{@cb}" # stack overflow
+      msg += " class_name='#{@class_name}' force=#{@force} gem_name='#{gem_name}'" # FIXME: is gem_name defined? was @gem_name
       msg += " module_name='#{@module_name}' my_gems='#{@my_gems}' out_dir='#{@out_dir}'"
       msg += " host='#{@host.camel_case}'" if @host
       msg += " options (#{@options.length} entries)" if @options.any?
