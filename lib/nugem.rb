@@ -13,4 +13,4 @@ end
 require_subdirectory File.realpath(__dir__) # Require all Ruby files in 'lib/', except this file
 require_subdirectory File.realpath('nugem', __dir__)
 
-Signal.trap('INT') { exit }
+Signal.trap('INT') { exit! -1 }
