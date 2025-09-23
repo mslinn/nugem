@@ -1,13 +1,18 @@
 {
-  "files.associations": {
-    "*.tt":      "erb",
-  },
-  "ruby.rubocop.configFilePath": ".rubocop.yml",
-  "ruby.rubocop.useBundler": true,
-  "ruby.rubocop.executePath": "binstub/",
+  "compareFolders.ignoreAllWhiteSpaces": true,
+  "compareFolders.ignoreEmptyLines": true,
   "editor.foldingImportsByDefault": true,
   "editor.foldingStrategy": "auto",
-  "compareFolders.ignoreEmptyLines": true,
-  "compareFolders.ignoreAllWhiteSpaces": true,
-  "rdbg.rubyVersionManager": "rbenv"
+  "files.associations": {
+    "*.tt": "erb"
+  },
+  "rdbg.rubyVersionManager": "rbenv",
+  "ruby.rubocop.configFilePath": ".rubocop.yml",
+  "ruby.rubocop.executePath": "binstub/",
+  "ruby.rubocop.useBundler": true,
+  "search.exclude": {
+    ".bundle": false,
+    ".vscode": false,
+    "binstub": false,
+  },
 }

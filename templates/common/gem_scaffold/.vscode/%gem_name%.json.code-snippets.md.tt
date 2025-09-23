@@ -1,0 +1,40 @@
+# How To Use <%= gem_name %>.json.code-snippets
+
+This Visual Studio Code feature requires the [Snippet plugin](https://github.com/devon2018/snippet).
+
+Place your workspace snippets in <%= gem_name %>.json.code-snippets.
+
+Each snippet is defined under a snippet name and has a scope, prefix, body and description.
+
+Snippet definitions must not contain tabs, only spaces.
+
+Add comma separated ids of the languages where the snippet is applicable in the scope field.
+If scope is left empty or omitted, the snippet gets applied to all languages.
+
+The prefix triggers the snippet and the body will be expanded and inserted.
+
+Possible variables are: $1, $2 for tab stops, $0 for the final cursor position,
+and ${1:label}, ${2:another} for placeholders.
+Placeholders with the same ids are connected;
+modify the contents of one and the others will also be modfied.
+
+The following example:
+
+- Should be saved in `.vscode/json.code-snippets`
+- Is called `Log output`
+- Applies only to ruby files
+- Has two tab stops
+- The description is displayed when the user starts to type `log`
+
+```json
+{
+  "Log output": {
+    "scope": "ruby",
+    "prefix": "log",
+    "body": [
+      "logger.$1 \"$2\""
+    ],
+    "description": "Log levels are debug, warn, error, fatal and unknown"
+  }
+}
+````

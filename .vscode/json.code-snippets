@@ -1,0 +1,10 @@
+{
+  "Log output": {
+    "scope": "ruby",
+    "prefix": "log",
+    "body": [
+      "logger.$1 \"$2\""
+    ],
+    "description": "Log levels are debug, warn, error, fatal and unknown"
+  }
+}
