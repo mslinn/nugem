@@ -9,12 +9,12 @@ RSpec.describe 'Getters' do
                                        private: true,
                                        user:    'Mike Slinn',
                                      })
-  cb = CustomBinding.new
+  cb = CustomBinding::CustomBinding.new
   cb.add_object_to_binding_as 'repository', repository
 
   describe 'Nugem getters' do
     it 'reads values from constructed context' do
-      result = cb.result('User: <%= repository.user_name %>')
+      result = cb.render 'User: <%= repository.user_name %>'
       expect(result).to eq('User: Mike Slinn')
     end
   end
