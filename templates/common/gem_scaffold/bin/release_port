@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+def release_port(port)
+  pid = `sudo lsof -iTCP -sTCP:LISTEN -n -P | grep #{port} | awk '{ print $2 }' | head -n 1`.strip
+  `kill -9 #{pid}` unless pid.empty?
+end
+
+release_port 4444
+release_port 35_724

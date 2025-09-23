@@ -9,8 +9,8 @@
 /doc/
 /pkg/
 /tmp/
-<%- if @jekyll -%>
 spec/status_persistence.txt
+<%- if @jekyll -%>
 .jekyll-cache/
 .jekyll-metadata
 _site/
