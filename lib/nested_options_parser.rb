@@ -151,7 +151,9 @@ module Nugem
     # @return [Hash] The options parsed from the command line arguments.
     def evaluate(default_option_hash:, common_parser_proc:, subcommand_defined: false)
       options = default_option_hash
-      option_parser = OptionParser.new(&common_parser_proc)
+      option_parser = OptionParser.new do |parser|
+        common_parser_proc.call(parser, options)
+      end
       option_parser.raise_unknown = !subcommand_defined # TODO: rewrite using the better method
       option_parser.order! @nop_control.argv, into: options
       options
@@ -166,7 +168,7 @@ module Nugem
         msg = <<~END_MSG
           No subcommand parsing was defined for the following arguments:\n  #{nop_control.argv.join ' '}
         END_MSG
-        nop_control.complain(msg, errors_are_fatal)
+        nop_control.complain(msg, @errors_are_fatal)
         return
       end
 

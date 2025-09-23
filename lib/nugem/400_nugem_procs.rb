@@ -5,10 +5,10 @@ module Nugem
   end
 
   # Common, or base parameter parsing, common to all subcommands.
-  self.common_parser_proc = proc do |parser|
+  self.common_parser_proc = proc do |parser, options|
     # See https://github.com/bkuhlmann/sod?tab=readme-ov-file#pathname
     parser.on '-e', '--executable EXECUTABLE' do |value|
-      @options[:executables] << value
+      options[:executables] << value
     end
     parser.on '-f', '--force',             TrueClass,            'Overwrite output directory'
     parser.on '-H', '--host=HOST',         %w[github bitbucket], 'Repository host'
@@ -16,7 +16,7 @@ module Nugem
     #   puts "level=#{level}".yellow
     # end
     parser.on('-o', '--out_dir=OUT_DIR',   Pathname, 'Output directory for the gem') do |path|
-      @options[:out_dir] = path.to_s # TODO: elsewhere: create_dir path.to_s, @options[:out_dir]
+      options[:out_dir] = path.to_s # TODO: elsewhere: create_dir path.to_s, options[:out_dir]
     end
     parser.on '-p', '--private',                    TrueClass,
               'Publish the gem to a private repository'
@@ -72,25 +72,25 @@ module Nugem
   }
 
   # All of these options can have multiple occurances on a command line, except -K/--hooks
-  self.jekyll_subcommand_parser_proc = proc do |parser|
+  self.jekyll_subcommand_parser_proc = proc do |parser, options|
     parser.on '-B', '--blockn=BLOCKN' do |value| # Specifies the name of a Jekyll no-arg block tag.
-      @options[:blockn] << value
+      options[:blockn] << value
     end
     parser.on('-b', '--block=BLOCK') do |value|        # Specifies the name of a Jekyll block tag.
-      @options[:block] << value
+      options[:block] << value
     end
     parser.on '-F', '--filter=FILTER' do |value|       # Specifies the name of a Jekyll/Liquid filter module.
-      @options[:filter] << value
+      options[:filter] << value
     end
     parser.on '-g', '--generator=GENERATOR' do |value| # Specifies a Jekyll generator.
-      @options[:generator] << value
+      options[:generator] << value
     end
     parser.on '-K', '--hooks=HOOKS'                    # Generate Jekyll hooks.
     parser.on '-T', '--tagn=TAGN' do |value|           # Specifies the name of a Jekyll no-arg tag.
-      @options[:tagn] << value
+      options[:tagn] << value
     end
     parser.on '-t', '--tag=TAG' do |value|             # Specifies the name of a Jekyll tag.
-      @options[:tag] << value
+      options[:tag] << value
     end
   end
 
