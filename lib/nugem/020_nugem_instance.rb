@@ -53,7 +53,7 @@ module Nugem
         user:    repository_user_name
       )
 
-      @cb = CustomBinding::CustomBinding.new({
+      @cb = CustomBinding::CustomBinding.new(binding, {
                                                class_name:           @class_name,
                                                force:                @force,
                                                gem_name:             @gem_name,
@@ -310,10 +310,11 @@ module Nugem
     def interpolate_percent_methods(str)
       str.gsub(/%(\w+)%/) do
         method_name = Regexp.last_match(1) # Extract text between %...%
-        @cb.render "<%= #{method_name} %>"
+        @cb.eval method_name
       rescue NameError
-        puts "Warning: No object found responding to method '#{method_name}'".red
-        "%#{method_name}%" # Leave unchanged if no match found
+        puts "Warning: method or variable '#{method_name}' is undefined\n#{@cb}".red
+        exit! 6
+        # "%#{method_name}%" # Leave unchanged if no match found
       end
     end
 

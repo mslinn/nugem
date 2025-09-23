@@ -5,7 +5,7 @@
 PROJECT_NAME="test"
 PROJECT_ROOT="$HOME/nugem_generated/$PROJECT_NAME"
 rm -rf "$PROJECT_ROOT"
-yes n | VO_DEBUGGING=x exe/nugem ruby "$PROJECT_NAME"
+yes n | VO_DEBUGGING=x exe/nugem ruby "$PROJECT_NAME" --force
 
 if [ -f "$PROJECT_ROOT/bin/setup" ]; then
   "$PROJECT_ROOT/bin/setup"
