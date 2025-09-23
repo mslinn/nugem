@@ -30,7 +30,8 @@ module Nugem
       puts "Invalid syntax: #{nop.argv}"
       exit 5
     end
-    puts nugem_options.prepare_and_report.green
+    nugem_options.prepare_and_report.each_line { |line| print line.green }
+
     nugem = Nugem.new nugem_options.options
     nugem.create_scaffold
     nugem.initialize_repository
