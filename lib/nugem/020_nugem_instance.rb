@@ -235,10 +235,9 @@ module Nugem
         begin
           template = File.read src_path_fq
           expanded_content = @cb.result template
-          puts '  ' + <<~END_MSG.green # rubocop:disable Style/StringConcatenation
-            Expanding template #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to
-                #{dest_path_fq.gsub(/\A#{Dir.home}/, '~').gsub(/\A#{@my_gems}/, '$my_gems')}
-          END_MSG
+          msg = "  Expanding template #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to\n".green +
+                "    #{dest_path_fq.gsub(/\A#{Dir.home}/, '~').gsub(/\A#{@my_gems}/, '$my_gems')}".green
+          puts msg
           File.write dest_path_fq, expanded_content
           preserve_mode src_path_fq, dest_path_fq
         rescue NameError => e
@@ -248,8 +247,9 @@ module Nugem
           nil
         end
       else
-        puts "  Copying #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to " \
-             "\n    #{dest_path_fq.gsub(/\A#{Dir.home}/, '~')}".green
+        msg = "  Copying #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to\n".green +
+              "    #{dest_path_fq.gsub(/\A#{Dir.home}/, '~')}".green
+        puts msg
         FileUtils.cp(src_path_fq, dest_path_fq) # Preserves file contents and permissions but not owner or group
       end
     end

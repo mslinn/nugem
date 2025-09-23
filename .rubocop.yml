@@ -30,6 +30,12 @@ Layout/HashAlignment:
   EnforcedColonStyle: table
   EnforcedHashRocketStyle: table
 
+Style/LineEndConcatenation:
+  Enabled: false
+
+Layout/LineContinuationLeadingSpace:
+  Enabled: false
+
 Layout/LineLength:
   Max: 120
 
