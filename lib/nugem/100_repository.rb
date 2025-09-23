@@ -78,11 +78,9 @@ module Nugem
 
     def create_local_git_repository
       puts 'Creating the local git repository'.green
-      run 'git init'
-      run 'git add .'
-
-      # See https://github.com/rails/thor/blob/v1.2.2/lib/thor/actions.rb#L236-L278
-      run "git commit -aqm 'Initial commit'", abort_on_failure: false
+      `git init`
+      `git add .`
+      `git commit -aqm 'Initial commit'`
     end
 
     # TODO: support GitLab

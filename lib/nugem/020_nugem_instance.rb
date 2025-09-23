@@ -256,7 +256,7 @@ module Nugem
     end
 
     def initialize_repository
-      if %i[github gitlab bitbucket].include?(@repository.host)
+      if %i[github gitlab bitbucket].include?(@repository.host.id)
         puts "\nInitializing a new repository for the '#{@options[:gem_name]}' gem, " \
              "hosted at #{@repository.host.camel_case}...".green
         @repository.create_local_git_repository
