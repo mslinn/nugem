@@ -24,11 +24,12 @@
       "useBundler": true,
     },
     {
+      "args": ["--force"],
       "debugPort": "0",
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "nugem ruby test without options",
+      "name": "nugem ruby test without options except --force",
       "script": "${workspaceFolder}/exe/nugem ruby test",
       "request": "launch",
       "type": "rdbg",

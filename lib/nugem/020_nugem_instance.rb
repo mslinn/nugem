@@ -18,7 +18,7 @@ module Nugem
       }.freeze
     end
 
-    # Initialize a new Nugem instance with the given gem name and options.
+    # Initiacompute_output_directorylize a new Nugem instance with the given gem name and options.
     # Defines various globals, including @cb [CustomBinding], which is used to resolve variable
     # references in ERB templates
     #
@@ -52,10 +52,6 @@ module Nugem
         private: @options[:private],
         user:    repository_user_name
       )
-      if File.exist?(compute_output_directory) && !@options[:force]
-        puts "Aborting because #{@out_dir} is not empty and --force was not specified.".red
-        exit! 1
-      end
 
       @cb = CustomBinding::CustomBinding.new({
                                                class_name:           @class_name,
@@ -65,9 +61,18 @@ module Nugem
                                                repository:           @repository,
                                                repository_user_name: repository_user_name,
                                              })
+      return unless File.exist?(compute_output_directory) && !@options[:force]
+
+      puts "Aborting because #{@out_dir} is not empty and --force was not specified.".red
+      exit! 1
     end
 
+    # Requires @cb and @out_dir to have valid values
     def compute_output_directory
+      unless @cb
+        puts 'Error: compute_output_directory found @cb was nil'.red
+        exit 5
+      end
       @my_gems = ENV.fetch('my_gems', nil)
       @out_dir = @my_gems ? File.join(@my_gems, gem_name) : options[:out_dir]
       @options[:output_directory] = @out_dir
