@@ -1,3 +1,4 @@
+require 'colorize'
 require 'custom_binding'
 require 'erb'
 require 'fileutils'
@@ -255,8 +256,11 @@ module Nugem
     end
 
     def initialize_repository
-      puts "\nInitializing a new repository for the '#{@options[:gem_name]}' gem, hosted at #{@repository.host.camel_case}...".green
-      @repository.create_local_git_repository if %i[github gitlab bitbucket].include?(@repository.host)
+      if %i[github gitlab bitbucket].include?(@repository.host)
+        puts "\nInitializing a new repository for the '#{@options[:gem_name]}' gem, " \
+             "hosted at #{@repository.host.camel_case}...".green
+        @repository.create_local_git_repository
+      end
     rescue StandardError => e
       puts e.message.red
     end
@@ -406,9 +410,9 @@ module Nugem
       gemspec_todos = todos_count File.join @options[:output_directory], "#{gem_name}.gemspec"
       readme_todos  = todos_count File.join @options[:output_directory], 'README.md'
       if readme_todos.zero? && gemspec_todos.zero?
-        "\nThere are no TODOs. You can run 'bundle' from within your new gem project now.".green
+        "There are no TODOs. You can run 'bundle' from within your new gem project now.".green
       else
-        msg = '\nPlease complete'
+        msg = 'Please complete'
         msg << " the #{gemspec_todos} TODOs in #{gem_name}.gemspec" if gemspec_todos.positive?
         msg << ' and' if gemspec_todos.positive? && readme_todos.positive?
         msg << " the #{readme_todos} TODOs in README.md." if readme_todos.positive?

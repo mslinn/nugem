@@ -95,6 +95,7 @@ Style/FrozenStringLiteralComment:
   Enabled: false
 
 Style/StringConcatenation:
+  Enabled: false
   Mode: conservative
 
 Style/TrailingCommaInHashLiteral:

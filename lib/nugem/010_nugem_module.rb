@@ -35,11 +35,12 @@ module Nugem
     nugem.create_scaffold
     nugem.initialize_repository
     puts nugem.todos_report if nugem_options.options[:todos]
-    msg = "\n" + `tree #{nugem_options.options[:output_directory]}` # rubocop:disable Style/StringConcatenation
+    msg = `tree #{nugem_options.options[:output_directory]}`
     if msg.include? '0 directories, 0 files'
       puts 'No files were generated'.yellow
     else
-      puts msg.green
+      puts "\n"
+      msg.each_line { |line| print line.green }
     end
   end
 
