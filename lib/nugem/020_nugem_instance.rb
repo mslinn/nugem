@@ -233,7 +233,8 @@ module Nugem
 
       if this_is_a_template_file # read and process ERB template
         begin
-          expanded_content = @cb.render File.read src_path_fq
+          template = File.read src_path_fq
+          expanded_content = @cb.result template
           puts '  ' + <<~END_MSG.green # rubocop:disable Style/StringConcatenation
             Expanding template #{src_path_fq.delete_prefix(@options[:source_root] + '/')} to
                 #{dest_path_fq.gsub(/\A#{Dir.home}/, '~').gsub(/\A#{@my_gems}/, '$my_gems')}
