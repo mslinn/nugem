@@ -77,7 +77,7 @@ module Nugem
     end
 
     def create_local_git_repository
-      puts 'Creating the local git repository'.green
+      puts "Creating the local git repository in #{Dir.pwd}".green
       `git init`
       `git add .`
       `git commit -aqm 'Initial commit'`
