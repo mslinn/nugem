@@ -259,7 +259,7 @@ module Nugem
       if %i[github gitlab bitbucket].include?(@repository.host.id)
         puts "\nInitializing a new repository for the '#{@options[:gem_name]}' gem, " \
              "hosted at #{@repository.host.camel_case}...".green
-        @repository.create_local_git_repository
+        @repository.create_local_git_repository @options[:output_directory]
       end
     rescue StandardError => e
       puts e.message.red

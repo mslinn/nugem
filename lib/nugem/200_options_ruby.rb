@@ -11,6 +11,8 @@ module Nugem
   class Options
     attr_accessor :errors_are_fatal, :options, :subcommand_parser_procs
 
+    # FIXME: subcommand_parser_procs is defined here and in NestedOptionParserControl but this one is nil
+
     include ::HighlineWrappers
 
     def initialize(default_options, dry_run: false, errors_are_fatal: true)
@@ -34,7 +36,7 @@ module Nugem
                    .sort
                    .to_h
 
-      @subcommand_parser_procs = [::Nugem.jekyll_subcommand]
+      @subcommand_parser_procs = [::Nugem.jekyll_subcommand] # FIXME: :Nugem.jekyll_subcommand is nil
     end
 
     # Constructor for NestedOptionParser using this instance's state.
@@ -49,8 +51,8 @@ module Nugem
         ::Nugem.help_proc,
         ::Nugem.positional_parameter_proc,
         argv,
-        @options,
-        @subcommand_parser_procs
+        @options, # FIXME: out_dir wrong and missing :output_directory
+        @subcommand_parser_procs # FIXME: is this ok to be nil for jekyll?
       )
       NestedOptionParser.new nop_control, errors_are_fatal: @errors_are_fatal
     rescue OptionParser::InvalidOption => e
