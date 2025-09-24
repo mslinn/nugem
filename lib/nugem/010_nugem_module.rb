@@ -35,7 +35,7 @@ module Nugem
       puts "Invalid syntax: #{nop.argv}".red
       exit! 5
     end
-    # FIXME: report from nop, not options
+
     options.prepare_and_report.each_line { |line| print line.green }
 
     nugem = Nugem.new options.options # Computes nugem.options[:output_directory]

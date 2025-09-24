@@ -89,7 +89,7 @@ module Nugem
     #        determines the resolution values of relative paths.
     # @param options [Hash] only supports :exclude_pattern, which must contain a regular expression;
     #                                     it excludes specified files/directories from copying.
-    def directory(src_path_fragment:, dest_root: @out_dir || Dir.pwd, **options)
+    def directory(src_path_fragment:, dest_root: @options[:output_directory] || Dir.pwd, **options)
       unless src_path_fragment
         puts 'Internal error: Nugem.directory called without a src_path_fragment'.red
         exit! 2
