@@ -14,25 +14,32 @@ module Nugem
 
   # Entry point
   def self.main
-    options = parse_gem_type_name # Only sets the :gem_type and :gem_name
-    options[:source_root] = File.expand_path('../../templates', File.dirname(__FILE__)) # templates live here
-    nugem_options = case options[:gem_type] # Parse all remaining options based on :gemtype
+    initial_options = parse_gem_type_name # Only sets the :gem_type and :gem_name
+    initial_options[:source_root] = File.expand_path('../../templates', File.dirname(__FILE__)) # templates live here
+    unless File.exist?(initial_options[:source_root]) && !Dir.empty?(initial_options[:source_root])
+      puts "Error: The templates directory '#{initial_options[:source_root]}' does not exist or is empty.".red
+      exit! 2
+    end
+    nugem_options = case initial_options[:gem_type] # Parse all remaining options based on :gemtype
                     when 'ruby'
-                      Options.new options
+                      Options.new initial_options
                     when 'jekyll'
-                      JekyllOptions.new options
+                      JekyllOptions.new initial_options
+                      # FIXME: call jekyll_subcommand_parser_proc
                     else
-                      puts "Unrecognized gem type '#{options[:gem_type]}'.".red
-                      exit 2
+                      puts "Error: Unrecognized gem type '#{initial_options[:gem_type]}'.".red
+                      exit! 2
                     end
+
     nop = nugem_options.nested_option_parser_from ARGV
     if nop.argv.any?
-      puts "Invalid syntax: #{nop.argv}"
-      exit 5
+      puts "Invalid syntax: #{nop.argv}".red
+      exit! 5
     end
+    # FIXME: report from nop, not nugem_options
     nugem_options.prepare_and_report.each_line { |line| print line.green }
 
-    nugem = Nugem.new nugem_options.options
+    nugem = Nugem.new nugem_options.options # Computes nugem.options[:output_directory]
     nugem.create_scaffold
     nugem.initialize_repository
     puts nugem.todos_report if nugem_options.options[:todos]
@@ -45,6 +52,8 @@ module Nugem
     end
   end
 
+  # Workalike of Thor's method_option
+  # Defines how to parse a keyword argument
   def method_option(name, default: nil, desc: '', enum: [], type: :string)
     name = name.to_s
 

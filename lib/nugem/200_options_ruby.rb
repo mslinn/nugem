@@ -9,34 +9,45 @@ module Nugem
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
   class Options
+    # @errors_are_fatal and @subcommand_parser_procs are set in the constructor
+    # @options are set from defaults and overwritten by scanning ARGV
     attr_accessor :errors_are_fatal, :options, :subcommand_parser_procs
-
-    # FIXME: subcommand_parser_procs is defined here and in NestedOptionParserControl but this one is nil
 
     include ::HighlineWrappers
 
-    def initialize(default_options, dry_run: false, errors_are_fatal: true)
+    # @param initial_options [Hash] Should only contain :gem_type, :gem_name and :source_root
+    # @param dry_run [Boolean] not used yet. TODO incorporate into runtime_options?
+    # @param errors_are_fatal [Boolean] TODO incorporate into runtime_options?
+    # @return [Options]
+    def initialize(initial_options, dry_run: false, errors_are_fatal: true)
       @positional_parameter_proc = ::Nugem.positional_parameter_proc
       @errors_are_fatal = errors_are_fatal
 
-      ruby_gem_options = {
+      ruby_gem_option_defaults = {
         executables: [],
         dry_run:     dry_run,
         force:       false,
         host:        'github',
         loglevel:    LOGLEVELS[3], # Default is 'info'
-        out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{default_options[:gem_name]}",
+        out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{initial_options[:gem_name]}",
         overwrite:   false,
         private:     false,
         todos:       true,
       }
-      @options = default_options
-                   .merge(ruby_gem_options)
-                   .merge(::Nugem.jekyll_plugin_options)
-                   .sort
-                   .to_h
+      @options = ruby_gem_option_defaults # lowest priority
+                   .merge(::Nugem.jekyll_plugin_option_defaults) # medium priority
+                   .merge(initial_options) # highest priority
+      compute_output_directory
+      @options = @options.sort.to_h # Makes it easier to spot a particular option
+      ::Nugem.make_subcommands
+      @subcommand_parser_procs = []
+    end
 
-      @subcommand_parser_procs = [::Nugem.jekyll_subcommand] # FIXME: :Nugem.jekyll_subcommand is nil
+    def compute_output_directory
+      my_gems = ENV.fetch('my_gems', nil)
+      out_dir = my_gems ? File.join(my_gems, @options[:gem_name]) : @options[:out_dir]
+      @options[:my_gems] = my_gems
+      @options[:output_directory] = out_dir
     end
 
     # Constructor for NestedOptionParser using this instance's state.
@@ -51,8 +62,8 @@ module Nugem
         ::Nugem.help_proc,
         ::Nugem.positional_parameter_proc,
         argv,
-        @options, # FIXME: out_dir wrong and missing :output_directory
-        @subcommand_parser_procs # FIXME: is this ok to be nil for jekyll?
+        @options,
+        @subcommand_parser_procs
       )
       NestedOptionParser.new nop_control, errors_are_fatal: @errors_are_fatal
     rescue OptionParser::InvalidOption => e

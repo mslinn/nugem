@@ -73,8 +73,8 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "nugem jekyll test --private --tag=tag1",
-      "script": "${workspaceFolder}/exe/nugem jekyll test --private --tag=tag1",
+      "name": "nugem jekyll test --force --private --tag=tag1",
+      "script": "${workspaceFolder}/exe/nugem jekyll test --force --private --tag=tag1",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,

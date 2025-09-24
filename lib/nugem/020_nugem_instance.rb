@@ -62,34 +62,22 @@ module Nugem
                                                repository:           @repository,
                                                repository_user_name: repository_user_name,
                                              })
-      return unless File.exist?(compute_output_directory) && !@options[:force]
+      @cb.add_object_to_binding_as 'my_gems', @options[:my_gems]
+      @cb.add_object_to_binding_as 'output_directory', @options[:output_directory]
 
-      puts "Aborting because #{@out_dir} is not empty and --force was not specified.".red
+      return unless File.exist?(@options[:output_directory]) && !@options[:force]
+
+      puts "Aborting because #{@options[:output_directory]} is not empty and --force was not specified.".red
       exit! 1
     end
 
-    # Requires @cb and @out_dir to have valid values
-    def compute_output_directory
-      unless @cb
-        puts 'Error: compute_output_directory found @cb was nil'.red
-        exit 5
-      end
-      @my_gems = ENV.fetch('my_gems', nil)
-      @out_dir = @my_gems ? File.join(@my_gems, gem_name) : options[:out_dir]
-      @options[:output_directory] = @out_dir
-
-      @cb.add_object_to_binding_as 'my_gems', @my_gems
-      @cb.add_object_to_binding_as 'output_directory', @out_dir
-
-      @out_dir
-    end
-
     def create_scaffold
-      puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{gem_name} in #{@out_dir}.".green
+      puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{gem_name} " \
+           "in #{@options[:output_directory]}.".green
       directory exclude_pattern:   %r{common/gem_scaffold/spec/.*},
                 src_path_fragment: 'common/gem_scaffold'
       directory(src_path_fragment: 'common/executable_scaffold') if @options[:executables].any?
-      template 'common/LICENCE.txt.tt', "#{@out_dir}/LICENCE.txt"
+      template 'common/LICENCE.txt.tt', "#{@options[:output_directory]}/LICENCE.txt"
     end
 
     # Copy a directory structure to a destination with customizable options.

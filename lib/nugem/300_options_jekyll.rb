@@ -10,5 +10,9 @@ module Nugem
   attr_accessor :gem_name
 
   class JekyllOptions < Options
+    def initialize(default_options, dry_run: false, errors_are_fatal: true)
+      super
+      @subcommand_parser_procs = [::Nugem.jekyll_subcommand]
+    end
   end
 end

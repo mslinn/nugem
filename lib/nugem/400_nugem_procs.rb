@@ -1,6 +1,6 @@
 module Nugem
   class << self
-    attr_accessor :common_parser_proc, :help_proc, :jekyll_plugin_options, :jekyll_subcommand,
+    attr_accessor :common_parser_proc, :help_proc, :jekyll_plugin_option_defaults, :jekyll_subcommand,
                   :jekyll_subcommand_parser_proc, :positional_parameter_proc
   end
 
@@ -62,7 +62,7 @@ module Nugem
     exit(1)
   end
 
-  self.jekyll_plugin_options = {
+  self.jekyll_plugin_option_defaults = {
     block:     [],
     blockn:    [],
     filter:    [],
