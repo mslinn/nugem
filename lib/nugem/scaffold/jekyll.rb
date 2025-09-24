@@ -1,44 +1,14 @@
+# FIXME: this is not used yet
+
 require_relative '../cli'
 require_relative 'jekyll_demo'
 
 module Nugem
   attr_accessor :class_name, :filter_params, :trailing_args, :trailing_dump, :trailing_params
 
-  desc 'jekyll NAME', 'Creates a new Jekyll plugin scaffold.'
-
-  long_desc <<~END_DESC
-    Creates a new Jekyll plugin scaffold with the given NAME,
-    by default hosted by GitHub and published on RubyGems.
-  END_DESC
-
-  method_option :block, type: :string, repeatable: true,
-    desc: 'Specifies the name of a Jekyll block tag.'
-
-  method_option :blockn, type: :string, repeatable: true,
-    desc: 'Specifies the name of a Jekyll no-arg block tag.'
-
-  method_option :filter, type: :string, repeatable: true,
-    desc: 'Specifies the name of a Jekyll/Liquid filter module.'
-
-  method_option :generator, type: :string, repeatable: true,
-    desc: 'Specifies a Jekyll generator.'
-
-  method_option :hooks, type: :string, desc: 'Specifies Jekyll hooks.'
-
-  method_option :tag, name: :string, repeatable: true,
-    desc: 'Specifies the name of a Jekyll tag.'
-
-  method_option :tagn, name: :string, repeatable: true,
-    desc: 'Specifies the name of a Jekyll no-arg tag.'
-
-  test_option 'rspec'
-
-  def jekyll(gem_name)
-    @gem_name   = gem_name
+  def jekyll
     @class_name = Nugem.camel_case @gem_name
-    @jekyll     = true
 
-    create_plain_scaffold @gem_name
     create_jekyll_scaffold
     options.each do |option|
       case option.first
@@ -49,27 +19,13 @@ module Nugem
       when 'tag'       then option[1].each { |name| create_jekyll_tag_scaffold          name }
       when 'tagn'      then option[1].each { |name| create_jekyll_tag_no_arg_scaffold   name }
       when 'hooks'     then create_jekyll_hooks_scaffold option[1]
-      else puts "Warning: Unrecognized option: #{option}"
+      else
+        # TODO: ignore gem options
+        # puts "Warning: Unrecognized option: #{option}"
       end
     end
 
     initialize_repository @gem_name
-  end
-
-  # Invoked by directory action when processing Jekyll tags and block tags
-  def parse_jekyll_parameters
-    content = @jekyll_parameter_names_types.map do |name, _type|
-      "@#{name} = @helper.parameter_specified?('#{name}') || nil # Obtain the value of parameter #{name}"
-    end
-    content.join "\n      "
-  end
-
-  # Invoked by directory action when processing Jekyll tags and block tags
-  def dump_jekyll_parameters
-    content = @jekyll_parameter_names_types.map do |name, _type|
-      "@#{name}='\#{@#{name}}'"
-    end
-    content.join "\n          "
   end
 
   private
@@ -117,7 +73,6 @@ module Nugem
   end
 
   def create_jekyll_filter_scaffold(filter_name)
-    # rubocop:disable Style/StringConcatenation
     @filter_name = filter_name
     @jekyll_class_name = Nugem.camel_case filter_name
     prompt = 'Jekyll filters have at least one input. ' \

@@ -15,7 +15,7 @@ module Nugem
 
     include ::HighlineWrappers
 
-    # @param initial_options [Hash] Should only contain :gem_type, :gem_name and :source_root
+    # @param initial_options [Hash] Must contain keys :gem_type, :gem_name and :source_root
     # @param dry_run [Boolean] not used yet. TODO incorporate into runtime_options?
     # @param errors_are_fatal [Boolean] TODO incorporate into runtime_options?
     # @return [RubyOptions]
@@ -23,9 +23,9 @@ module Nugem
       @positional_parameter_proc = ::Nugem.positional_parameter_proc
       @errors_are_fatal = errors_are_fatal
 
-      missing_options = %i[gem_type gem_name source_root].reject { |key, _value| initial_options.key?(key) }
+      missing_options = %i[gem_type gem_name source_root].reject { |key, _| initial_options.key? key }
       if missing_options.any?
-        puts "Internal error: RubyOptions initial_options hash must contain these keys: #{missing_options.join(', ')}"
+        puts "Internal error: RubyOptions initial_options hash must contain these keys: #{missing_options.join ', '}"
         exit! 99
       end
 
@@ -35,7 +35,8 @@ module Nugem
         force:       false,
         host:        'github',
         loglevel:    LOGLEVELS[3], # Default is 'info'
-        out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{initial_options[:gem_name]}",
+        out_dir:     "#{DEFAULT_OUT_DIR_BASE}/#{initial_options[:gem_name]}", # This often/usually gets overwritten
+        notodos:     false,
         overwrite:   false,
         private:     false,
         todos:       true,
@@ -44,7 +45,7 @@ module Nugem
                    .merge(::Nugem.jekyll_plugin_option_defaults) # medium priority
                    .merge(initial_options) # highest priority
       compute_output_directory
-      @options = @options.sort.to_h # Makes it easier to spot a particular option
+      @options = @options.sort.to_h # Make it easier to spot a particular option
       ::Nugem.make_subcommands
       @subcommand_parser_procs = []
     end
