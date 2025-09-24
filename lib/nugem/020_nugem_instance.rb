@@ -8,7 +8,7 @@ require 'rugged'
 
 module Nugem
   class Nugem
-    attr_reader :acb, :gem_name, :options, :dir, :class_name, :module_name, :repository
+    attr_reader :cb, :class_name, :dir, :gem_name, :module_name, :options, :repository
 
     unless defined?(DEFAULT_OPTIONS)
       DEFAULT_OPTIONS = {
@@ -19,15 +19,14 @@ module Nugem
       }.freeze
     end
 
-    # Initiacompute_output_directorylize a new Nugem instance with the given gem name and options.
+    # Initialize a new Nugem instance with the given gem name and options.
     # Defines various globals, including @cb [CustomBinding], which is used to resolve variable
-    # references in ERB templates
+    # references in ERB templates.
     #
     # @param gem_name [String] The name of the gem.
     # @param options [Hash] RubyOptions for the gem scaffold, including host, private, and out_dir.
     #                if an environment variable called my_gems is defined, out_dir will default to $my_gems/gem_name,
     #                otherwise out_dir will default to ~/nugem_generated/gem_name.
-    #
     # @return [Nugem] A new instance of Nugem.
     #
     # @example
@@ -317,7 +316,7 @@ module Nugem
       FileUtils.chmod file_mode, dest_path
     end
 
-    # TODO: figure out what I was thinking here
+    # TODO: what I was thinking here?
     def template_what_huh(source, destination, options = {})
       require 'jekyll'
       site = Jekyll::Site.new(Jekyll.configuration({}))
@@ -370,7 +369,7 @@ module Nugem
 
     def to_s
       msg = '#<Nugem'
-      # msg += " acb=#{@cb}" # stack overflow
+      msg += " cb=#{@cb}"
       msg += " class_name='#{@class_name}' force=#{@force} gem_name='#{gem_name}'" # FIXME: is gem_name defined? was @gem_name
       msg += " module_name='#{@module_name}' my_gems='#{@my_gems}' out_dir='#{@out_dir}'"
       msg += " host='#{@host.camel_case}'" if @host
