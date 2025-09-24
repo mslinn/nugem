@@ -6,7 +6,7 @@ module Nugem
 
     # Generate a Jekyll gem
     def generate_jekyll_scaffold
-      @class_name = Nugem.camel_case @gem_name
+      @class_name = ::Nugem.camel_case @gem_name
 
       create_jekyll_scaffold
       options.each do |option|
@@ -43,10 +43,10 @@ module Nugem
     end
 
     def create_jekyll_scaffold
-      puts "Creating a Jekyll scaffold for a new gem named #{@gem_name} in #{@options[:out_dir]}".green
+      puts "Creating a Jekyll scaffold for a new gem named #{@gem_name} in #{@options[:output_directory]}".green
       @mute = true
-      directory 'jekyll/common_scaffold', @options[:out_dir]
-      directory 'jekyll/demo', @options[:out_dir]
+      directory src_path_fragment: 'jekyll/common_scaffold'
+      directory src_path_fragment: 'jekyll/demo'
     end
 
     def create_jekyll_block_scaffold(block_name)
@@ -56,8 +56,8 @@ module Nugem
       # [["opt1", "string"], ["opt2", "boolean"]]
       puts "Creating Jekyll block tag #{@block_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
-      directory 'jekyll/block_scaffold', @options[:out_dir]
-      append_to_file "#{@options[:out_dir]}/demo/index.html",
+      directory src_path_fragment: 'jekyll/block_scaffold'
+      append_to_file "#{@options[:output_directory]}/demo/index.html",
                      JekyllDemo.add(block_name, @jekyll_parameter_names_types, :block)
     end
 
@@ -66,8 +66,8 @@ module Nugem
       @jekyll_class_name = Nugem.camel_case block_name
       puts "Creating Jekyll block tag no_arg #{@block_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
-      directory 'jekyll/block_no_arg_scaffold', @options[:out_dir]
-      append_to_file "#{@options[:out_dir]}/demo/index.html",
+      directory src_path_fragment: 'jekyll/block_no_arg_scaffold'
+      append_to_file "#{@options[:output_directory]}/demo/index.html",
                      JekyllDemo.add(block_name, @jekyll_parameter_names_types, :block)
     end
 
@@ -94,12 +94,11 @@ module Nugem
       end
       puts "Creating a new Jekyll filter method scaffold #{@filter_name}".green
       @mute = true
-      directory 'jekyll/filter_scaffold', @options[:out_dir]
+      directory src_path_fragment: 'jekyll/filter_scaffold'
 
       tp = ': ' + @filter_params.map { |x| "'#{x}_value'" }.join(', ') unless @filter_params.empty?
-      append_to_file "#{@options[:out_dir]}/demo/index.html",
+      append_to_file "#{@options[:output_directory]}/demo/index.html",
                      Cli.add_filter_example(filter_name, tp)
-      # rubocop:enable Style/StringConcatenation
     end
 
     def create_jekyll_generator_scaffold(generator_name)
@@ -107,7 +106,7 @@ module Nugem
       @jekyll_class_name = Nugem.camel_case generator_name
       puts "Creating a new Jekyll generator class scaffold #{@jekyll_class_name}".green
       @mute = true
-      directory 'jekyll/generator_scaffold', @options[:out_dir]
+      directory src_path_fragment: 'jekyll/generator_scaffold'
     end
 
     def create_jekyll_hooks_scaffold(plugin_name)
@@ -115,7 +114,7 @@ module Nugem
       @jekyll_class_name = Nugem.camel_case plugin_name
       puts 'Creating a new Jekyll hook scaffold'.green
       @mute = true
-      directory 'jekyll/hooks_scaffold', @options[:out_dir]
+      directory src_path_fragment: 'jekyll/hooks_scaffold'
     end
 
     def create_jekyll_tag_no_arg_scaffold(tag_name)
@@ -123,8 +122,8 @@ module Nugem
       @jekyll_class_name = Nugem.camel_case @tag_name
       puts "Creating Jekyll tag no_arg #{@tag_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
-      directory 'jekyll/tag_no_arg_scaffold', @options[:out_dir]
-      append_to_file "#{@options[:out_dir]}/demo/index.html",
+      directory src_path_fragment: 'jekyll/tag_no_arg_scaffold'
+      append_to_file "#{@options[:output_directory]}/demo/index.html",
                      JekyllDemo.add(tag_name, @jekyll_parameter_names_types, :tag)
     end
 
@@ -136,8 +135,8 @@ module Nugem
       puts "Creating Jekyll tag #{@tag_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
       # puts "@jekyll_parameter_names_types=#{@jekyll_parameter_names_types}".yellow
-      directory 'jekyll/tag_scaffold', @options[:out_dir]
-      append_to_file "#{@options[:out_dir]}/demo/index.html",
+      directory src_path_fragment: 'jekyll/tag_scaffold'
+      append_to_file "#{@options[:output_directory]}/demo/index.html",
                      JekyllDemo.add(tag_name, @jekyll_parameter_names_types, :tag)
     end
   end
