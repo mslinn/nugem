@@ -11,20 +11,20 @@ module Nugem
       create_jekyll_scaffold
       options.each do |option|
         case option.first
-        when 'block'     then option[1..].each { |name| create_jekyll_block_scaffold        name }
-        when 'blockn'    then option[1..].each { |name| create_jekyll_block_no_arg_scaffold name }
-        when 'filter'    then option[1..].each { |name| create_jekyll_filter_scaffold       name }
-        when 'generator' then create_jekyll_generator_scaffold option[1]
-        when 'hooks'     then create_jekyll_hooks_scaffold     option[1]
-        when 'tag'       then option[1..].each { |name| create_jekyll_tag_scaffold          name }
-        when 'tagn'      then option[1..].each { |name| create_jekyll_tag_no_arg_scaffold   name }
+        when :block     then option[1].each { |name| create_jekyll_block_scaffold        name }
+        when :blockn    then option[1].each { |name| create_jekyll_block_no_arg_scaffold name }
+        when :filter    then option[1].each { |name| create_jekyll_filter_scaffold       name }
+        when :generator then option[1].each { |name| create_jekyll_generator_scaffold    name }
+        when :hooks     then option[1].each { |name| create_jekyll_hooks_scaffold        name }
+        when :tag       then option[1].each { |name| create_jekyll_tag_scaffold          name }
+        when :tagn      then option[1].each { |name| create_jekyll_tag_no_arg_scaffold   name }
         else
           # TODO: ignore gem options
           puts "Nugem.jekyll warning: Unrecognized option: #{option}"
         end
       end
 
-      initialize_repository @gem_name
+      initialize_repository
     end
 
     private
@@ -51,7 +51,7 @@ module Nugem
 
     def create_jekyll_block_scaffold(block_name)
       @block_name = block_name
-      @jekyll_class_name = Nugem.camel_case block_name
+      @jekyll_class_name = ::Nugem.camel_case block_name
       ask_option_names_types block_name # Defines @jekyll_parameter_names_types, which is a nested array of name/value pairs:
       # [["opt1", "string"], ["opt2", "boolean"]]
       puts "Creating Jekyll block tag #{@block_name} scaffold within #{@jekyll_class_name}".green
@@ -63,7 +63,7 @@ module Nugem
 
     def create_jekyll_block_no_arg_scaffold(block_name)
       @block_name = block_name
-      @jekyll_class_name = Nugem.camel_case block_name
+      @jekyll_class_name = ::Nugem.camel_case block_name
       puts "Creating Jekyll block tag no_arg #{@block_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
       directory src_path_fragment: 'jekyll/block_no_arg_scaffold'
@@ -73,7 +73,7 @@ module Nugem
 
     def create_jekyll_filter_scaffold(filter_name)
       @filter_name = filter_name
-      @jekyll_class_name = Nugem.camel_case filter_name
+      @jekyll_class_name = ::Nugem.camel_case filter_name
       prompt = 'Jekyll filters have at least one input. ' \
                "What are the names of additional inputs for #{filter_name}, if any?".green
       @filter_params = ask(prompt)
@@ -103,7 +103,7 @@ module Nugem
 
     def create_jekyll_generator_scaffold(generator_name)
       @generator_name = generator_name
-      @jekyll_class_name = Nugem.camel_case generator_name
+      @jekyll_class_name = ::Nugem.camel_case generator_name
       puts "Creating a new Jekyll generator class scaffold #{@jekyll_class_name}".green
       @mute = true
       directory src_path_fragment: 'jekyll/generator_scaffold'
@@ -111,7 +111,7 @@ module Nugem
 
     def create_jekyll_hooks_scaffold(plugin_name)
       @plugin_name = plugin_name
-      @jekyll_class_name = Nugem.camel_case plugin_name
+      @jekyll_class_name = ::Nugem.camel_case plugin_name
       puts 'Creating a new Jekyll hook scaffold'.green
       @mute = true
       directory src_path_fragment: 'jekyll/hooks_scaffold'
@@ -119,7 +119,7 @@ module Nugem
 
     def create_jekyll_tag_no_arg_scaffold(tag_name)
       @tag_name = tag_name
-      @jekyll_class_name = Nugem.camel_case @tag_name
+      @jekyll_class_name = ::Nugem.camel_case @tag_name
       puts "Creating Jekyll tag no_arg #{@tag_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
       directory src_path_fragment: 'jekyll/tag_no_arg_scaffold'
@@ -129,7 +129,7 @@ module Nugem
 
     def create_jekyll_tag_scaffold(tag_name)
       @tag_name = tag_name
-      @jekyll_class_name = Nugem.camel_case @tag_name
+      @jekyll_class_name = ::Nugem.camel_case @tag_name
       ask_option_names_types tag_name # Defines @jekyll_parameter_names_types, which is a nested array of name/value pairs:
       # [["opt1", "string"], ["opt2", "boolean"]]
       puts "Creating Jekyll tag #{@tag_name} scaffold within #{@jekyll_class_name}".green
