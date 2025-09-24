@@ -6,8 +6,35 @@ class MyOptionParser
   def initialize
     @options = {}
     @parser = OptionParser.new
-    @parser.on('-o', '--out-dir=OUT_DIR', 'Output directory') do |value|
-      @options[:out_dir] = value
+    [dry_run_proc, out_dir_proc, verbose_proc].each do |p| # Build parser from option procs
+      p.call(@parser, @options)
+    end
+  end
+
+  # Proc for handling dry-run mode
+  def dry_run_proc
+    proc do |parser, opts|
+      parser.on('-n', '--dry-run', 'Do everything except execute') do |value|
+        opts[:dry_run] = value
+      end
+    end
+  end
+
+  # Build parser and apply all option procs
+  def out_dir_proc
+    proc do |parser, opts|
+      parser.on('-o', '--out_dir=OUT_DIR') do |value|
+        opts[:out_dir] = value
+      end
+    end
+  end
+
+  # Proc for handling verbosity
+  def verbose_proc
+    proc do |parser, opts|
+      parser.on('-v', '--[no-]verbose', 'Run verbosely') do |value|
+        opts[:verbose] = value
+      end
     end
   end
 
