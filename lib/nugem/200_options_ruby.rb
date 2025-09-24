@@ -8,7 +8,7 @@ module Nugem
   HOSTS = %w[github gitlab bitbucket].freeze
   LOGLEVELS = %w[trace debug verbose info warning error fatal panic quiet].freeze
 
-  class Options
+  class RubyOptions
     # @errors_are_fatal and @subcommand_parser_procs are set in the constructor
     # @options are set from defaults and overwritten by scanning ARGV
     attr_accessor :errors_are_fatal, :options, :subcommand_parser_procs
@@ -18,7 +18,7 @@ module Nugem
     # @param initial_options [Hash] Should only contain :gem_type, :gem_name and :source_root
     # @param dry_run [Boolean] not used yet. TODO incorporate into runtime_options?
     # @param errors_are_fatal [Boolean] TODO incorporate into runtime_options?
-    # @return [Options]
+    # @return [RubyOptions]
     def initialize(initial_options, dry_run: false, errors_are_fatal: true)
       @positional_parameter_proc = ::Nugem.positional_parameter_proc
       @errors_are_fatal = errors_are_fatal
@@ -58,12 +58,13 @@ module Nugem
       # See https://ruby-doc.org/3.4.1/stdlibs/optparse/OptionParser.html
       # See https://ruby-doc.org/3.4.1/optparse/option_params_rdoc.html
       nop_control = NestedOptionParserControl.new(
-        ::Nugem.common_parser_proc,
-        ::Nugem.help_proc,
-        ::Nugem.positional_parameter_proc,
-        argv,
-        @options,
-        @subcommand_parser_procs
+        common_parser_proc:        ::Nugem.common_parser_proc,
+        help_proc:                 ::Nugem.help_proc,
+        positional_parameter_proc: ::Nugem.positional_parameter_proc,
+        argv:                      argv,
+        default_option_hash:       @options,
+        sub_cmds:                  @subcommand_parser_procs,
+        subcommand:                @subcommand_parser_procs.first # FIXME: figure out which
       )
       NestedOptionParser.new nop_control, errors_are_fatal: @errors_are_fatal
     rescue OptionParser::InvalidOption => e
@@ -105,7 +106,7 @@ module Nugem
                     'Pre-existing content in the output directory will abort the program.'
                   end
       <<~END_SUMMARY
-        Options:
+        RubyOptions:
          - Gem type: #{@options[:gem_type]}
          - Loglevel #{@options[:loglevel]}
          - Output directory: '#{@options[:output_directory]}'

@@ -29,7 +29,7 @@ class JekyllOptionsTest
 
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
-        Options:
+        RubyOptions:
           - Gem type: jekyll
           - Loglevel #{nugem_options.options[:loglevel]}
           - Output directory: '#{nugem_options.options[:out_dir]}'
@@ -73,7 +73,7 @@ class JekyllOptionsTest
       expect(nop.options).to eq(expected)
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
-        Options:
+        RubyOptions:
          - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'

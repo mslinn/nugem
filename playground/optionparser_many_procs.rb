@@ -38,5 +38,5 @@ end
 
 parser.parse!(['-o', '/tmp/test', '-v', 'very']) # Simulated command line arguments
 
-puts "Options hash: #{options.sort.to_h}"
-#   Options hash: {:dry_run=> false, :out_dir=>"/tmp/test", :verbose=>true}
+puts "RubyOptions hash: #{options.sort.to_h}"
+#   RubyOptions hash: {:dry_run=> false, :out_dir=>"/tmp/test", :verbose=>true}

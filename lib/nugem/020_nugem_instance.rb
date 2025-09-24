@@ -24,7 +24,7 @@ module Nugem
     # references in ERB templates
     #
     # @param gem_name [String] The name of the gem.
-    # @param options [Hash] Options for the gem scaffold, including host, private, and out_dir.
+    # @param options [Hash] RubyOptions for the gem scaffold, including host, private, and out_dir.
     #                if an environment variable called my_gems is defined, out_dir will default to $my_gems/gem_name,
     #                otherwise out_dir will default to ~/nugem_generated/gem_name.
     #

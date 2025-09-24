@@ -9,7 +9,7 @@ require_relative '../lib/nugem'
 class RubyOptionsTest
   TEST_OUT_DIR = File.join(Dir.tmpdir, 'nugem_test').freeze
 
-  RSpec.describe ::Nugem::Options do
+  RSpec.describe ::Nugem::RubyOptions do
     after(:context) do # rubocop:disable RSpec/BeforeAfterAll
       FileUtils.rm_rf TEST_OUT_DIR, secure: true
     end
@@ -27,7 +27,7 @@ class RubyOptionsTest
 
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
-        Options:
+        RubyOptions:
          - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'
@@ -64,7 +64,7 @@ class RubyOptionsTest
 
       actual_summary = nugem_options.prepare_and_report
       expected_summary = <<~END_SUMMARY
-        Options:
+        RubyOptions:
          - Gem type: ruby
          - Loglevel #{nugem_options.options[:loglevel]}
          - Output directory: '#{nugem_options.options[:out_dir]}'

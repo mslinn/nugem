@@ -20,30 +20,31 @@ module Nugem
       puts "Error: The templates directory '#{initial_options[:source_root]}' does not exist or is empty.".red
       exit! 2
     end
-    nugem_options = case initial_options[:gem_type] # Parse all remaining options based on :gemtype
-                    when 'ruby'
-                      Options.new initial_options
-                    when 'jekyll'
-                      JekyllOptions.new initial_options
-                    else
-                      puts "Error: Unrecognized gem type '#{initial_options[:gem_type]}'.".red
-                      exit! 2
-                    end
+    options = case initial_options[:gem_type] # Parse all remaining options based on options[:gemtype]
+              when 'ruby'
+                RubyOptions.new initial_options
+              when 'jekyll'
+                JekyllOptions.new initial_options
+              else
+                puts "Error: Unrecognized gem type '#{initial_options[:gem_type]}'.".red
+                exit! 2
+              end
 
-    # FIXME: jekyll_subcommand_parser_proc is not called
-    nop = nugem_options.nested_option_parser_from ARGV
+    # FIXME: jekyll_subcommand_parser_proc is not called but it is set in options
+    nop = options.nested_option_parser_from ARGV
     if nop.argv.any?
       puts "Invalid syntax: #{nop.argv}".red
       exit! 5
     end
-    # FIXME: report from nop, not nugem_options
-    nugem_options.prepare_and_report.each_line { |line| print line.green }
+    # FIXME: report from nop, not options
+    options.prepare_and_report.each_line { |line| print line.green }
 
-    nugem = Nugem.new nugem_options.options # Computes nugem.options[:output_directory]
+    nugem = Nugem.new options.options # Computes nugem.options[:output_directory]
     nugem.create_scaffold
     nugem.initialize_repository
-    puts nugem.todos_report if nugem_options.options[:todos]
-    msg = `tree #{nugem_options.options[:output_directory]}`
+
+    puts nugem.todos_report if options.options[:todos]
+    msg = `tree #{options.options[:output_directory]}`
     if msg.include? '0 directories, 0 files'
       puts 'No files were generated'.yellow
     else
@@ -77,7 +78,7 @@ module Nugem
   # Sets :gem_type and :gem_name values in options from the first two command line arguments.
   # Modifies ARGV by removing those values.
   # Ignores other command line arguments.
-  # @return [Hash] Options parsed from the command line arguments
+  # @return [Hash] RubyOptions parsed from the command line arguments
   def self.parse_gem_type_name
     ::Nugem.help_proc.call nil, errors_are_fatal: true if ARGV.empty? || ARGV[0] == '-h' || ARGV[0] == '--help'
 

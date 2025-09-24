@@ -13,7 +13,7 @@ module Nugem
 
         options = ::Nugem.parse_gem_type_name # Only sets the :gem_type and :gem_name
         options[:source_root] = File.expand_path('../templates', File.dirname(__FILE__)) # templates live here
-        nugem_options = Options.new options
+        nugem_options = RubyOptions.new options
         nugem_options.prepare_and_report
         Nugem.new nugem_options.options
       end

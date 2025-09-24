@@ -24,13 +24,13 @@ module Nugem
     #   If no subcommands are defined, this will be an empty array.
     # @param subcommand [SubCmd] subcommand identified on command line
     def initialize(
-      common_parser_proc,
-      help_proc,
-      positional_parameter_proc,
-      argv = [],
-      default_option_hash = {},
-      sub_cmds = [],
-      subcommand = nil
+      common_parser_proc:,
+      help_proc:,
+      positional_parameter_proc:,
+      argv: [],
+      default_option_hash: {},
+      sub_cmds: [],
+      subcommand: nil
     )
       @common_parser_proc        = common_parser_proc
       @help                      = help_proc
