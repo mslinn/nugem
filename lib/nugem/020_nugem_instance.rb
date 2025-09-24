@@ -70,8 +70,8 @@ module Nugem
       exit! 1
     end
 
-    def create_scaffold
-      puts "create_scaffold: Creating a scaffold for a new Ruby gem named #{gem_name} " \
+    def generate_ruby_scaffold
+      puts "generate_ruby_scaffold: Creating a scaffold for a new Ruby gem named #{gem_name} " \
            "in #{@options[:output_directory]}.".green
       directory exclude_pattern:   %r{common/gem_scaffold/spec/.*},
                 src_path_fragment: 'common/gem_scaffold'

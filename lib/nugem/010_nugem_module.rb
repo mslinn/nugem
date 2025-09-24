@@ -39,7 +39,9 @@ module Nugem
     options.prepare_and_report.each_line { |line| print line.green }
 
     nugem = Nugem.new options.options # Computes nugem.options[:output_directory]
-    nugem.create_scaffold
+    nugem.generate_ruby_scaffold
+    nugem.generate_jekyll_scaffold if initial_options[:gem_type] == 'jekyll'
+
     nugem.initialize_repository
 
     puts nugem.todos_report if options.options[:todos]
