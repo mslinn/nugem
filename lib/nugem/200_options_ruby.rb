@@ -23,6 +23,12 @@ module Nugem
       @positional_parameter_proc = ::Nugem.positional_parameter_proc
       @errors_are_fatal = errors_are_fatal
 
+      missing_options = %i[gem_type gem_name source_root].reject { |key, _value| initial_options.key?(key) }
+      if missing_options.any?
+        puts "Internal error: RubyOptions initial_options hash must contain these keys: #{missing_options.join(', ')}"
+        exit! 99
+      end
+
       ruby_gem_option_defaults = {
         executables: [],
         dry_run:     dry_run,
