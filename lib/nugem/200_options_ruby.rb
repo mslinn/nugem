@@ -94,11 +94,11 @@ module Nugem
     def summarize
       executables = @options[:executables]
       executable_msg = if executables.empty?
-                         'No executables will be included'
+                         'No executables will be generated'
                        elsif executables.length > 1
-                         "Executables called #{executables.join ', '} will be included"
+                         "Executables called #{executables.join ', '} will be generated"
                        else
-                         "An executable called #{executables.join} will be included"
+                         "An executable called #{executables.join} will be generated"
                        end
       force_msg = if @options[:force]
                     'Any pre-existing content in the output directory will be deleted before generating new output.'

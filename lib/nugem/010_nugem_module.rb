@@ -30,7 +30,6 @@ module Nugem
                 exit! 2
               end
 
-    # FIXME: jekyll_subcommand_parser_proc is not called but it is set in options
     nop = options.nested_option_parser_from ARGV
     if nop.argv.any?
       puts "Invalid syntax: #{nop.argv}".red
