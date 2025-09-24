@@ -20,7 +20,7 @@ module Nugem
     # @param argv [Array<String>] The command line arguments to parse.
     # @param default_option_hash [Hash] Default options to be set before parsing.
     # @param sub_cmds [Array<SubCmd>] SubCmds for subcommand parser(s). The array is processed in order.
-    #   Each SubCmd common_parser_proc should abe a proc that defines the options for that subcommand.
+    #   Each SubCmd common_parser_proc should be a proc that defines the options for that subcommand.
     #   If no subcommands are defined, this will be an empty array.
     # @param subcommand [SubCmd] subcommand identified on command line
     def initialize(
@@ -98,7 +98,7 @@ module Nugem
 
       # Parse common options
       @nop_control.default_option_hash = evaluate(
-        default_option_hash: nop_control.default_option_hash,
+        default_option_hash: nop_control.default_option_hash, # TODO: rename to options
         common_parser_proc:  nop_control.common_parser_proc,
         subcommand_defined:  !nop_control.sub_cmds.empty?
       )
@@ -116,7 +116,7 @@ module Nugem
       if @help
         @help.call @errors_are_fatal
       elsif @errors_are_fatal
-        exit 1
+        exit! 1
       end
     end
 
@@ -158,7 +158,7 @@ module Nugem
       options
     rescue OptionParser::InvalidOption => e
       puts "Error: #{e.message}".red
-      exit 1
+      exit! 1
     end
 
     # Reads nop_control and writes @nop_control.default_option_hash

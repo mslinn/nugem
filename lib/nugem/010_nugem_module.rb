@@ -25,12 +25,12 @@ module Nugem
                       Options.new initial_options
                     when 'jekyll'
                       JekyllOptions.new initial_options
-                      # FIXME: call jekyll_subcommand_parser_proc
                     else
                       puts "Error: Unrecognized gem type '#{initial_options[:gem_type]}'.".red
                       exit! 2
                     end
 
+    # FIXME: jekyll_subcommand_parser_proc is not called
     nop = nugem_options.nested_option_parser_from ARGV
     if nop.argv.any?
       puts "Invalid syntax: #{nop.argv}".red

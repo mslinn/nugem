@@ -2,6 +2,9 @@
 
 # Create a new project for a Jekyll gem called test and work on it in VS Code
 
+DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd "$DIR/../" || exit
+
 PROJECT_NAME="test"
 PROJECT_ROOT="$HOME/nugem_generated/$PROJECT_NAME"
 rm -rf "$PROJECT_ROOT"

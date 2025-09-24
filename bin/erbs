@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Find all .erb files, extract ERB expressions, sort them uniquely
+# Defaults to searching in ../templates
+# Usage: ./erbs [directory]
+
+DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd "$DIR/../" || exit
+
+DIR=${1:-templates}
+
+echo "ERBs in '$DIR' directory:"
+grep -rho '<%=\?[^%]*%>' "$DIR" \
+  | sed 's/^ *//;s/ *$//' \
+  | sort \
+  | uniq
