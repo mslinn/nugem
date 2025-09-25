@@ -19,8 +19,8 @@ module Nugem
         when :tag       then option[1].each { |name| create_jekyll_tag_scaffold          name }
         when :tagn      then option[1].each { |name| create_jekyll_tag_no_arg_scaffold   name }
         else
-          # TODO: ignore gem options
-          puts "Nugem.jekyll warning: Unrecognized option: #{option}"
+          puts "Nugem.jekyll warning: Unrecognized option: #{option.first}" \
+            unless RubyOptions.ruby_gem_option_keys.include? option.first
         end
       end
 

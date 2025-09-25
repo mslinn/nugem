@@ -15,6 +15,13 @@ module Nugem
 
     include ::HighlineWrappers
 
+    class << self
+      attr_accessor :ruby_gem_option_defaults, :ruby_gem_option_keys
+
+      @ruby_gem_option_defaults = {} # Class instance variable
+      @ruby_gem_option_keys = [] # Class instance variable
+    end
+
     # @param initial_options [Hash] Must contain keys :gem_type, :gem_name and :source_root
     # @param dry_run [Boolean] not used yet. TODO incorporate into runtime_options?
     # @param errors_are_fatal [Boolean] TODO incorporate into runtime_options?
@@ -29,7 +36,7 @@ module Nugem
         exit! 99
       end
 
-      ruby_gem_option_defaults = {
+      RubyOptions.ruby_gem_option_defaults = {
         executables: [],
         dry_run:     dry_run,
         force:       false,
@@ -41,7 +48,10 @@ module Nugem
         private:     false,
         todos:       true,
       }
-      @options = ruby_gem_option_defaults # lowest priority
+      # Used by generate_jekyll_scaffold:
+      RubyOptions.ruby_gem_option_keys = RubyOptions.ruby_gem_option_defaults.keys +
+                                         %i[gem_name gem_type my_gems output_directory source_root]
+      @options = RubyOptions.ruby_gem_option_defaults # lowest priority
                    .merge(::Nugem.jekyll_plugin_option_defaults) # medium priority
                    .merge(initial_options) # highest priority
       compute_output_directory
