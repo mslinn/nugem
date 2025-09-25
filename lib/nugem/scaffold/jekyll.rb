@@ -24,7 +24,7 @@ module Nugem
         File.open(path, 'a') do |file|
           file.write(content)
         end
-        puts "Append  #{path}" if verbose
+        puts "Append  #{path}".green if verbose
       rescue StandardError => e
         warn "Error appending to file #{path}: #{e.message}"
       end
@@ -65,11 +65,11 @@ module Nugem
       names = if @suppress_dialog
                 []
               else
-                ask("Please list the names of the options for the #{tag} Jekyll/Liquid tag:".green,
+                ask("Please list the names of the options for the #{tag} Jekyll/Liquid tag: ".yellow,
                     String).split(/[ ,\t]/)
               end
       types = names.reject(&:empty?).map do |name|
-        ask("What is the type of #{name}? (tab autocompletes)".green, String) do |q|
+        ask("What is the type of #{name}? (tab autocompletes)".yellow + ' ', String) do |q|
           q.default = 'string'
           q.default_hint_show = true
           q.validate = /^(boolean|string|numeric)$/i
