@@ -52,7 +52,7 @@ class HighLine
     q = HighLine::Question.new(prompt, answer_type, &)
     q.answer = $stdin.read
     puts q.answer
-    return q.answer if q.answer == ''
+    return q.answer if q.answer == '' # Caller must provide the default value or action
 
     unless q.valid_answer?
       error_message = q.responses[:not_valid] ||
@@ -62,9 +62,5 @@ class HighLine
       exit! 33
     end
     q.answer
-  rescue StandardError => e
-    puts e.message.red
-    puts e.backtrace.join('\n').red
-    exit! 35
   end
 end
