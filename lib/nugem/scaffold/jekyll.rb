@@ -133,6 +133,9 @@ module Nugem
       directory src_path_fragment: 'jekyll/tag_no_arg_scaffold'
       append_to_file "#{@options[:output_directory]}/demo/index.html",
                      JekyllDemo.add(tag_name, @jekyll_parameter_names_types, :tag)
+    rescue StandardError => e
+      puts e.message.red
+      exit! 1
     end
 
     def create_jekyll_tag_scaffold(tag_name)
