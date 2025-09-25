@@ -72,12 +72,21 @@
       "env": {
         "VO_DEBUGGING": "true"
       },
-      "name": "nugem jekyll test --force --private --tag=tag1",
+      "name": "rdbg nugem jekyll test --force --private --tag=tag1",
       "script": "${workspaceFolder}/exe/nugem jekyll test --force --private --tag=tag1",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
       "useTerminal": true,
+    },
+    {
+      "env": {
+        "VO_DEBUGGING": "true"
+      },
+      "name": "ruby_lsp nugem jekyll test --force --private --tag=tag1",
+      "program": "ruby exe/nugem jekyll test --force --private --tag=tag1",
+      "request": "launch",
+      "type": "ruby_lsp",
     },
     {
       "debugPort": "0",

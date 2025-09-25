@@ -38,6 +38,8 @@ module Nugem
     #     out_dir: '~/output'
     #   })
     def initialize(options = DEFAULT_OPTIONS)
+      @suppress_dialog = true
+
       @options     = options
       @gem_name    = options[:gem_name]
       @force       = options[:force] # TODO: clarify what this variable actually does
@@ -68,6 +70,23 @@ module Nugem
 
       puts "Aborting because #{@options[:output_directory]} is not empty and --force was not specified.".red
       exit! 1
+    end
+
+    # This method is defined here so @cb picks it up
+    # Invoked by directory action when processing Jekyll tags and block tags
+    def dump_jekyll_parameters
+      content = @jekyll_parameter_names_types.map do |name, _type|
+        "@#{name}='\#{@#{name}}'"
+      end
+      content.join "\n          "
+    end
+
+    # This method is defined here so @cb picks it up
+    def parse_jekyll_parameters
+      content = @jekyll_parameter_names_types.map do |name, _type|
+        "@#{name} = @helper.parameter_specified?('#{name}') || nil # Obtain the value of parameter #{name}"
+      end
+      content.join "\n      "
     end
 
     def generate_ruby_scaffold
@@ -144,7 +163,7 @@ module Nugem
 
       # Iterate through all files and directories in src_path_fq
       Dir.glob(File.join(src_path_fq, '**', '*'), File::FNM_DOTMATCH).each do |entry|
-        # puts "  Examining #{entry.delete_prefix(src_path_fq + '/')}".green
+        puts "  Examining #{src_path_fragment}#{entry.delete_prefix(src_path_fq)}".green
         next if entry.end_with? '.', '..'
 
         src_path_interpolated_fq = interpolate_percent_methods src_path_fq
@@ -304,7 +323,7 @@ module Nugem
         method_name = Regexp.last_match(1) # Extract text between %...%
         @cb.eval method_name
       rescue NameError
-        puts "Warning: method or variable '#{method_name}' is undefined\n#{@cb}".red
+        puts "Template binding error: method or variable '#{method_name}' is undefined\n#{@cb}".red
         exit! 6
         # "%#{method_name}%" # Leave unchanged if no match found
       end

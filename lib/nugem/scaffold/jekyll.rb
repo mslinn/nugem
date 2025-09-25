@@ -4,6 +4,32 @@ module Nugem
   class Nugem
     attr_accessor :class_name, :filter_params, :trailing_args, :trailing_dump, :trailing_params
 
+    # Mimics Thor's append_to_file behavior.
+    #
+    # @param path [String] The file path to append to.
+    # @param *args [Array] An array for content string and optional config hash.
+    # @param &block [Proc] A block that can return content to append.
+    def append_to_file(path, *args, &)
+      content = args.first if args.first.is_a?(String)
+      config = args.last.is_a?(Hash) ? args.pop : {}
+      verbose = config.fetch(:verbose, true)
+
+      content ||= yield if block_given? # Get content from the block if provided
+      unless content
+        puts 'Warning: No content provided to append.' if verbose
+        return
+      end
+
+      begin
+        File.open(path, 'a') do |file|
+          file.write(content)
+        end
+        puts "Append  #{path}" if verbose
+      rescue StandardError => e
+        warn "Error appending to file #{path}: #{e.message}"
+      end
+    end
+
     # Generate a Jekyll gem
     def generate_jekyll_scaffold
       @class_name = ::Nugem.camel_case @gem_name
@@ -36,8 +62,12 @@ module Nugem
     # list of pairs that describe each Jekyll/Liquid tag invocation option:
     # [[name1, type1], ... [nameN, typeN]]
     def ask_option_names_types(tag)
-      names = ask("Please list the names of the options for the #{tag} Jekyll/Liquid tag:".green,
-                  String).split(/[ ,\t]/)
+      names = if @suppress_dialog
+                []
+              else
+                ask("Please list the names of the options for the #{tag} Jekyll/Liquid tag:".green,
+                    String).split(/[ ,\t]/)
+              end
       types = names.reject(&:empty?).map do |name|
         ask("What is the type of #{name}? (tab autocompletes)".green, String) do |q|
           q.default = 'string'
@@ -59,7 +89,12 @@ module Nugem
     def create_jekyll_block_scaffold(block_name)
       @block_name = block_name
       @jekyll_class_name = ::Nugem.camel_case block_name
-      ask_option_names_types block_name # Defines @jekyll_parameter_names_types, which is a nested array of name/value pairs:
+
+      @cb.add_object_to_binding_as 'block_name', block_name
+      @cb.add_object_to_binding_as 'jekyll_class_name', @jekyll_class_name
+
+      ask_option_names_types block_name # Defines @jekyll_parameter_names_types,
+      # which is a nested array of name/value pairs:
       # [["opt1", "string"], ["opt2", "boolean"]]
       puts "Creating Jekyll block tag #{@block_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
@@ -71,6 +106,10 @@ module Nugem
     def create_jekyll_block_no_arg_scaffold(block_name)
       @block_name = block_name
       @jekyll_class_name = ::Nugem.camel_case block_name
+
+      @cb.add_object_to_binding_as 'block_name', block_name
+      @cb.add_object_to_binding_as 'jekyll_class_name', @jekyll_class_name
+
       puts "Creating Jekyll block tag no_arg #{@block_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
       directory src_path_fragment: 'jekyll/block_no_arg_scaffold'
@@ -81,6 +120,10 @@ module Nugem
     def create_jekyll_filter_scaffold(filter_name)
       @filter_name = filter_name
       @jekyll_class_name = ::Nugem.camel_case filter_name
+
+      @cb.add_object_to_binding_as 'filter_name', filter_name
+      @cb.add_object_to_binding_as 'jekyll_class_name', @jekyll_class_name
+
       prompt = 'Jekyll filters have at least one input. ' \
                "What are the names of additional inputs for #{filter_name}, if any?".green
       @filter_params = ask(prompt)
@@ -111,6 +154,10 @@ module Nugem
     def create_jekyll_generator_scaffold(generator_name)
       @generator_name = generator_name
       @jekyll_class_name = ::Nugem.camel_case generator_name
+
+      @cb.add_object_to_binding_as 'generator_name', generator_name
+      @cb.add_object_to_binding_as 'jekyll_class_name', @jekyll_class_name
+
       puts "Creating a new Jekyll generator class scaffold #{@jekyll_class_name}".green
       @mute = true
       directory src_path_fragment: 'jekyll/generator_scaffold'
@@ -119,6 +166,10 @@ module Nugem
     def create_jekyll_hooks_scaffold(plugin_name)
       @plugin_name = plugin_name
       @jekyll_class_name = ::Nugem.camel_case plugin_name
+
+      @cb.add_object_to_binding_as 'plugin_name', plugin_name
+      @cb.add_object_to_binding_as 'jekyll_class_name', @jekyll_class_name
+
       puts 'Creating a new Jekyll hook scaffold'.green
       @mute = true
       directory src_path_fragment: 'jekyll/hooks_scaffold'
@@ -144,6 +195,10 @@ module Nugem
     def create_jekyll_tag_scaffold(tag_name)
       @tag_name = tag_name
       @jekyll_class_name = ::Nugem.camel_case @tag_name
+
+      @cb.add_object_to_binding_as 'tag_name', tag_name
+      @cb.add_object_to_binding_as 'jekyll_class_name', @jekyll_class_name
+
       ask_option_names_types tag_name # Defines @jekyll_parameter_names_types,
       # which is a nested array of name/value pairs:
       #   [["opt1", "string"], ["opt2", "boolean"]]
