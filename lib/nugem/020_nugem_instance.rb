@@ -38,9 +38,10 @@ module Nugem
     #     out_dir: '~/output'
     #   })
     def initialize(options = DEFAULT_OPTIONS)
-      @suppress_dialog = true
+      # STDIO does not work for input when VSCode debugs a Ruby program
+      @suppress_dialog = ENV['RUBY_DEBUG_OPEN'] || defined?(DEBUGGER__)
 
-      @options     = options
+      @options = options
       @gem_name    = options[:gem_name]
       @force       = options[:force] # TODO: clarify what this variable actually does
 
