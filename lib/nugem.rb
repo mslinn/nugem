@@ -15,3 +15,5 @@ require_subdirectory File.realpath('nugem', __dir__)
 require_subdirectory File.realpath('nugem/scaffold', __dir__)
 
 Signal.trap('INT') { exit!(-1) }
+
+HighlineWrappers.maybe_redirect_stdin

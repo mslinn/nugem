@@ -2,6 +2,15 @@
 require 'highline/import'
 
 module HighlineWrappers
+  def self.maybe_redirect_stdin
+    input_from_env = ENV.fetch('nugem_argv', nil)
+    return unless input_from_env
+
+    require 'stringio'
+    $stdin = StringIO.new(input_from_env)
+    puts 'Reading STDIN from the nugem_argv environment variable.'
+  end
+
   def yes_no?(prompt = 'More?', default_value: true)
     answer_letter = ''
     suffix = default_value ? '[Y/n]' : '[y/N]'
@@ -51,6 +60,10 @@ class HighLine
     end
     q = HighLine::Question.new(prompt, answer_type, &)
     q.answer = $stdin.read
+    unless q.answer
+      puts 'EOF encountered.'.red
+      exit! 1
+    end
     puts q.answer
     return q.answer if q.answer == '' # Caller must provide the default value or action
 

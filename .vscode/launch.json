@@ -70,6 +70,7 @@
     },
     {
       "env": {
+        "nugem_argv": "x\n\n",
         "VO_DEBUGGING": "true"
       },
       "name": "rdbg nugem jekyll test --force --private --tag=tag1",
@@ -77,10 +78,10 @@
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
-      "useTerminal": true,
     },
     {
       "env": {
+        "nugem_argv": "x\n\n",
         "VO_DEBUGGING": "true"
       },
       "name": "ruby_lsp nugem jekyll test --force --private --tag=tag1",
