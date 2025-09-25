@@ -33,10 +33,14 @@ module Nugem
     # list of pairs that describe each Jekyll/Liquid tag invocation option:
     # [[name1, type1], ... [nameN, typeN]]
     def ask_option_names_types(tag)
-      names = ask("Please list the names of the options for the #{tag} Jekyll/Liquid tag:".green).split(/[ ,\t]/)
+      names = ask("Please list the names of the options for the #{tag} Jekyll/Liquid tag:".green,
+                  String).split(/[ ,\t]/)
       types = names.reject(&:empty?).map do |name|
-        ask "What is the type of #{name}? (tab autocompletes)".green,
-            default: 'string', limited_to: %w[boolean string numeric]
+        ask("What is the type of #{name}? (tab autocompletes)".green, String) do |q|
+          q.default = 'string'
+          q.default_hint_show = true
+          q.validate = /^(boolean|string|numeric)$/i
+        end
       end
       @jekyll_parameter_names_types = names.zip types
       @jekyll_parameter_names_types
@@ -130,8 +134,9 @@ module Nugem
     def create_jekyll_tag_scaffold(tag_name)
       @tag_name = tag_name
       @jekyll_class_name = ::Nugem.camel_case @tag_name
-      ask_option_names_types tag_name # Defines @jekyll_parameter_names_types, which is a nested array of name/value pairs:
-      # [["opt1", "string"], ["opt2", "boolean"]]
+      ask_option_names_types tag_name # Defines @jekyll_parameter_names_types,
+      # which is a nested array of name/value pairs:
+      #   [["opt1", "string"], ["opt2", "boolean"]]
       puts "Creating Jekyll tag #{@tag_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
       # puts "@jekyll_parameter_names_types=#{@jekyll_parameter_names_types}".yellow

@@ -69,7 +69,6 @@
       "useBundler": true,
     },
     {
-      "debugPort": "0",
       "env": {
         "VO_DEBUGGING": "true"
       },
@@ -78,6 +77,7 @@
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
+      "useTerminal": true,
     },
     {
       "debugPort": "0",

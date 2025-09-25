@@ -42,6 +42,9 @@ Layout/LineLength:
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented_relative_to_receiver
 
+Lint/NonDeterministicRequireOrder:
+  Enabled: false
+
 Metrics/AbcSize:
   Enabled: false
   Max: 50

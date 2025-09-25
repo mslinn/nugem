@@ -28,6 +28,9 @@ Layout/HashAlignment:
 Layout/LineLength:
   Max: 150
 
+Lint/NonDeterministicRequireOrder:
+  Enabled: false
+
 Metrics/AbcSize:
   Max: 35
 
