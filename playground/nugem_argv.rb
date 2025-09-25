@@ -12,9 +12,10 @@ ENV['nugem_argv'] = "Hello from Mars\nHello from Venus\nGoodbye\n"
 maybe_redirect_stdin
 # Now any code that reads from standard input (like gets) will read from ENV['nugem_argv'].
 
-puts gets # => "Hello from Mars"
-puts gets # => "Hello from Venus"
-puts gets # => "Goodbye"
-puts gets # => "" # EOF for STDIN yields nil, which prints as a newline
-puts gets # => ""
-puts gets # => ""
+# Do not call $stdio.eof? to test EOF because it will block until the process exits
+# if STDIN is a pipe or socket.
+#
+# Detect when STDIN reaches EOF by gets returning nil
+while line = gets # rubocop:disable Lint/AssignmentInCondition
+  puts line
+end
