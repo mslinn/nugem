@@ -35,20 +35,36 @@ end
 class HighLine
   alias highline_ask ask
 
-  def ask(template_or_question, answer_type = nil, &details)
+  def ask(template_or_question, answer_type = nil, &)
     if $stdin.tty? # highline handles terminal I/O
-      highline_ask(template_or_question, answer_type, &details)
-    else # reading from pipe
-      if template_or_question.end_with? ' '
-        print template_or_question
-      else
-        puts template_or_question
-      end
-      # $stdout.flush
-      yield details.block.call
-      response = $stdin.read
-      puts response
-      response
+      highline_ask(template_or_question, answer_type, &)
+    else
+      read_from_pipe(template_or_question, answer_type, &)
     end
+  end
+
+  def read_from_pipe(prompt, answer_type, &)
+    if prompt.end_with? ' '
+      print prompt
+    else
+      puts prompt
+    end
+    q = HighLine::Question.new(prompt, answer_type, &)
+    q.answer = $stdin.read
+    puts q.answer
+    return q.answer if q.answer == ''
+
+    unless q.valid_answer?
+      error_message = q.responses[:not_valid] ||
+                      q.responses[:not_in_range] ||
+                      'Validation failed.'
+      puts "Input '#{q.answer}' is invalid: #{error_message}".red
+      exit! 33
+    end
+    q.answer
+  rescue StandardError => e
+    puts e.message.red
+    puts e.backtrace.join('\n').red
+    exit! 35
   end
 end
