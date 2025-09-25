@@ -25,6 +25,9 @@ module Nugem
       end
 
       initialize_repository
+    rescue StandardError => e
+      puts e.message.red
+      exit! 1
     end
 
     private

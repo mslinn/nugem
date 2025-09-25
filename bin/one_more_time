@@ -9,7 +9,7 @@ PROJECT_NAME="test"
 PROJECT_ROOT="$HOME/nugem_generated/$PROJECT_NAME"
 rm -rf "$PROJECT_ROOT"
 # yes n | VO_DEBUGGING=x exe/nugem ruby "$PROJECT_NAME" --force
-yes n | VO_DEBUGGING=x exe/nugem jekyll "$PROJECT_NAME" --force --tag tag1
+printf 'x\n\n' | VO_DEBUGGING=x exe/nugem jekyll "$PROJECT_NAME" --force --tag tag1
 
 if [ -f "$PROJECT_ROOT/bin/setup" ]; then
   "$PROJECT_ROOT/bin/setup"
