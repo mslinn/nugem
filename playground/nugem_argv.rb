@@ -7,8 +7,10 @@ def maybe_redirect_stdin
   puts 'Reading STDIN from the nugem_argv environment variable.'
 end
 
+# Define the environment variable
 ENV['nugem_argv'] = "Hello from Mars\nHello from Venus\nGoodbye\n"
 maybe_redirect_stdin
+# Now any code that reads from standard input (like gets) will read from ENV['nugem_argv'].
 
 puts gets # => "Hello from Mars"
 puts gets # => "Hello from Venus"
