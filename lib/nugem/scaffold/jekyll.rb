@@ -124,6 +124,10 @@ module Nugem
     def create_jekyll_tag_no_arg_scaffold(tag_name)
       @tag_name = tag_name
       @jekyll_class_name = ::Nugem.camel_case @tag_name
+
+      @cb.add_object_to_binding_as 'tag_name', tag_name
+      @cb.add_object_to_binding_as 'jekyll_class_name', @jekyll_class_name
+
       puts "Creating Jekyll tag no_arg #{@tag_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
       directory src_path_fragment: 'jekyll/tag_no_arg_scaffold'
