@@ -53,13 +53,13 @@ module <%= class_name %>
     #
     # @return [string] markup to be rendered on web page
     def render_impl
-      <%= parse_jekyll_parameters %>
+      <%= parse_jekyll_parameters -%>
 
       # Put your plugin logic here and modify the following return value.
 
       <<~END_OUTPUT
         <pre class="example">
-          <%= dump_jekyll_parameters %>
+          <%= dump_jekyll_parameters -%>
           Remaining markup: '#{@helper.remaining_markup}'.
         </pre>
       END_OUTPUT

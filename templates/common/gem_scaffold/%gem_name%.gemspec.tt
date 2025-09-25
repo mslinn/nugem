@@ -2,9 +2,9 @@ require_relative 'lib/<%= gem_name %>/version'
 
 Gem::Specification.new do |spec|
   <%- if @repository.github? -%>
-    host = 'https://github.com/<%= git_userid %>/<%= gem_name %>'
+  host = 'https://github.com/<%= git_userid %>/<%= gem_name %>'
   <%- else -%>
-    host = 'https://bitbucket.com/<%= git_userid %>/<%= gem_name %>'
+  host = 'https://bitbucket.com/<%= git_userid %>/<%= gem_name %>'
   <%- end -%>
 
   spec.authors               = ['<%= @repository.user_name %>']
@@ -38,12 +38,15 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.1.0'
   spec.summary               = '<%= @todo %>Write summary of what the gem is for'
   spec.version               = <%= @class_name %>::VERSION
+
+  <%- if @executable -%>
+  spec.add_dependency 'colorator'
+  <%- end -%>
   <%- if @jekyll -%>
-  spec.add_dependency 'jekyll', '>= 4.0.0'
+  spec.add_dependency 'jekyll', '>= 4.4.0'
   spec.add_dependency 'jekyll_plugin_support', '>= 3.1.0'
   <%- end -%>
   <%- if @executable -%>
-  spec.add_dependency 'colorator'
   spec.add_dependency 'optparse'
   spec.add_dependency 'sod'
   <%- end -%>

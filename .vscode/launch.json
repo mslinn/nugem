@@ -69,6 +69,7 @@
       "useBundler": true,
     },
     {
+      "debugPort": "0",
       "env": {
         "nugem_argv": "x\n\n",
         "VO_DEBUGGING": "true"
