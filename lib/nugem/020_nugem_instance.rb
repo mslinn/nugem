@@ -67,7 +67,7 @@ module Nugem
       @cb.add_object_to_binding_as 'my_gems', @options[:my_gems]
       @cb.add_object_to_binding_as 'output_directory', @options[:output_directory]
 
-      return unless File.exist?(@options[:output_directory]) && !@options[:force]
+      return unless File.exist?(@options[:out_dir]) && !@options[:force]
 
       puts "Aborting because #{@options[:output_directory]} is not empty and --force was not specified.".red
       exit! 1
