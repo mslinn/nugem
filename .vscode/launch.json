@@ -123,32 +123,7 @@
       "type": "rdbg",
       "useBundler": true,
     },
-    {
-      "args": [
-        "-I", "${workspaceRoot}/lib",
-        "-I", "${workspaceRoot}/spec",
-        "-P", "${workspaceRoot}/spec/**/*_spec.rb"
-      ],
-      "askParameters": false,
-      "debugPort": "0",
-      "name": "RSpec - all",
-      "request": "launch",
-      "script": "${workspaceRoot}/binstub/rspec",
-      "type": "rdbg",
-    },
-    {
-      "args": [
-        "-I", "${workspaceRoot}/lib",
-        "-I", "${workspaceRoot}/spec",
-        "${file}"
-      ],
-      "debugPort": "0",
-      "name": "RSpec - active spec only",
-      "request": "launch",
-      "script": "${workspaceRoot}/binstub/rspec",
-      "type": "rdbg",
-      "useBundler": true,
-    },
+
     {
       "args": [],
       "debugPort": "0",
@@ -164,6 +139,37 @@
       "name": "Debug playground/optionparser_proc_fun with rdbg",
       "request": "launch",
       "script": "playground/optionparser_proc_fun.rb",
+      "type": "rdbg",
+      "useBundler": true,
+    },
+    {
+      "args": [
+        "-I",
+        "${workspaceRoot}/lib",
+        "-I",
+        "${workspaceRoot}/spec",
+        "-P",
+        "${workspaceRoot}/spec/**/*_spec.rb"
+      ],
+      "askParameters": false,
+      "debugPort": "0",
+      "name": "RSpec - all",
+      "request": "launch",
+      "script": "${workspaceRoot}/binstub/rspec",
+      "type": "rdbg",
+    },
+    {
+      "args": [
+        "-I",
+        "${workspaceRoot}/lib",
+        "-I",
+        "${workspaceRoot}/spec",
+        "${file}"
+      ],
+      "debugPort": "0",
+      "name": "RSpec - active spec only",
+      "request": "launch",
+      "script": "${workspaceRoot}/binstub/rspec",
       "type": "rdbg",
       "useBundler": true,
     },

@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'bundler/setup'
-require 'nugem'
-
 require 'irb'
+
+require_relative '../lib/nugem'
+
 IRB.start
