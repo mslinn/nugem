@@ -47,6 +47,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'jekyll_draft'
   spec.add_dependency 'jekyll_plugin_support', '>= 3.1.0'
   <%- end -%>
+  spec.add_dependency 'logger'
   <%- if @executable -%>
   spec.add_dependency 'optparse'
   spec.add_dependency 'sod'

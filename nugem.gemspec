@@ -46,6 +46,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'gem_support'
   spec.add_dependency 'highline'
   spec.add_dependency 'jekyll'
+  spec.add_dependency 'logger'
   spec.add_dependency 'optparse'
   spec.add_dependency 'rugged'
   spec.add_dependency 'sod' # See https://rubygems.org/gems/sod
