@@ -1,6 +1,8 @@
 require 'custom_binding'
-require 'colorize'
+require 'rainbow/refinement'
 require_relative 'highline_wrappers'
+
+using Rainbow
 
 # Loads files in alphabetical order
 def require_subdirectory(dir)

@@ -1,6 +1,7 @@
 # See https://github.com/JEG2/highline#:~:text=inject/import%20HighLine%20methods%20on%20Kernel
 require 'highline/import'
 
+# Augment Highline
 module HighlineWrappers
   def self.maybe_redirect_stdin
     input_from_env = ENV.fetch('nugem_argv', nil)
@@ -41,6 +42,7 @@ module HighlineWrappers
   end
 end
 
+# Monkey patch Highline
 class HighLine
   alias highline_ask ask
 

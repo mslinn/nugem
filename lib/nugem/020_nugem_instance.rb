@@ -1,10 +1,12 @@
-require 'colorize'
 require 'custom_binding'
 require 'erb'
 require 'fileutils'
 require 'find'
 require 'pathname'
+require 'rainbow/refinement'
 require 'rugged'
+
+using Rainbow
 
 module Nugem
   class Nugem

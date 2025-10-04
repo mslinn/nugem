@@ -1,7 +1,9 @@
-require 'colorized_string'
 require 'fileutils'
+require 'rainbow/refinement'
 require 'rubygems/specification'
 require 'rugged'
+
+using Rainbow
 
 # Class methods
 module Nugem

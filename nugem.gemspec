@@ -41,13 +41,13 @@ Gem::Specification.new do |spec|
   spec.summary               = 'Nugem creates a scaffold project for new gems.'
   spec.version               = Nugem::VERSION
 
-  spec.add_dependency 'colorize'
   spec.add_dependency 'custom_binding'
   spec.add_dependency 'gem_support'
   spec.add_dependency 'highline'
   spec.add_dependency 'jekyll'
   spec.add_dependency 'logger'
   spec.add_dependency 'optparse'
+  spec.add_dependency 'rainbow'
   spec.add_dependency 'rugged'
   spec.add_dependency 'sod' # See https://rubygems.org/gems/sod
 end
