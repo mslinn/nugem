@@ -44,6 +44,7 @@ Gem::Specification.new do |spec|
   <%- end -%>
   <%- if @jekyll -%>
   spec.add_dependency 'jekyll', '>= 4.4.0'
+  spec.add_dependency 'jekyll_draft'
   spec.add_dependency 'jekyll_plugin_support', '>= 3.1.0'
   <%- end -%>
   <%- if @executable -%>
