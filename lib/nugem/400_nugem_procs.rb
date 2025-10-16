@@ -1,3 +1,7 @@
+require 'rainbow/refinement'
+
+using Rainbow
+
 module Nugem
   class << self
     attr_accessor :common_parser_proc, :help_proc, :jekyll_plugin_option_defaults, :jekyll_subcommand,

@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(bin/rspec:*)",
-      "Bash(bundle exec rspec:*)"
+      "Bash(bundle exec rspec:*)",
+      "Bash(bundle exec exe/nugem:*)",
+      "Read(//tmp/**)",
+      "Bash(export VO_DEBUGGING=1)",
+      "Bash(exe/nugem jekyll test_plugin:*)",
+      "Bash(printf:*)",
+      "Bash(timeout 10 bash:*)",
+      "Bash(cat:*)",
+      "Bash(bundle exec rake:*)",
+      "Bash(nugem jekyll test_hooks:*)",
+      "Bash(timeout 30 bundle exec rspec:*)"
     ],
     "deny": [],
     "ask": []

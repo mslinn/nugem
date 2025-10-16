@@ -1,4 +1,7 @@
+require 'rainbow/refinement'
 require_relative 'jekyll_demo'
+
+using Rainbow
 
 module Nugem
   class Nugem
@@ -113,8 +116,9 @@ module Nugem
       puts "Creating Jekyll block tag no_arg #{@block_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
       directory src_path_fragment: 'jekyll/block_no_arg_scaffold'
+      # No-arg blocks don't have parameters, so pass empty array
       append_to_file "#{@options[:output_directory]}/demo/index.html",
-                     JekyllDemo.add(block_name, @jekyll_parameter_names_types, :block)
+                     JekyllDemo.add(block_name, [], :block)
     end
 
     def create_jekyll_filter_scaffold(filter_name)
@@ -124,11 +128,15 @@ module Nugem
       @cb.add_object_to_binding_as 'filter_name', filter_name
       @cb.add_object_to_binding_as 'jekyll_class_name', @jekyll_class_name
 
-      prompt = 'Jekyll filters have at least one input. ' \
-               "What are the names of additional inputs for #{filter_name}, if any?".green
-      @filter_params = ask(prompt)
-                         .split(/[ ,\t]/)
-                         .reject(&:empty?)
+      @filter_params = if @suppress_dialog
+                         []
+                       else
+                         prompt = 'Jekyll filters have at least one input. ' \
+                                  "What are the names of additional inputs for #{filter_name}, if any?".green
+                         ask(prompt)
+                           .split(/[ ,\t]/)
+                           .reject(&:empty?)
+                       end
       unless @filter_params.empty?
         @trailing_args   = ', ' + @filter_params.join(', ')
         @trailing_params = ': ' + @filter_params.join(', ')
@@ -185,8 +193,9 @@ module Nugem
       puts "Creating Jekyll tag no_arg #{@tag_name} scaffold within #{@jekyll_class_name}".green
       @mute = true
       directory src_path_fragment: 'jekyll/tag_no_arg_scaffold'
+      # No-arg tags don't have parameters, so pass empty array
       append_to_file "#{@options[:output_directory]}/demo/index.html",
-                     JekyllDemo.add(tag_name, @jekyll_parameter_names_types, :tag)
+                     JekyllDemo.add(tag_name, [], :tag)
     rescue StandardError => e
       puts e.message.red
       exit! 1
