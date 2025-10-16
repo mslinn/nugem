@@ -11,4 +11,5 @@
 /spec/status_persistence.txt
 /test/coverage/
 /tmp/
+/.claude/
 templates/jekyll/common_scaffold/%gem_name%.code-workspace.tt
