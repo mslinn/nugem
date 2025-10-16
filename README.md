@@ -7,14 +7,14 @@ the project can be released to a public or private gem server.
 This gem generates a new working Visual Studio Code project with the following features:
 
 - Compatible with `rbenv`.
-- `Gemfile` and `.gemspec` files set up.
-- Generates a README with badges.
+- `Gemfile` and `.gemspec` files will be set up.
+- Generates a `README.md` with badges.
 - Generates a new Visual Studio Code project, set up with current Ruby extensions.
-  - Rubocop configured.
-  - Shellcheck configured.
-  - Markdown lint configured.
-  - Launch configurations set up for testing.
-- Can automatically create a public or private git repository on GitHub, GitLab or Bitbucket for your new gem.
+  - Rubocop is configured.
+  - Shellcheck is configured.
+  - Markdown lint is configured.
+  - Launch configurations are set up for testing.
+- `Nugem` can automatically create a public or private git repository on GitHub, GitLab or Bitbucket for your new gem.
 - Creates a test infrastructure based on `rspec`.
 - Your gem can be publicly released to `rubygems.org`.
 - Optionally create the gem as:

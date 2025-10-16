@@ -148,7 +148,7 @@ module Nugem
 
       tp = ': ' + @filter_params.map { |x| "'#{x}_value'" }.join(', ') unless @filter_params.empty?
       append_to_file "#{@options[:output_directory]}/demo/index.html",
-                     Cli.add_filter_example(filter_name, tp)
+                     JekyllDemo.add_filter_example(filter_name, tp)
     end
 
     def create_jekyll_generator_scaffold(generator_name)

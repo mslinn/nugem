@@ -1,5 +1,6 @@
 require 'jekyll_plugin_support'
 require 'helper/jekyll_plugin_helper'
+require_relative '<%= gem_name %>_module'
 require_relative '<%= gem_name %>/version'
 
 # See https://www.mslinn.com/jekyll/10200-jekyll-plugin-background.html
@@ -7,21 +8,23 @@ require_relative '<%= gem_name %>/version'
 #
 # @example Heading for this example
 #   Describe what this example does
-#   {% my_block_tag param1="value1" %}
+#   {% <%= @block_name %> param1="value1" %}
 #     Hello, world!
-#   {% endmy_block_tag %}
+#   {% end<%= @block_name %> %}
 #
 # The Jekyll log level defaults to :info, which means all the Jekyll.logger statements below will not generate output.
 # You can control the log level when you start Jekyll.
-# To set the log level to :debug, write an entery into _config.yml, like this:
+# To set the log level to :debug, write an entry into _config.yml, like this:
 # plugin_loggers:
 #   <%= @jekyll_class_name %>: debug
 
 module <%= @class_name %>
-  # This class implements the Jekyll <%= @tag_name %> functionality
+  <%= @class_name %>Error = ::JekyllSupport.define_error unless const_defined?(:<%= @class_name %>Error)
+
+  # This class implements the Jekyll <%= @block_name %> functionality
   class <%= @jekyll_class_name %> < JekyllSupport::JekyllBlock
     # Defines class methods, see https://mslinn.com/jekyll/10700-designing-for-testability.html:
-    extend <%= @jekyll_class_name %>Module
+    extend <%= @class_name %>Module
 
     PLUGIN_NAME = '<%= @block_name %>'.freeze
     VERSION = <%= @class_name %>::VERSION

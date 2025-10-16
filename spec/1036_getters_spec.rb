@@ -14,7 +14,7 @@ RSpec.describe 'Getters' do
 
   describe 'Nugem getters' do
     it 'reads values from constructed context' do
-      result = cb.render 'User: <%= repository.user_name %>'
+      result = cb.result 'User: <%= repository.user_name %>'
       expect(result).to eq('User: Mike Slinn')
     end
   end

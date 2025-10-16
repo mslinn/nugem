@@ -1,4 +1,7 @@
 require 'optparse'
+require 'rainbow/refinement'
+
+using Rainbow
 
 module Nugem
   SubCmd = Struct.new(:name, :common_parser_proc) unless defined?(SubCmd)
@@ -110,6 +113,10 @@ module Nugem
       @nop_control.argv
     end
 
+    def options
+      @nop_control.default_option_hash
+    end
+
     private
 
     def complain
@@ -158,7 +165,8 @@ module Nugem
       options
     rescue OptionParser::InvalidOption => e
       puts "Error: #{e.message}".red
-      exit! 1
+      exit! 1 if @errors_are_fatal
+      options
     end
 
     # Reads nop_control and writes @nop_control.default_option_hash
