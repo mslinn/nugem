@@ -1,6 +1,9 @@
 require 'fileutils'
+require 'rainbow/refinement'
 require 'sod'
 require 'sod/types/pathname'
+
+using Rainbow
 
 # Procs are defined separately; this file just contains high-level logic
 module Nugem

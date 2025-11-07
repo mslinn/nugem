@@ -1,3 +1,7 @@
+require 'rainbow/refinement'
+
+using Rainbow
+
 # Nugem::Repository contains informations about the git repository and the git user
 module Nugem
   class Repository
