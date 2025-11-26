@@ -65,9 +65,18 @@ module Nugem
 
     def compute_output_directory
       my_gems = ENV.fetch('my_gems', nil)
-      out_dir = my_gems ? File.join(my_gems, @options[:gem_name]) : @options[:out_dir]
+      # FIXME: command-line has not been parsed yet so it has not yet overriden the value of @options[:out_dir] with
+      # the user-supplied -o value from the command line
+      # Command-line -o option has precedence over env var, which has precedence over default
+      out_dir = @options[:out_dir] || (my_gems && File.join(my_gems, @options[:gem_name]))
       @options[:my_gems] = my_gems
       @options[:output_directory] = out_dir
+      warn <<~END_MSG
+        DEBUG compute_output_directory:
+          my_gems=#{my_gems}
+          @options[:out_dir]=#{@options[:out_dir]}
+          @options[:output_directory]=#{@options[:output_directory]}
+      END_MSG
     end
 
     # Constructor for NestedOptionParser using this instance's state.
@@ -97,6 +106,11 @@ module Nugem
     # Only generate output if loglevel is info or lower
     # @return [String] Human-friendly description of options in force
     def prepare_and_report
+      # Ensure output_directory reflects the final out_dir value (which may have been updated from command line)
+      compute_output_directory
+
+      warn "DEBUG prepare_and_report: @options[:out_dir]=#{@options[:out_dir].inspect}, @options[:output_directory]=#{@options[:output_directory].inspect}"
+
       dir = @options[:out_dir]
       overwrite = @options[:overwrite]
       show_log_level_info = LOGLEVELS.index(@options[:loglevel]) <= LOGLEVELS.index('info')

@@ -8,6 +8,20 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 cd "$SCRIPT_DIR/.."
 pwd
 
+cleanup() {
+  if [ "$1" ]; then
+    echo "Killing Jekyll process $1"
+    kill -9 $1
+    echo "Killed Jekyll process $1"
+  fi
+
+  if [ -d "/tmp/nugem_test" ]; then
+      echo "Removing /tmp/nugem_test directory"
+      rm -rf /tmp/nugem_test
+      echo "Deleted /tmp/nugem_test directory."
+  fi
+}
+
 install_nugem() {
   if ! command -v nugem &> /dev/null; then
     if [ ! -f "Rakefile" ]; then
@@ -86,11 +100,11 @@ test_jekyll_option() {
       run_demo
       run_code
       read -p "Make changes to Nugem now, then press Enter to continue..."
-      bin/cleanup $JEKYLL_PID
+      cleanup $JEKYLL_PID
     popd
 
     read -p "Retry the same test (Y/n)? " -i 'y' yn
-    echo # Move to a new line after reading input
+    echo # Newline after reading input
     if [[ "$yn" =~ ^[Yy] ]]; then break; fi
   done
   return 0

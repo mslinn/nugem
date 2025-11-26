@@ -63,7 +63,7 @@
         "VO_DEBUGGING": "true"
       },
       "name": "Nugem overwrite /tmp/nugem_test",
-      "script": "${workspaceFolder}/exe/nugem ruby test -o /tmp/nugem_test --force",
+      "script": "${workspaceFolder}/exe/nugem jekyll test -o /tmp/nugem_test --force",
       "request": "launch",
       "type": "rdbg",
       "useBundler": true,
