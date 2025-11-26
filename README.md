@@ -307,7 +307,6 @@ $ bin/rspec spec/template_spec.rb
 ```
 
 
-
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/mslinn/nugem.
