@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# test_jekyll - Test Jekyll plugin-related Nugem options interactively
+
+set -e
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+cd "$SCRIPT_DIR/.."
+pwd
+
+install_nugem() {
+  if ! command -v nugem &> /dev/null; then
+    if [ ! -f "Rakefile" ]; then
+      echo "Error: Rakefile not found. Please run this script from the nugem project directory."
+      exit 1
+    fi
+    echo "Installing nugem"
+    rake install
+
+    if [ $? -ne 0 ]; then
+      echo "Error: Failed to install nugem."
+      exit 1
+    fi
+  fi
+}
+
+run_code() {
+  if command -v code &> /dev/null; then
+    code /tmp/nugem_test
+  else
+    echo "Warning: Visual Studio Code 'code' command not found"
+  fi
+}
+
+run_demo() {
+  if [ -d "demo" ]; then
+      pushd demo
+      echo "Launching the demo Jekyll server from ${PWD} in the background"
+      bundle exec jekyll serve --host 0.0.0.0 --port 4321 > /tmp/jekyll_server.log 2>&1 &
+      JEKYLL_PID=$!
+      echo "Jekyll server running at http://localhost:4321 with PID $JEKYLL_PID"
+      sleep 3
+      echo "Press Enter when you are done inspecting the website so it can be deleted"
+      read -u 3 -p ""
+
+      # Kill the Jekyll server
+      echo "Stopping the Jekyll server running from ${PWD}..."
+      kill $JEKYLL_PID 2>/dev/null || true
+      wait $JEKYLL_PID 2>/dev/null || true
+      popd
+  else
+      echo "Warning: ${PWD} does not contain a demo/ subdirectory"
+  fi
+}
+
+run_nugem() {
+  default_command="nugem jekyll test_plugin -f -o /tmp/nugem_test $option_flag"
+  # Let the user edit the line with full readline support (arrow keys, history, etc.)
+  read -e -i "$default_command" user_command
+  eval "$user_command"
+}
+
+setup() {
+  echo "Running bin/setup"
+  if [ -f "bin/setup" ]; then
+    bin/setup
+  else
+    echo "Warning: bin/setup not found"
+  fi
+}
+
+test_jekyll_option() {
+  local option_name="$1"
+  local option_flag="$2"
+
+  if [ -d "/tmp/nugem_test" ]; then
+    echo "Removing the previous test"
+    rm -rf /tmp/nugem_test
+  fi
+
+  while true; do
+    run_nugem
+    pushd /tmp/nugem_test
+      setup
+      unit_tests
+      run_demo
+      run_code
+      read -p "Make changes to Nugem now, then press Enter to continue..."
+      bin/cleanup $JEKYLL_PID
+    popd
+
+    read -p "Retry the same test (Y/n)? " -i 'y' yn
+    echo # Move to a new line after reading input
+    if [[ "$yn" =~ ^[Yy] ]]; then break; fi
+  done
+  return 0
+}
+
+unit_tests() {
+  echo "Running unit tests (binstub/rspec)"
+  if [ -f "binstub/rspec" ]; then
+    binstub/rspec
+  else
+    echo "Warning: binstub/rspec test runner not found"
+  fi
+  if [ $? -ne 0 ]; then
+      echo ""
+      echo "ERROR: Unit tests failed. Halting."
+      exit 1
+  fi
+}
+
+main() {
+  cat << EOF
+This script tests each Jekyll plugin-related Nugem option:
+  --block, --blockn, --filter, --hooks, --tag, --tagn
+
+For each option, the script will:
+  - present the nugem command with the option to the user so they can modify the command line
+  - Allow user interaction with the command (user input)
+  - Verify the generated project (setup, tests, demo, VS Code)
+  - Allow user to fix errors in the nugem program
+
+EOF
+
+  install_nugem
+
+  test_jekyll_option "block"  "--block=test"
+  test_jekyll_option "blockn" "--blockn=test"
+  test_jekyll_option "filter" "--filter=test"
+  test_jekyll_option "hooks"  "--hooks"
+  test_jekyll_option "tag"    "--tag=test"
+  test_jekyll_option "tagn"   "--tagn=test"
+
+  echo ""
+  echo "All Jekyll plugin options have been tested"
+  echo "Run cleanup.sh to clean up the test environment if needed."
+}
+
+main
